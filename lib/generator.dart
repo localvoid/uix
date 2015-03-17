@@ -33,8 +33,9 @@ class UixGenerator extends GeneratorForAnnotation<ComponentMeta> {
     final dataElement = classArguments[0].element;
     var dataClassName = classArguments[0].name;
     if (dataElement is ClassElement) {
-      final i = element.library.imports.firstWhere((e) => e.importedLibrary == dataElement.library);
-      if (i.prefix != null) {
+      final i = element.library.imports.firstWhere((e) => e.importedLibrary == dataElement.library,
+          orElse: () => null);
+      if (i != null && i.prefix != null) {
         dataClassName = '${i.prefix.name}.$dataClassName';
       }
     }
