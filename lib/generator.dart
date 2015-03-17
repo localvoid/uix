@@ -21,7 +21,7 @@ class UixGenerator extends GeneratorForAnnotation<ComponentMeta> {
       final friendlyName = frieldlyNameForElement(element);
       throw new InvalidGenerationSourceError(
           'Generator cannot target `$friendlyName`.',
-          todo: 'Remove the JsonSerializable annotation from `$friendlyName`.');
+          todo: 'Remove the ComponentMeta annotation from `$friendlyName`.');
     }
 
     final classElement = element as ClassElement;
