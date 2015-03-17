@@ -82,6 +82,12 @@ class VNode {
         c.add(type);
       }
 
+      if (attrs != null) {
+        attrs.forEach((k, v) {
+          r.attributes[k] = v;
+        });
+      }
+
       if (style != null) {
         style.forEach((k, v) {
           r.style.setProperty(k, v);
@@ -131,9 +137,9 @@ class VNode {
       }
 
       if ((flags & componentFlag) != 0) {
+        other.cref = cref;
         if ((flags & dirtyCheckFlag) != 0) {
           bool dirty = false;
-          other.cref = cref;
           if (data != null && data != other.data) {
             cref.data = other.data;
             dirty = true;
@@ -147,6 +153,10 @@ class VNode {
             cref.update();
           }
         } else {
+          cref.data = other.data;
+          if (children != null && children != other.children) {
+            cref.children = children;
+          }
           cref.flags |= Component.dirtyFlag;
           cref.update();
         }
