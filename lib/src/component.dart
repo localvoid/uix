@@ -13,7 +13,6 @@ import 'env.dart';
 abstract class Component<P> implements VContext {
   static const dirtyFlag = 1;
   static const attachedFlag = 1 << 1;
-  static const domAttachedFlag = 1 << 2;
 
   String get tag => 'div';
 
