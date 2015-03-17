@@ -48,7 +48,6 @@ abstract class Component<P> implements VContext {
 
   bool get isDirty => (flags & dirtyFlag) != 0;
   bool get isAttached => (flags & attachedFlag) != 0;
-  bool get isDomAttached => (flags & domAttachedFlag) != 0;
 
   Component() {
     element = html.document.createElement(tag);
