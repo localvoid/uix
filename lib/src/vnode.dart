@@ -15,6 +15,7 @@ class VNode {
   static const int componentFlag = 1 << 2;
   static const int rootFlag = 1 << 3;
   static const int svgFlag = 1 << 4;
+  static const int dirtyCheckFlag = 1 << 5;
 
   final int flags;
   final Object key;
@@ -34,9 +35,8 @@ class VNode {
   VNode.element(this.tag, {this.key, this.type, this.attrs, this.style,
       this.classes, this.children})
       : flags = elementFlag;
-  VNode.component(this.tag, {this.key, this.data, this.type, this.attrs, this.style,
-      this.classes, this.children})
-      : flags = componentFlag;
+  VNode.component(this.tag, {this.flags: componentFlag, this.key, this.data,
+      this.type, this.attrs, this.style, this.classes, this.children});
   VNode.root({this.type, this.attrs, this.style, this.classes, this.children})
       : flags = rootFlag, key = null, tag = null;
 
@@ -131,17 +131,22 @@ class VNode {
       }
 
       if ((flags & componentFlag) != 0) {
-        bool dirty = false;
-        other.cref = cref;
-        if (data != null && data != other.data) {
-          cref.data = other.data;
-          dirty = true;
-        }
-        if (children != null && children != other.children) {
-          cref.children = children;
-          dirty = true;
-        }
-        if (dirty) {
+        if ((flags & dirtyCheckFlag) != 0) {
+          bool dirty = false;
+          other.cref = cref;
+          if (data != null && data != other.data) {
+            cref.data = other.data;
+            dirty = true;
+          }
+          if (children != null && children != other.children) {
+            cref.children = children;
+            dirty = true;
+          }
+          if (dirty) {
+            cref.flags |= Component.dirtyFlag;
+            cref.update();
+          }
+        } else {
           cref.flags |= Component.dirtyFlag;
           cref.update();
         }

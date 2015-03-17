@@ -32,6 +32,10 @@ class UixGenerator extends GeneratorForAnnotation<ComponentMeta> {
 
     var dataClassName = classArguments[0].name;
 
+    var flags = 'VNode.componentFlag';
+    if (annotation.dirtyCheck) {
+      flags += ' | VNode.dirtyCheckFlag';
+    }
 
     final buffer = new StringBuffer();
 
@@ -40,7 +44,7 @@ class UixGenerator extends GeneratorForAnnotation<ComponentMeta> {
     buffer.writeln('    ..data = data;');
     buffer.writeln('  return r;');
     buffer.writeln('}');
-    buffer.writeln('VNode v$className({$dataClassName data, Object key, String type, Map<String, String> attrs, Map<String, String> style, List<String> classes, List<VNode> children}) => new VNode.component($createFnName, key: key, data: data, type: type, attrs: attrs, style: style, classes: classes, children: children);');
+    buffer.writeln('VNode v$className({$dataClassName data, Object key, String type, Map<String, String> attrs, Map<String, String> style, List<String> classes, List<VNode> children}) => new VNode.component($createFnName, flags: $flags, key: key, data: data, type: type, attrs: attrs, style: style, classes: classes, children: children);');
 
     return buffer.toString();
   }

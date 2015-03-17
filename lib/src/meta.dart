@@ -5,5 +5,7 @@
 library uix.src.meta;
 
 class ComponentMeta {
-  const ComponentMeta();
+  final bool dirtyCheck;
+
+  const ComponentMeta({this.dirtyCheck: true});
 }
