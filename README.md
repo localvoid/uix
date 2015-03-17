@@ -45,6 +45,7 @@ void main(List<String> args) {
 - [Timer](https://github.com/localvoid/uix/tree/master/example/timer)
 - [Collapsable](https://github.com/localvoid/uix/tree/master/example/collapsable)
 - [Form](https://github.com/localvoid/uix/tree/master/example/form)
+- [TodoMVC](https://github.com/localvoid/uix_todomvc/)
 
 ## DBMonster Benchmark
 
