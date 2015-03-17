@@ -30,7 +30,14 @@ class UixGenerator extends GeneratorForAnnotation<ComponentMeta> {
 
     final createFnName = 'create$className';
 
+    final dataElement = classArguments[0].element;
     var dataClassName = classArguments[0].name;
+    if (dataElement is ClassElement) {
+      final i = element.library.imports.firstWhere((e) => e.importedLibrary == dataElement.library);
+      if (i.prefix != null) {
+        dataClassName = '${i.prefix.name}.$dataClassName';
+      }
+    }
 
     var flags = 'VNode.componentFlag';
     if (annotation.dirtyCheck) {
