@@ -13,6 +13,7 @@ import 'env.dart';
 abstract class Component<P> implements VContext {
   static const dirtyFlag = 1;
   static const attachedFlag = 1 << 1;
+  static const shouldUpdateViewFlags = dirtyFlag | attachedFlag;
 
   String get tag => 'div';
 
@@ -57,7 +58,7 @@ abstract class Component<P> implements VContext {
   void init() {}
 
   void update() {
-    if ((flags & (dirtyFlag | attachedFlag)) == (dirtyFlag | attachedFlag)) {
+    if ((flags & shouldUpdateViewFlags) == shouldUpdateViewFlags) {
       if (updateState()) {
         updateView();
       }
@@ -74,12 +75,14 @@ abstract class Component<P> implements VContext {
     if ((flags & dirtyFlag) == 0) {
       flags |= dirtyFlag;
 
-      if (identical(Zone.current, scheduler.zone)) {
-        scheduler.nextFrame.write(depth).then(_invalidatedUpdate);
-      } else {
-        scheduler.zone.run(() {
+      if (!scheduler.isRunning) {
+        if (identical(Zone.current, scheduler.zone)) {
           scheduler.nextFrame.write(depth).then(_invalidatedUpdate);
-        });
+        } else {
+          scheduler.zone.run(() {
+            scheduler.nextFrame.write(depth).then(_invalidatedUpdate);
+          });
+        }
       }
       invalidated();
     }
