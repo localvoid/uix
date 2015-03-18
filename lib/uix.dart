@@ -9,6 +9,7 @@ library uix;
 
 export 'src/scheduler.dart';
 export 'src/env.dart';
+export 'src/vcontext.dart';
 export 'src/vnode.dart';
 export 'src/component.dart';
 export 'src/meta.dart';
