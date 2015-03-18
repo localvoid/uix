@@ -140,11 +140,11 @@ class VNode {
         other.cref = cref;
         if ((flags & dirtyCheckFlag) != 0) {
           bool dirty = false;
-          if (data != null && data != other.data) {
+          if (data != other.data) {
             cref.data = other.data;
             dirty = true;
           }
-          if (children != null && children != other.children) {
+          if (children != other.children) {
             cref.children = children;
             dirty = true;
           }
