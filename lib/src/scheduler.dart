@@ -203,19 +203,19 @@ class Scheduler {
             writeGroup._completer = null;
             _runTasks();
           }
-          if (_currentFrame._writeGroup != null) {
+          while (_currentFrame._writeGroup != null) {
             _currentFrame._writeGroup._completer.complete();
             _currentFrame._writeGroup = null;
             _runTasks();
           }
-        } while (wq.isNotEmpty || _currentFrame._writeGroup != null);
+        } while (wq.isNotEmpty);
 
         while (_currentFrame._readCompleter != null) {
           _currentFrame._readCompleter.complete();
           _currentFrame._readCompleter = null;
           _runTasks();
         }
-      } while (wq.isNotEmpty || _currentFrame._writeGroup != null);
+      } while (wq.isNotEmpty || (_currentFrame._writeGroup != null));
 
       if (_currentFrame._afterCompleter != null) {
         _currentFrame._afterCompleter.complete();
@@ -239,6 +239,7 @@ class Scheduler {
       clock++;
 
       _nextTickCompleter.complete();
+      _nextTickCompleter = null;
       _runTasks();
 
       clock++;
