@@ -207,7 +207,7 @@ class VNode {
 
   void attach() {
     attached();
-    if (children != null) {
+    if (((flags & componentFlag) == 0) && (children != null)) {
       for (var i = 0; i < children.length; i++) {
         children[i].attach();
       }
@@ -215,7 +215,7 @@ class VNode {
   }
 
   void detach() {
-    if (children != null) {
+    if (((flags & componentFlag) == 0) && (children != null)) {
       for (var i = 0; i < children.length; i++) {
         children[i].detach();
       }
