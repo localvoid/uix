@@ -2,26 +2,7 @@
 // AUTHORS file for details. All rights reserved. Use of this source code
 // is governed by a BSD-style license that can be found in the LICENSE file.
 
-/// DOM Scheduler for write and read tasks.
-///
-/// The scheduler algorithm is quite simple and looks like this:
-///
-/// ```dart
-/// while (writeTasks.isNotEmpty) {
-///   while (writeTasks.isNotEmpty) {
-///      writeTasks.removeFirst().start();
-///      runMicrotasks();
-///   }
-///   while (readTasks.isNotEmpty) {
-///     readTasks.removeFirst().start();
-///     runMicrotasks();
-///   }
-/// }
-/// while (afterTasks.isNotEmpty) {
-///   afterTasks.removeFirst().start();
-///   runMicrotasks();
-/// }
-/// ```
+/// Scheduler
 ///
 /// It will perform write and read tasks in batches until there are no
 /// write or read tasks left.
@@ -67,8 +48,8 @@ class Frame {
   static const int lowestPriority = (1 << 31) - 1;
 
   /// Write groups indexed by priority
-  List<_WriteGroup> _writeGroups = [];
-  _WriteGroup _lowestPriorityWriteGroup;
+  List<_WriteGroup> _prioWriteGroups = [];
+  _WriteGroup _writeGroup;
 
   HeapPriorityQueue<_WriteGroup> _writeQueue =
       new HeapPriorityQueue<_WriteGroup>();
@@ -80,24 +61,26 @@ class Frame {
   /// executing write tasks with this priority.
   Future write([int priority = lowestPriority]) {
     if (priority == lowestPriority) {
-      if (_lowestPriorityWriteGroup == null) {
-        _lowestPriorityWriteGroup = new _WriteGroup(lowestPriority);
-        _lowestPriorityWriteGroup._completer = new Completer();
+      if (_writeGroup == null) {
+        _writeGroup = new _WriteGroup(lowestPriority);
+        _writeGroup._completer = new Completer();
       }
-      return _lowestPriorityWriteGroup._completer.future;
+      return _writeGroup._completer.future;
     }
 
-    if (priority >= _writeGroups.length) {
-      var i = _writeGroups.length;
+    if (priority >= _prioWriteGroups.length) {
+      var i = _prioWriteGroups.length;
       while (i <= priority) {
-        _writeGroups.add(new _WriteGroup(i++));
+        _prioWriteGroups.add(new _WriteGroup(i++));
       }
     }
-    final g = _writeGroups[priority];
+
+    final g = _prioWriteGroups[priority];
     if (g._completer == null) {
       g._completer = new Completer();
       _writeQueue.add(g);
     }
+
     return g._completer.future;
   }
 
@@ -120,30 +103,33 @@ class Frame {
   }
 }
 
-/// [Scheduler] for write and read tasks.
+/// [Scheduler].
 class Scheduler {
-  // TODO: add (intrusive) lists for animation tasks
-  bool _running = false;
+  static const int runningFlag = 1;
+  static const int tickPendingFlag = 1 << 1;
+  static const int framePendingFlag = 1 << 2;
+
+  int flags = 0;
+  int clock = 0;
+
+  bool get isRunning => ((flags & runningFlag) != 0);
+
   Queue<Function> _currentTasks = new Queue<Function>();
 
   ZoneSpecification _zoneSpec;
   Zone _zone;
 
-  int _rafId = 0;
+  /// Scheduler [Zone].
+  Zone get zone => _zone;
+
   Frame _currentFrame = new Frame();
   Frame _nextFrame = new Frame();
 
-  Scheduler() {
-    _zoneSpec = new ZoneSpecification(scheduleMicrotask: _scheduleMicrotask);
-    _zone = Zone.current.fork(specification: _zoneSpec);
-  }
+  Completer _nextTickCompleter;
 
-  /// Scheduler [Zone]
-  Zone get zone => _zone;
-
-  /// [Frame] that contains tasks for the current animation frame
+  /// [Frame] that contains tasks for the current animation frame.
   Frame get currentFrame {
-    assert(_running);
+    assert(isRunning);
     return _currentFrame;
   }
 
@@ -153,8 +139,22 @@ class Scheduler {
     return _nextFrame;
   }
 
+  /// [Future] that will be completed on the next tick.
+  Future get nextTick {
+    if (_nextTickCompleter == null) {
+      _nextTickCompleter = new Completer();
+      _requestNextTick();
+    }
+    return _nextTickCompleter.future;
+  }
+
+  Scheduler() {
+    _zoneSpec = new ZoneSpecification(scheduleMicrotask: _scheduleMicrotask);
+    _zone = Zone.current.fork(specification: _zoneSpec);
+  }
+
   void _scheduleMicrotask(Zone self, ZoneDelegate parent, Zone zone, void f()) {
-    if (_running) {
+    if (isRunning) {
       _currentTasks.add(f);
     } else {
       parent.scheduleMicrotask(zone, f);
@@ -168,58 +168,95 @@ class Scheduler {
   }
 
   void _requestAnimationFrame() {
-    if (_rafId == 0) {
-      _rafId = html.window.requestAnimationFrame(_handleAnimationFrame);
+    if ((flags & framePendingFlag) == 0) {
+      html.window.requestAnimationFrame(_handleAnimationFrame);
+      flags |= framePendingFlag;
+    }
+  }
+
+  void _requestNextTick() {
+    if ((flags & tickPendingFlag) == 0) {
+      Zone.ROOT.scheduleMicrotask(_handleNextTick);
+      flags |= tickPendingFlag;
     }
   }
 
   void _handleAnimationFrame(num t) {
-    _rafId = 0;
+    if ((flags & framePendingFlag) == 0) {
+      return;
+    }
 
     _zone.run(() {
-      _running = true;
+      flags &= ~framePendingFlag;
+      flags |= runningFlag;
+
       final tmp = _currentFrame;
       _currentFrame = _nextFrame;
       _nextFrame = tmp;
       final wq = _currentFrame._writeQueue;
 
-      // TODO: refactor!
       do {
-        while (wq.isNotEmpty) {
-          final writeGroup = wq.removeFirst();
-          writeGroup._completer.complete();
-          _runTasks();
-          writeGroup._completer = null;
-        }
-        if (_currentFrame._lowestPriorityWriteGroup != null) {
-          _currentFrame._lowestPriorityWriteGroup._completer.complete();
-          _runTasks();
-          _currentFrame._lowestPriorityWriteGroup = null;
-        }
+        do {
+          while (wq.isNotEmpty) {
+            final writeGroup = wq.removeFirst();
+            writeGroup._completer.complete();
+            writeGroup._completer = null;
+            _runTasks();
+          }
+          if (_currentFrame._writeGroup != null) {
+            _currentFrame._writeGroup._completer.complete();
+            _currentFrame._writeGroup = null;
+            _runTasks();
+          }
+        } while (wq.isNotEmpty || _currentFrame._writeGroup != null);
 
-        if (_currentFrame._readCompleter != null) {
+        while (_currentFrame._readCompleter != null) {
           _currentFrame._readCompleter.complete();
-          _runTasks();
           _currentFrame._readCompleter = null;
+          _runTasks();
         }
-      } while (wq.isNotEmpty || _currentFrame._lowestPriorityWriteGroup != null);
+      } while (wq.isNotEmpty || _currentFrame._writeGroup != null);
 
       if (_currentFrame._afterCompleter != null) {
         _currentFrame._afterCompleter.complete();
         _runTasks();
         _currentFrame._afterCompleter = null;
       }
-      _running = false;
-    });
 
+      clock++;
+      flags &= ~runningFlag;
+    });
   }
 
-  /// Force [DOMScheduler] to run tasks for the [nextFrame].
+  void _handleNextTick() {
+    if ((flags & tickPendingFlag) == 0) {
+      return;
+    }
+
+    _zone.run(() {
+      flags &= ~framePendingFlag;
+      flags |= runningFlag;
+      clock++;
+
+      _nextTickCompleter.complete();
+      _runTasks();
+
+      clock++;
+      flags &= ~runningFlag;
+    });
+  }
+
+  /// Force [Scheduler] to run tasks for the [nextFrame].
   void forceNextFrame() {
-    if (_rafId != 0) {
-      html.window.cancelAnimationFrame(_rafId);
-      _rafId = 0;
+    if ((flags & framePendingFlag) != 0) {
       _handleAnimationFrame(html.window.performance.now());
+    }
+  }
+
+  /// Force [Scheduler] to run tasks for the next tick.
+  void forceNextTick() {
+    if ((flags & tickPendingFlag) != 0) {
+      _handleNextTick();
     }
   }
 }
