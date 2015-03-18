@@ -105,6 +105,7 @@ abstract class Component<P> extends DataNode with ListenerNode implements VConte
     if (_root != null) {
       _root.dispose();
     }
+    resetDependencies();
     disposed();
   }
 
