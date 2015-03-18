@@ -71,7 +71,7 @@ abstract class StoreNode extends DataNode with ObservableNode {
 }
 
 abstract class CacheNode extends DataNode with ObservableNode, ListenerNode {
-  bool isDirty = false;
+  bool isDirty = true;
 
   void invalidate() {
     if (!isDirty) {
@@ -85,4 +85,15 @@ abstract class CacheNode extends DataNode with ObservableNode, ListenerNode {
   }
 
   void invalidated() {}
+
+  void checkUpdates() {
+    if (isDirty) {
+      isDirty = false;
+      if (update()) {
+        rev = scheduler.clock;
+      }
+    }
+  }
+
+  bool update();
 }
