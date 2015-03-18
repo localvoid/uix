@@ -11,7 +11,7 @@ import 'package:uix/uix.dart';
 part 'main.g.dart';
 
 @ShallowEqOperator()
-class CounterProps extends CounterPropsShallowEqOperator {
+class CounterProps extends _CounterPropsShallowEqOperator {
   final int value;
 
   const CounterProps(this.value);

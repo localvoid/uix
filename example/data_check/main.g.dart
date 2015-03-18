@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 2015-03-18T13:03:33.345Z
+// 2015-03-18T13:08:28.838Z
 
 part of uix.example.timer.main;
 
@@ -8,9 +8,9 @@ part of uix.example.timer.main;
 // Target: class CounterProps
 // **************************************************************************
 
-abstract class CounterPropsShallowEqOperator {
+abstract class _CounterPropsShallowEqOperator {
   int get value;
-  const CounterPropsShallowEqOperator();
+  const _CounterPropsShallowEqOperator();
   bool operator ==(CounterProps other) =>
       (identical(this, other) || ((value == other.value)));
 }

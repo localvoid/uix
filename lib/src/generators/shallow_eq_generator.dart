@@ -33,7 +33,7 @@ class ShallowEqGenerator extends GeneratorForAnnotation<ShallowEqOperator> {
           return map;
         }) as Map<String, FieldElement>;
 
-    final mixinName = '${className}ShallowEqOperator';
+    final mixinName = '_${className}ShallowEqOperator';
 
     final buffer = new StringBuffer();
     buffer.writeln('abstract class $mixinName {');
