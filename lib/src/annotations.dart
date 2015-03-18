@@ -9,3 +9,7 @@ class ComponentMeta {
 
   const ComponentMeta({this.dirtyCheck: true});
 }
+
+class ShallowEqOperator {
+  const ShallowEqOperator();
+}
