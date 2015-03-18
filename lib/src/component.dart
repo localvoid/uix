@@ -96,10 +96,17 @@ abstract class Component<P> extends DataNode with ListenerNode implements VConte
 
   void invalidated() {}
 
-  void dispose() {}
 
   void attached() {}
   void detached() {}
+  void disposed() {}
+
+  void dispose() {
+    if (_root != null) {
+      _root.dispose();
+    }
+    disposed();
+  }
 
   void attach() {
     assert(!isAttached);
