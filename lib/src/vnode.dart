@@ -191,6 +191,11 @@ class VNode {
   }
 
   void dispose() {
+    if (children != null) {
+      for (var i = 0; i < children.length; i++) {
+        children[i].dispose();
+      }
+    }
     if ((flags & componentFlag) != 0) {
       cref.dispose();
     }
