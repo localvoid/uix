@@ -6,11 +6,12 @@ library uix.src.component;
 
 import 'dart:async';
 import 'dart:html' as html;
+import 'data/node.dart';
 import 'vcontext.dart';
 import 'vnode.dart';
 import 'env.dart';
 
-abstract class Component<P> implements VContext {
+abstract class Component<P> extends DataNode with ListenerNode implements VContext {
   static const dirtyFlag = 1;
   static const attachedFlag = 1 << 1;
   static const shouldUpdateViewFlags = dirtyFlag | attachedFlag;
@@ -62,6 +63,7 @@ abstract class Component<P> implements VContext {
       if (updateState()) {
         updateView();
       }
+      rev = scheduler.clock;
       flags &= ~dirtyFlag;
     }
   }
@@ -84,6 +86,8 @@ abstract class Component<P> implements VContext {
           });
         }
       }
+
+      resetDependencies();
       invalidated();
     }
   }

@@ -23,13 +23,19 @@ abstract class ObservableNode {
   }
 
   void removeListener(ListenerNode n) {
-    listeners[listeners.indexOf(n)] = listeners.last;
-    listeners.removeLast();
+    if (listeners != null) {
+      listeners[listeners.indexOf(n)] = listeners.last;
+      listeners.removeLast();
+    }
   }
 
   void invalidateListeners() {
-    for (var i = 0; i < listeners.length; i++) {
-      listeners[i].invalidate();
+    if (listeners != null) {
+      final tmp = listeners;
+      listeners = null;
+      for (var i = 0; i < tmp.length; i++) {
+        tmp[i].invalidate();
+      }
     }
   }
 }
@@ -50,6 +56,7 @@ abstract class ListenerNode {
       for (var i = 0; i < dependencies.length; i++) {
         dependencies[i].removeListener(this);
       }
+      dependencies = null;
     }
   }
 
@@ -59,11 +66,7 @@ abstract class ListenerNode {
 abstract class StoreNode extends DataNode with ObservableNode {
   void commit() {
     rev = scheduler.clock;
-    if (listeners != null) {
-      for (var i = 0; i < listeners.length; i++) {
-        listeners[i].invalidate();
-      }
-    }
+    invalidateListeners();
   }
 }
 
@@ -74,11 +77,9 @@ abstract class CacheNode extends DataNode with ObservableNode, ListenerNode {
     if (!isDirty) {
       isDirty = true;
 
-      invalidateListeners();
       resetDependencies();
+      invalidateListeners();
 
-      listeners = null;
-      dependencies = null;
       invalidated();
     }
   }
