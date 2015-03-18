@@ -124,15 +124,15 @@ class VNode {
         0) {
       final html.Element r = ref;
 
-      if (attrs != other.attrs) {
+      if (!identical(attrs, other.attrs)) {
         _updateMap(attrs, other.attrs, r.attributes);
       }
 
-      if (style != other.style) {
+      if (!identical(style, other.style)) {
         _updateStyle(style, other.style, r.style);
       }
 
-      if (classes != other.classes) {
+      if (!identical(classes, other.classes)) {
         _updateSet(classes, other.classes, r.classes);
       }
 
@@ -161,7 +161,7 @@ class VNode {
           cref.update();
         }
       } else {
-        if (children != other.children) {
+        if (!identical(children, other.children)) {
           updateChildren(this, children, other.children, context);
         }
       }
