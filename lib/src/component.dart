@@ -81,10 +81,13 @@ abstract class Component<P> implements VContext {
           scheduler.nextFrame.write(depth).then(_invalidatedUpdate);
         });
       }
+      invalidated();
     }
   }
 
   void _invalidatedUpdate(_) { update(); }
+
+  void invalidated() {}
 
   void dispose() {}
 

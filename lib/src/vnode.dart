@@ -151,6 +151,7 @@ class VNode {
           }
           if (dirty) {
             cref.flags |= Component.dirtyFlag;
+            cref.invalidated();
             cref.update();
           }
         } else {
@@ -159,6 +160,7 @@ class VNode {
             cref.children = children;
           }
           cref.flags |= Component.dirtyFlag;
+          cref.invalidated();
           cref.update();
         }
       } else {
