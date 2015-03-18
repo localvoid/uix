@@ -1,7 +1,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 2015-03-17T09:56:36.014Z
+// 2015-03-18T12:07:34.239Z
 
-part of uix.example.hello.main;
+part of uix.example.form.main;
 
 // **************************************************************************
 // Generator: UixGenerator

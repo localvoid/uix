@@ -1,7 +1,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 2015-03-17T09:42:41.378Z
+// 2015-03-18T12:07:12.623Z
 
-part of uix.example.hello.timer;
+part of uix.example.timer.main;
 
 // **************************************************************************
 // Generator: UixGenerator
