@@ -10,8 +10,16 @@ import 'package:uix/uix.dart';
 
 part 'main.g.dart';
 
-class Counter extends StoreNode {
-  int value = 0;
+class Counter {
+  StreamController _sc = new StreamController.broadcast();
+  Stream get onChange => _sc.stream;
+
+  int _value = 0;
+  int get value => _value;
+  set value(int v) {
+    _value = v;
+    _sc.add(null);
+  }
 }
 
 class CounterStore {
@@ -20,7 +28,6 @@ class CounterStore {
   CounterStore() {
     new Timer.periodic(const Duration(milliseconds: 200), (_) {
       counter.value++;
-      counter.commit();
     });
   }
 }
@@ -33,7 +40,7 @@ class CounterView extends Component {
 
   updateState() {
     final c = store.counter;
-    listen(c);
+    addSubscriptionOneShot(c.onChange.listen(invalidate));
     if (_counter != c.value) {
       _counter = c.value;
       return true;

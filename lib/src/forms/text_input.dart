@@ -13,7 +13,7 @@ part 'text_input.g.dart';
 class TextInput extends Component<String> {
   String get tag => 'input';
 
-  void update() {
+  void update([_]) {
     if ((flags & (Component.dirtyFlag | Component.attachedFlag)) ==
         (Component.dirtyFlag | Component.attachedFlag)) {
       final html.InputElement e = element;

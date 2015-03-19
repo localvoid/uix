@@ -11,7 +11,7 @@ import 'vcontext.dart';
 import 'vnode.dart';
 import 'env.dart';
 
-abstract class Component<P> extends DataNode with ListenerNode implements VContext {
+abstract class Component<P> extends RevisionedNode with StreamListenerNode implements VContext {
   static const dirtyFlag = 1;
   static const attachedFlag = 1 << 1;
   static const shouldUpdateViewFlags = dirtyFlag | attachedFlag;
@@ -58,12 +58,12 @@ abstract class Component<P> extends DataNode with ListenerNode implements VConte
 
   void init() {}
 
-  void update() {
+  void update([_]) {
     if ((flags & shouldUpdateViewFlags) == shouldUpdateViewFlags) {
       if (updateState()) {
         updateView();
       }
-      rev = scheduler.clock;
+      updateRev();
       flags &= ~dirtyFlag;
     }
   }
@@ -73,29 +73,26 @@ abstract class Component<P> extends DataNode with ListenerNode implements VConte
 
   VNode build() => null;
 
-  void invalidate() {
+  void invalidate([_]) {
     if ((flags & dirtyFlag) == 0) {
       flags |= dirtyFlag;
 
       if (!scheduler.isRunning) {
         if (identical(Zone.current, scheduler.zone)) {
-          scheduler.nextFrame.write(depth).then(_invalidatedUpdate);
+          scheduler.nextFrame.write(depth).then(update);
         } else {
           scheduler.zone.run(() {
-            scheduler.nextFrame.write(depth).then(_invalidatedUpdate);
+            scheduler.nextFrame.write(depth).then(update);
           });
         }
       }
 
-      resetDependencies();
+      resetSubscriptionsOneShot();
       invalidated();
     }
   }
 
-  void _invalidatedUpdate(_) { update(); }
-
   void invalidated() {}
-
 
   void attached() {}
   void detached() {}
@@ -105,7 +102,8 @@ abstract class Component<P> extends DataNode with ListenerNode implements VConte
     if (_root != null) {
       _root.dispose();
     }
-    resetDependencies();
+    resetSubscriptionsOneShot();
+    resetSubscriptions();
     disposed();
   }
 

@@ -4,96 +4,51 @@
 
 library uix.src.data.node;
 
+import 'dart:async';
 import '../env.dart';
 
-abstract class DataNode {
-  int rev = 0;
+abstract class RevisionedNode {
+  int _rev = 0;
+  int get rev => _rev;
 
-  bool isNewer(DataNode other) => rev > other.rev;
+  void updateRev() { _rev = scheduler.clock; }
+
+  bool isNewer(RevisionedNode other) => _rev > other._rev;
 }
 
-abstract class ObservableNode {
-  List<ListenerNode> listeners;
+abstract class StreamListenerNode {
+  List<StreamSubscription> _subscriptions;
+  List<StreamSubscription> _subscriptionsOneShot;
 
-  void addListener(ListenerNode n) {
-    if (listeners == null) {
-      listeners = [];
+  void addSubscription(StreamSubscription s) {
+    if (_subscriptions == null) {
+      _subscriptions = <StreamSubscription>[];
     }
-    listeners.add(n);
+    _subscriptions.add(s);
   }
 
-  void removeListener(ListenerNode n) {
-    if (listeners != null) {
-      listeners[listeners.indexOf(n)] = listeners.last;
-      listeners.removeLast();
-    }
-  }
-
-  void invalidateListeners() {
-    if (listeners != null) {
-      final tmp = listeners;
-      listeners = null;
-      for (var i = 0; i < tmp.length; i++) {
-        tmp[i].invalidate();
+  void resetSubscriptions() {
+    if (_subscriptions != null) {
+      for (var i = 0; i < _subscriptions.length; i++) {
+        _subscriptions[i].cancel();
       }
+      _subscriptions = null;
     }
   }
-}
 
-abstract class ListenerNode {
-  List<ObservableNode> dependencies;
-
-  void listen(ObservableNode n) {
-    if (dependencies == null) {
-      dependencies = [];
+  void addSubscriptionOneShot(StreamSubscription s) {
+    if (_subscriptionsOneShot == null) {
+      _subscriptionsOneShot = <StreamSubscription>[];
     }
-    dependencies.add(n);
-    n.addListener(this);
+    _subscriptionsOneShot.add(s);
   }
 
-  void resetDependencies() {
-    if (dependencies != null) {
-      for (var i = 0; i < dependencies.length; i++) {
-        dependencies[i].removeListener(this);
+  void resetSubscriptionsOneShot() {
+    if (_subscriptionsOneShot != null) {
+      for (var i = 0; i < _subscriptionsOneShot.length; i++) {
+        _subscriptionsOneShot[i].cancel();
       }
-      dependencies = null;
+      _subscriptionsOneShot = null;
     }
   }
-
-  void invalidate();
-}
-
-abstract class StoreNode extends DataNode with ObservableNode {
-  void commit() {
-    rev = scheduler.clock;
-    invalidateListeners();
-  }
-}
-
-abstract class CacheNode extends DataNode with ObservableNode, ListenerNode {
-  bool isDirty = true;
-
-  void invalidate() {
-    if (!isDirty) {
-      isDirty = true;
-
-      resetDependencies();
-      invalidateListeners();
-
-      invalidated();
-    }
-  }
-
-  void invalidated() {}
-
-  void checkUpdates() {
-    if (isDirty) {
-      isDirty = false;
-      if (update()) {
-        rev = scheduler.clock;
-      }
-    }
-  }
-
-  bool update();
 }
