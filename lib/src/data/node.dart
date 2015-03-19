@@ -18,7 +18,7 @@ abstract class RevisionedNode {
 
 abstract class StreamListenerNode {
   List<StreamSubscription> _subscriptions;
-  List<StreamSubscription> _subscriptionsOneShot;
+  List<StreamSubscription> _transientSubscriptions;
 
   void addSubscription(StreamSubscription s) {
     if (_subscriptions == null) {
@@ -36,19 +36,19 @@ abstract class StreamListenerNode {
     }
   }
 
-  void addSubscriptionOneShot(StreamSubscription s) {
-    if (_subscriptionsOneShot == null) {
-      _subscriptionsOneShot = <StreamSubscription>[];
+  void addTransientSubscription(StreamSubscription s) {
+    if (_transientSubscriptions == null) {
+      _transientSubscriptions = <StreamSubscription>[];
     }
-    _subscriptionsOneShot.add(s);
+    _transientSubscriptions.add(s);
   }
 
-  void resetSubscriptionsOneShot() {
-    if (_subscriptionsOneShot != null) {
-      for (var i = 0; i < _subscriptionsOneShot.length; i++) {
-        _subscriptionsOneShot[i].cancel();
+  void resetTransientSubscriptions() {
+    if (_transientSubscriptions != null) {
+      for (var i = 0; i < _transientSubscriptions.length; i++) {
+        _transientSubscriptions[i].cancel();
       }
-      _subscriptionsOneShot = null;
+      _transientSubscriptions = null;
     }
   }
 }

@@ -40,7 +40,7 @@ class CounterView extends Component {
 
   updateState() {
     final c = store.counter;
-    addSubscriptionOneShot(c.onChange.listen(invalidate));
+    addTransientSubscription(c.onChange.listen(invalidate));
     if (_counter != c.value) {
       _counter = c.value;
       return true;

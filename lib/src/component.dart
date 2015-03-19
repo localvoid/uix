@@ -87,7 +87,7 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
         }
       }
 
-      resetSubscriptionsOneShot();
+      resetTransientSubscriptions();
       invalidated();
     }
   }
@@ -102,7 +102,7 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
     if (_root != null) {
       _root.dispose();
     }
-    resetSubscriptionsOneShot();
+    resetTransientSubscriptions();
     resetSubscriptions();
     disposed();
   }
