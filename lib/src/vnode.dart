@@ -263,7 +263,7 @@ class VNode {
       }
       b.write('</$tag>');
     } else if ((flags & componentFlag) != 0) {
-      //return cref.writeHtmlString(b, this);
+      return cref.writeHtmlString(b, this);
     }
   }
 }
