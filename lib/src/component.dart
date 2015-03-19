@@ -102,8 +102,10 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
     if (_root != null) {
       _root.dispose();
     }
-    flags &= ~attachedFlag;
-    detached();
+    if (isAttached) {
+      flags &= ~attachedFlag;
+      detached();
+    }
     resetTransientSubscriptions();
     resetSubscriptions();
     disposed();
