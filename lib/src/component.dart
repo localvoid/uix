@@ -128,4 +128,64 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
     flags &= ~attachedFlag;
     detached();
   }
+
+  void writeHtmlString(StringBuffer b, [VNode p]) {
+    b.write('<$tag');
+    if (p != null || root != null) {
+      if (p != null && p.attrs != null) {
+        writeAttrsToHtmlString(b, p.attrs);
+      }
+      if (root != null && root.attrs != null) {
+        writeAttrsToHtmlString(b, root.attrs);
+      }
+    }
+    if ((p != null && (p.type != null || (p.classes != null && p.classes.isNotEmpty)))
+        || (root != null && (root.type != null || (root.classes != null && root.classes.isNotEmpty)))) {
+      b.write(' class="');
+      bool off = false;
+      if (p.type != null) {
+        b.write(p.type);
+        off = true;
+      }
+      if (p != null && p.classes != null && p.classes.isNotEmpty) {
+        if (off) {
+          b.write(' ');
+        }
+        writeClassesToHtmlString(b, p.classes);
+        off = true;
+      }
+      if (root != null && root.type != null) {
+        if (off) {
+          b.write(' ');
+        }
+        b.write(root.type);
+        off = true;
+      }
+      if (root != null && root.classes != null && root.classes.isNotEmpty) {
+        if (off) {
+          b.write(' ');
+        }
+        writeClassesToHtmlString(b, root.classes);
+      }
+      b.write('"');
+    }
+    if ((p != null && p.style != null && p.style.isNotEmpty)
+        || (root != null && root.style != null && root.style.isNotEmpty)) {
+      b.write(' style="');
+      if (p != null && p.style != null && p.style.isNotEmpty) {
+        writeStyleToHtmlString(b, p.style);
+      }
+      if (root != null && root.style != null && root.style.isNotEmpty) {
+        writeStyleToHtmlString(b, root.style);
+      }
+      b.write('"');
+    }
+    b.write('>');
+    if (children != null) {
+      for (var i = 0; i < children.length; i++) {
+        children[i].writeHtmlString(b);
+      }
+    }
+    b.write('</$tag>');
+  }
 }

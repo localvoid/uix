@@ -1389,4 +1389,118 @@ void main() {
       expect((f.firstChild as html.Element).classes.contains('1'), isTrue);
     });
   });
+
+  group('To Html String', () {
+    group(('Basic nodes'), () {
+      test('simple text', () {
+        final b = new StringBuffer();
+        vText('Hello Test').writeHtmlString(b);
+        expect(b.toString(), equals('Hello Test'));
+      });
+
+      test('div element', () {
+        final b = new StringBuffer();
+        ve('div').writeHtmlString(b);
+        expect(b.toString(), equals('<div></div>'));
+      });
+
+      test('span element', () {
+        final b = new StringBuffer();
+        ve('span').writeHtmlString(b);
+        expect(b.toString(), equals('<span></span>'));
+      });
+
+      test('span element with text', () {
+        final b = new StringBuffer();
+        ve('span')('test').writeHtmlString(b);
+        expect(b.toString(), equals('<span>test</span>'));
+      });
+
+      test('div element with 2 children', () {
+        final b = new StringBuffer();
+        ve('div')([ve('span'), ve('img')]).writeHtmlString(b);
+        expect(b.toString(), equals('<div><span></span><img></img></div>'));
+      });
+    });
+
+    group(('Attributes'), () {
+      test('{}', () {
+        final b = new StringBuffer();
+        ve('div', attrs: {}).writeHtmlString(b);
+        expect(b.toString(), equals('<div></div>'));
+      });
+
+      test('{a: 1}', () {
+        final b = new StringBuffer();
+        ve('div', attrs: {'a': '1'}).writeHtmlString(b);
+        expect(b.toString(), equals('<div a="1"></div>'));
+      });
+
+      test('{a: 1, b: 2, c: 3}', () {
+        final b = new StringBuffer();
+        ve('div', attrs: {'a': '1', 'b': '2', 'c': '3'}).writeHtmlString(b);
+        expect(b.toString(), equals('<div a="1" b="2" c="3"></div>'));
+      });
+    });
+
+    group(('Style'), () {
+      test('{}', () {
+        final b = new StringBuffer();
+        ve('div', style: {}).writeHtmlString(b);
+        expect(b.toString(), equals('<div></div>'));
+      });
+
+      test('{top: 10px}', () {
+        final b = new StringBuffer();
+        ve('div', style: {'top': '10px'}).writeHtmlString(b);
+        expect(b.toString(), equals('<div style="top: 10px;"></div>'));
+      });
+
+      test('{top: 10px, left: 20px, right: 30px}', () {
+        final b = new StringBuffer();
+        ve('div', style: {'top': '10px', 'left': '20px', 'right': '30px'}).writeHtmlString(b);
+        expect(b.toString(), equals('<div style="top: 10px;left: 20px;right: 30px;"></div>'));
+      });
+    });
+
+    group(('Type'), () {
+      test('a', () {
+        final b = new StringBuffer();
+        ve('div', type: 'a').writeHtmlString(b);
+        expect(b.toString(), equals('<div class="a"></div>'));
+      });
+
+      test('a []', () {
+        final b = new StringBuffer();
+        ve('div', type: 'a', classes: []).writeHtmlString(b);
+        expect(b.toString(), equals('<div class="a"></div>'));
+      });
+
+      test('a [b, c]', () {
+        final b = new StringBuffer();
+        ve('div', type: 'a', classes: ['b', 'c']).writeHtmlString(b);
+        expect(b.toString(), equals('<div class="a b c"></div>'));
+      });
+    });
+
+    group(('Classes'), () {
+      test('[]', () {
+        final b = new StringBuffer();
+        ve('div', classes: []).writeHtmlString(b);
+        expect(b.toString(), equals('<div></div>'));
+      });
+
+      test('[a]', () {
+        final b = new StringBuffer();
+        ve('div', classes: ['a']).writeHtmlString(b);
+        expect(b.toString(), equals('<div class="a"></div>'));
+      });
+
+      test('[a, b, c]', () {
+        final b = new StringBuffer();
+        ve('div', classes: ['a', 'b', 'c']).writeHtmlString(b);
+        expect(b.toString(), equals('<div class="a b c"></div>'));
+      });
+    });
+  });
 }

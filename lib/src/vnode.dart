@@ -228,6 +228,44 @@ class VNode {
       cref.detach();
     }
   }
+
+  void writeHtmlString(StringBuffer b) {
+    if ((flags & textFlag) != 0) {
+      b.write(data as String);
+    } else if ((flags & elementFlag) != 0) {
+      b.write('<$tag');
+      if (attrs != null) {
+        writeAttrsToHtmlString(b, attrs);
+      }
+      if (type != null || (classes != null && classes.isNotEmpty)) {
+        b.write(' class="');
+        if (type != null) {
+          b.write(type);
+        }
+        if (classes != null && classes.isNotEmpty) {
+          if (type != null) {
+            b.write(' ');
+          }
+          writeClassesToHtmlString(b, classes);
+        }
+        b.write('"');
+      }
+      if (style != null && style.isNotEmpty) {
+        b.write(' style="');
+        writeStyleToHtmlString(b, style);
+        b.write('"');
+      }
+      b.write('>');
+      if (children != null) {
+        for (var i = 0; i < children.length; i++) {
+          children[i].writeHtmlString(b);
+        }
+      }
+      b.write('</$tag>');
+    } else if ((flags & componentFlag) != 0) {
+      //return cref.writeHtmlString(b, this);
+    }
+  }
 }
 
 void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context) {
@@ -847,3 +885,22 @@ void _updateSet(List a, List b, Set n) {
   return null;
 }
 
+void writeAttrsToHtmlString(StringBuffer b, Map<String, String> attrs) {
+  attrs.forEach((k, v) {
+    b.write(' $k="$v"');
+  });
+}
+
+void writeStyleToHtmlString(StringBuffer b, Map<String, String> attrs) {
+  attrs.forEach((k, v) {
+    b.write('$k: $v;');
+  });
+}
+
+void writeClassesToHtmlString(StringBuffer b, List<String> classes) {
+  b.write(classes.first);
+  for (var i = 1; i < classes.length; i++) {
+    b.write(' ');
+    b.write(classes[i]);
+  }
+}
