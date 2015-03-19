@@ -19,7 +19,7 @@ class CounterProps extends _CounterPropsShallowEqOperator {
 
 @ComponentMeta()
 class Counter extends Component<CounterProps> {
-  String get tag => 'p';
+  final tag = 'p';
 
   build() => vRoot()('value: ${data.value}');
 }

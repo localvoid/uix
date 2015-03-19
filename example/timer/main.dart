@@ -12,7 +12,7 @@ part 'main.g.dart';
 
 @ComponentMeta()
 class Main extends Component<int> {
-  String get tag => 'p';
+  final tag = 'p';
 
   String get elapsedSeconds => (data / 1000).toStringAsFixed(1);
 
