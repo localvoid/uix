@@ -186,9 +186,6 @@ class VNode {
 
   void removeChild(VNode node, bool attached) {
     node.ref.remove();
-    if (attached) {
-      node.detach();
-    }
     node.dispose();
   }
 
