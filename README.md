@@ -49,6 +49,7 @@ void main(List<String> args) {
 - [State Diff](https://github.com/localvoid/uix/tree/master/example/state_diff)
 - [TodoMVC (observable)](https://github.com/localvoid/uix_todomvc/)
 - [TodoMVC (persistent)](https://github.com/localvoid/uix_todomvc_persistent/)
+- [MineSweeper](https://github.com/localvoid/uix_minesweeper/)
 
 ## DBMonster Benchmark
 
