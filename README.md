@@ -47,7 +47,8 @@ void main(List<String> args) {
 - [Collapsable](https://github.com/localvoid/uix/tree/master/example/collapsable)
 - [Form](https://github.com/localvoid/uix/tree/master/example/form)
 - [State Diff](https://github.com/localvoid/uix/tree/master/example/state_diff)
-- [TodoMVC](https://github.com/localvoid/uix_todomvc/)
+- [TodoMVC (observable)](https://github.com/localvoid/uix_todomvc/)
+- [TodoMVC (persistent)](https://github.com/localvoid/uix_todomvc_persistent/)
 
 ## DBMonster Benchmark
 
