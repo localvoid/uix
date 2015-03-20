@@ -229,6 +229,12 @@ class VNode {
     }
   }
 
+  String toHtmlString() {
+    final b = new StringBuffer();
+    writeHtmlString(b);
+    return b.toString();
+  }
+
   void writeHtmlString(StringBuffer b) {
     if ((flags & textFlag) != 0) {
       b.write(data as String);

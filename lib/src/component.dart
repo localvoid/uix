@@ -128,6 +128,12 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
     detached();
   }
 
+  String toHtmlString() {
+    final b = new StringBuffer();
+    writeHtmlString(b);
+    return b.toString();
+  }
+
   void writeHtmlString(StringBuffer b, [VNode p]) {
     b.write('<$tag');
     if (p != null || root != null) {
