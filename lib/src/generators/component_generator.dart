@@ -50,6 +50,7 @@ class ComponentGenerator extends GeneratorForAnnotation<ComponentMeta> {
     buffer.writeln('$className $createFnName([$dataClassName data]) {');
     buffer.writeln('  final r = new $className()');
     buffer.writeln('    ..data = data;');
+    buffer.writeln('  r.init();');
     buffer.writeln('  return r;');
     buffer.writeln('}');
     buffer.writeln('VNode v$className({$dataClassName data, Object key, String type, Map<String, String> attrs, Map<String, String> style, List<String> classes, List<VNode> children}) => new VNode.component($createFnName, flags: $flags, key: key, data: data, type: type, attrs: attrs, style: style, classes: classes, children: children);');

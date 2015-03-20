@@ -53,7 +53,6 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
 
   Component() {
     element = html.document.createElement(tag);
-    init();
   }
 
   void init() {}
