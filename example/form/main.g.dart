@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 2015-03-18T12:07:34.239Z
+// 2015-03-20T09:49:07.571Z
 
 part of uix.example.form.main;
 
@@ -10,6 +10,7 @@ part of uix.example.form.main;
 
 Main createMain([dynamic data]) {
   final r = new Main()..data = data;
+  r.init();
   return r;
 }
 VNode vMain({dynamic data, Object key, String type, Map<String, String> attrs,

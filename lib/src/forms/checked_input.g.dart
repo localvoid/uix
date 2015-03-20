@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 2015-03-17T12:16:22.143Z
+// 2015-03-20T09:49:07.619Z
 
 part of uix.src.forms.check_box;
 
@@ -10,6 +10,7 @@ part of uix.src.forms.check_box;
 
 CheckedInput createCheckedInput([bool data]) {
   final r = new CheckedInput()..data = data;
+  r.init();
   return r;
 }
 VNode vCheckedInput({bool data, Object key, String type,

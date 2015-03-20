@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 2015-03-18T12:07:43.323Z
+// 2015-03-20T09:49:07.613Z
 
 part of uix.example.collapsable.main;
 
@@ -10,6 +10,7 @@ part of uix.example.collapsable.main;
 
 Collapsable createCollapsable([bool data]) {
   final r = new Collapsable()..data = data;
+  r.init();
   return r;
 }
 VNode vCollapsable({bool data, Object key, String type,
@@ -31,6 +32,7 @@ VNode vCollapsable({bool data, Object key, String type,
 
 Main createMain([dynamic data]) {
   final r = new Main()..data = data;
+  r.init();
   return r;
 }
 VNode vMain({dynamic data, Object key, String type, Map<String, String> attrs,
