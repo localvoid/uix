@@ -51,6 +51,7 @@ void main(List<String> args) {
 - [TodoMVC (persistent)](https://github.com/localvoid/uix_todomvc_persistent/)
 - [MineSweeper Game](https://github.com/localvoid/uix_minesweeper/)
 - [Snake Game](https://github.com/localvoid/uix_snake/)
+- [Dual N-Back Game](https://github.com/localvoid/dual_nback/)
 
 ## DBMonster Benchmark
 
