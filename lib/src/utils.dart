@@ -4,22 +4,42 @@
 
 library uix.src.utils;
 
+import 'dart:async';
 import 'dart:html' as html;
 import 'vnode.dart';
 import 'vcontext.dart';
 import 'component.dart';
+import 'env.dart';
 
-void injectVNode(VNode node, html.Node container) {
-  node.create(const VContext(false));
-  container.append(node.ref);
-  node.attached();
-  node.render(const VContext(true));
+Future injectVNode(VNode node, html.Node container) async {
+  final inject = () async {
+    await scheduler.nextFrame.write();
+    node.create(const VContext(false));
+    container.append(node.ref);
+    node.attached();
+    node.render(const VContext(true));
+  };
+
+  if (identical(Zone.current, scheduler.zone)) {
+    return inject();
+  } else {
+    return scheduler.zone.run(inject);
+  }
 }
 
-void injectComponent(Component component, html.Node container) {
-  container.append(component.element);
-  component.attach();
-  component.update();
+Future injectComponent(Component component, html.Node container) {
+  final inject = () async {
+    await scheduler.nextFrame.write();
+    container.append(component.element);
+    component.attach();
+    component.update();
+  };
+
+  if (identical(Zone.current, scheduler.zone)) {
+    return inject();
+  } else {
+    return scheduler.zone.run(inject);
+  }
 }
 
 VNode vText(String data, {Object key}) => new VNode.text(data, key: key);

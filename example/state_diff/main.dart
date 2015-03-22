@@ -56,7 +56,5 @@ main() {
 
   store = new CounterStore();
 
-  scheduler.nextFrame.write().then((_) {
-    injectComponent(createCounterView(), html.document.body);
-  });
+  injectComponent(createCounterView(), html.document.body);
 }

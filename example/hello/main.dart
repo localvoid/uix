@@ -17,7 +17,5 @@ class Main extends Component<String> {
 main() {
   initUix();
 
-  scheduler.nextFrame.write().then((_) {
-    injectComponent(createMain('World'), html.document.body);
-  });
+  injectComponent(createMain('World'), html.document.body);
 }

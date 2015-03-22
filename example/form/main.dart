@@ -59,7 +59,5 @@ class Main extends Component {
 main() {
   initUix();
 
-  scheduler.nextFrame.write().then((_) {
-    injectComponent(createMain(), html.document.body);
-  });
+  injectComponent(createMain(), html.document.body);
 }

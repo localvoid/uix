@@ -24,9 +24,7 @@ main() {
 
   final c = createMain(0);
 
-  scheduler.nextFrame.write().then((_) {
-    injectComponent(c, html.document.body);
-  });
+  injectComponent(c, html.document.body);
 
   final start = new DateTime.now().millisecondsSinceEpoch;
   new Timer.periodic(new Duration(milliseconds: 50), (t) {
