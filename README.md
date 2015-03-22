@@ -1,6 +1,7 @@
 # uix
 
-Library to build User Interfaces in [Dart](https://dartlang.org).
+Library to build Web User Interfaces in [Dart](https://dartlang.org)
+inspired by [React](http://facebook.github.io/react/).
 
 ## Quick Start
 
@@ -39,6 +40,10 @@ void main(List<String> args) {
   });
 }
 ```
+
+Dart Editor will automatically run `build.dart` file. To configure
+auto-build in [WebStorm](https://www.jetbrains.com/webstorm/), just
+[add File Watcher](http://stackoverflow.com/questions/17266106/how-to-run-build-dart-in-webstorm).
 
 ## Examples
 
