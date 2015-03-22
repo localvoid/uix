@@ -28,7 +28,7 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
   Component get parent => _parent;
   set parent(Component c) {
     _parent = c;
-    depth = c.depth + 1;
+    depth = c == null ? 0 : c.depth + 1;
   }
 
   VNode get root => _root;

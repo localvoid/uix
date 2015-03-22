@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 2015-03-20T09:49:07.623Z
+// 2015-03-22T11:06:34.583Z
 
 part of uix.src.forms.input;
 
@@ -8,8 +8,10 @@ part of uix.src.forms.input;
 // Target: class TextInput
 // **************************************************************************
 
-TextInput createTextInput([String data]) {
-  final r = new TextInput()..data = data;
+TextInput createTextInput([String data, Component parent]) {
+  final r = new TextInput()
+    ..parent = parent
+    ..data = data;
   r.init();
   return r;
 }

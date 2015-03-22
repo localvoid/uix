@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 2015-03-20T09:49:07.602Z
+// 2015-03-22T11:06:34.543Z
 
 part of uix.example.timer.main;
 
@@ -20,8 +20,10 @@ abstract class _CounterPropsShallowEqOperator {
 // Target: class Counter
 // **************************************************************************
 
-Counter createCounter([CounterProps data]) {
-  final r = new Counter()..data = data;
+Counter createCounter([CounterProps data, Component parent]) {
+  final r = new Counter()
+    ..parent = parent
+    ..data = data;
   r.init();
   return r;
 }
@@ -42,8 +44,10 @@ VNode vCounter({CounterProps data, Object key, String type,
 // Target: class Main
 // **************************************************************************
 
-Main createMain([dynamic data]) {
-  final r = new Main()..data = data;
+Main createMain([dynamic data, Component parent]) {
+  final r = new Main()
+    ..parent = parent
+    ..data = data;
   r.init();
   return r;
 }

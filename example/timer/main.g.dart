@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 2015-03-20T09:49:07.546Z
+// 2015-03-22T11:06:34.494Z
 
 part of uix.example.timer.main;
 
@@ -8,8 +8,10 @@ part of uix.example.timer.main;
 // Target: class Main
 // **************************************************************************
 
-Main createMain([int data]) {
-  final r = new Main()..data = data;
+Main createMain([int data, Component parent]) {
+  final r = new Main()
+    ..parent = parent
+    ..data = data;
   r.init();
   return r;
 }

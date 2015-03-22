@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 2015-03-20T09:49:07.619Z
+// 2015-03-22T11:06:34.575Z
 
 part of uix.src.forms.check_box;
 
@@ -8,8 +8,10 @@ part of uix.src.forms.check_box;
 // Target: class CheckedInput
 // **************************************************************************
 
-CheckedInput createCheckedInput([bool data]) {
-  final r = new CheckedInput()..data = data;
+CheckedInput createCheckedInput([bool data, Component parent]) {
+  final r = new CheckedInput()
+    ..parent = parent
+    ..data = data;
   r.init();
   return r;
 }

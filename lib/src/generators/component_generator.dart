@@ -47,8 +47,9 @@ class ComponentGenerator extends GeneratorForAnnotation<ComponentMeta> {
 
     final buffer = new StringBuffer();
 
-    buffer.writeln('$className $createFnName([$dataClassName data]) {');
+    buffer.writeln('$className $createFnName([$dataClassName data, Component parent]) {');
     buffer.writeln('  final r = new $className()');
+    buffer.writeln('    ..parent = parent');
     buffer.writeln('    ..data = data;');
     buffer.writeln('  r.init();');
     buffer.writeln('  return r;');

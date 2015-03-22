@@ -65,7 +65,7 @@ class VNode {
         ref = html.document.createElementNS('http://www.w3.org/2000/svg', tag);
       }
     } else if ((flags & componentFlag) != 0) {
-      cref = tag(data);
+      cref = tag(data, context);
       ref = cref.element;
     }
   }

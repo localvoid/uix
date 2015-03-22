@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 2015-03-20T09:49:07.608Z
+// 2015-03-22T11:06:34.559Z
 
 part of uix.example.state_diff.main;
 
@@ -8,8 +8,10 @@ part of uix.example.state_diff.main;
 // Target: class CounterView
 // **************************************************************************
 
-CounterView createCounterView([dynamic data]) {
-  final r = new CounterView()..data = data;
+CounterView createCounterView([dynamic data, Component parent]) {
+  final r = new CounterView()
+    ..parent = parent
+    ..data = data;
   r.init();
   return r;
 }
