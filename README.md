@@ -52,6 +52,7 @@ auto-build in [WebStorm](https://www.jetbrains.com/webstorm/), just
 - [Collapsable](https://github.com/localvoid/uix/tree/master/example/collapsable)
 - [Form](https://github.com/localvoid/uix/tree/master/example/form)
 - [State Diff](https://github.com/localvoid/uix/tree/master/example/state_diff)
+- [Read/Write DOM Batching](https://github.com/localvoid/uix/tree/master/example/read_write_batching)
 - [TodoMVC (observable)](https://github.com/localvoid/uix_todomvc/)
 - [TodoMVC (persistent)](https://github.com/localvoid/uix_todomvc_persistent/)
 - [MineSweeper Game](https://github.com/localvoid/uix_minesweeper/)
