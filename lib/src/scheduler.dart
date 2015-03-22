@@ -219,8 +219,8 @@ class Scheduler {
 
       if (_currentFrame._afterCompleter != null) {
         _currentFrame._afterCompleter.complete();
-        _runTasks();
         _currentFrame._afterCompleter = null;
+        _runTasks();
       }
 
       clock++;
