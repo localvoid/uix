@@ -32,18 +32,6 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
   }
 
   VNode get root => _root;
-  set root(VNode n) {
-    if (n != null) {
-      if (_root == null) {
-        n.ref = element;
-        n.cref = this;
-        n.render(this);
-      } else {
-        _root.update(n, this);
-      }
-      _root = n;
-    }
-  }
 
   List<VNode> get children => null;
   set children(List<VNode> c) {}
@@ -68,7 +56,20 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
   }
 
   bool updateState() => true;
-  void updateView() { root = build(); }
+  void updateView();
+
+  void updateRoot(VNode n) {
+    if (n != null) {
+      if (_root == null) {
+        n.ref = element;
+        n.cref = this;
+        n.render(this);
+      } else {
+        _root.update(n, this);
+      }
+      _root = n;
+    }
+  }
 
   VNode build() => null;
 

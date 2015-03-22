@@ -21,7 +21,9 @@ class CounterProps extends _CounterPropsShallowEqOperator {
 class Counter extends Component<CounterProps> {
   final tag = 'p';
 
-  build() => vRoot()('value: ${data.value}');
+  updateView() {
+    updateRoot(vRoot()('value: ${data.value}'));
+  }
 }
 
 @ComponentMeta()
@@ -36,7 +38,9 @@ class Main extends Component {
     });
   }
 
-  build() => vRoot()(vCounter(data: new CounterProps(_value)));
+  updateView() {
+    updateRoot(vRoot()(vCounter(data: new CounterProps(_value))));
+  }
 }
 
 main() {

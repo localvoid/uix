@@ -16,7 +16,7 @@ class Main extends Component<int> {
 
   String get elapsedSeconds => (data / 1000).toStringAsFixed(1);
 
-  build() => vRoot()('time: $elapsedSeconds');
+  updateView() { updateRoot(vRoot()('time: $elapsedSeconds')); }
 }
 
 main() {

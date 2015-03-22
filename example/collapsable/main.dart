@@ -12,7 +12,9 @@ part 'main.g.dart';
 
 @ComponentMeta()
 class Collapsable extends Component<bool> with ContainerMixin {
-  build() => vRoot(type: 'Collapsable', classes: data ? const ['close'] : const ['open'])(children);
+  updateView() {
+    updateRoot(vRoot(type: 'Collapsable', classes: data ? const ['close'] : const ['open'])(children));
+  }
 }
 
 @ComponentMeta()
@@ -36,10 +38,12 @@ class Main extends Component {
     });
   }
 
-  build() => vRoot()([
+  updateView() {
+    updateRoot(vRoot()([
       vElement('button', type: 'CloseButton')(closed ? 'Open' : 'Close'),
       vCollapsable(data: closed)(elapsedSeconds)
-    ]);
+    ]));
+  }
 }
 
 main() {

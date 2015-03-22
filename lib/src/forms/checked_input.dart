@@ -13,14 +13,10 @@ part 'checked_input.g.dart';
 class CheckedInput extends Component<bool> {
   String get tag => 'input';
 
-  void update([_]) {
-    if ((flags & (Component.dirtyFlag | Component.attachedFlag)) ==
-        (Component.dirtyFlag | Component.attachedFlag)) {
-      final html.CheckboxInputElement e = element;
-      if (e.checked != data) {
-        e.checked = data;
-      }
-      flags &= ~Component.dirtyFlag;
+  void updateView() {
+    final html.InputElement e = element;
+    if (e.checked != data) {
+      e.checked = data;
     }
   }
 }

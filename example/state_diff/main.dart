@@ -48,7 +48,7 @@ class CounterView extends Component {
     return false;
   }
 
-  build() => vRoot()('Counter: $_counter');
+  updateView() { updateRoot(vRoot()('Counter: $_counter')); }
 }
 
 main() {

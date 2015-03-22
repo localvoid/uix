@@ -38,7 +38,8 @@ class Main extends Component {
     });
   }
 
-  build() => vRoot()([
+  updateView() {
+    updateRoot(vRoot()([
       vElement('section', type: 'DisplaySection')([
         vElement('div')('Username: $username'),
         vElement('div')('Email: $email'),
@@ -51,7 +52,8 @@ class Main extends Component {
         vTextInput(data: password, type: 'PasswordInput', attrs: const {'type': 'password', 'placeholder': 'Password'}),
         vCheckedInput(data: checked, type: 'CheckedInput', attrs: const {'type': 'checkbox'})
       ])
-    ]);
+    ]));
+  }
 }
 
 main() {

@@ -11,7 +11,7 @@ part 'main.g.dart';
 
 @ComponentMeta()
 class Main extends Component<String> {
-  build() => vRoot()('Hello ${data}');
+  updateView() { updateRoot(vRoot()('Hello ${data}')); }
 }
 
 main() {
