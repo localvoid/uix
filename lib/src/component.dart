@@ -71,8 +71,6 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
     }
   }
 
-  VNode build() => null;
-
   void invalidate([_]) {
     if ((flags & dirtyFlag) == 0) {
       flags |= dirtyFlag;
