@@ -47,16 +47,26 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
 
   void update([_]) {
     if ((flags & shouldUpdateViewFlags) == shouldUpdateViewFlags) {
+      var future;
       if (updateState()) {
-        updateView();
+        future = updateView();
       }
-      updateRev();
-      flags &= ~dirtyFlag;
+      if (future == null) {
+        _finishUpdate();
+      } else {
+        future.then(_finishUpdate);
+      }
     }
   }
 
+  void _finishUpdate([_]) {
+    updateRev();
+    flags &= ~dirtyFlag;
+    updated();
+  }
+
   bool updateState() => true;
-  void updateView();
+  Future updateView();
 
   void updateRoot(VNode n) {
     if (n != null) {
@@ -91,6 +101,7 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
   }
 
   void invalidated() {}
+  void updated() {}
 
   void attached() {}
   void detached() {}
