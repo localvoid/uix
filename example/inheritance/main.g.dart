@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 2015-03-24T08:18:38.031Z
+// 2015-03-24T18:08:58.615Z
 
 part of uix.example.inheritance.main;
 
@@ -20,9 +20,10 @@ abstract class _ButtonBaseDataShallowEqOperator {
 // **************************************************************************
 
 abstract class _ButtonDataShallowEqOperator {
+  bool get disabled;
   String get color;
-  bool operator ==(ButtonData other) =>
-      (identical(this, other) || ((super == other) && (color == other.color)));
+  bool operator ==(ButtonData other) => (identical(this, other) ||
+      ((disabled == other.disabled) && (color == other.color)));
 }
 
 // **************************************************************************

@@ -27,8 +27,9 @@ class ShallowEqGenerator extends GeneratorForAnnotation<ShallowEqOperator> {
     final classElement = element as ClassElement;
     final className = classElement.name;
 
-
-    final fields = classElement.fields.fold(<String, FieldElement>{},
+    List _fields = classElement.allSupertypes.where((t) => !t.isObject).map((s) => s.element).fold(<FieldElement>[], (list, element) => list..addAll(element.fields)).where((FieldElement f) => !f.isSynthetic).toList();
+    _fields.addAll(classElement.fields);
+    final fields = _fields.fold(<String, FieldElement>{},
             (map, field) {
           map[field.name] = field;
           return map;
@@ -44,9 +45,6 @@ class ShallowEqGenerator extends GeneratorForAnnotation<ShallowEqOperator> {
 
     buffer.writeln('  bool operator==(${className} other) =>');
     buffer.write('  (identical(this, other) || (');
-    if (!classElement.supertype.isObject) {
-      buffer.write('(super == other) && ');
-    }
     buffer.write('');
     buffer.write(fields.keys.map((name) => '($name == other.$name)').join(' && '));
     buffer.write('));');
