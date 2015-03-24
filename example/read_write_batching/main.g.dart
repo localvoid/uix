@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 2015-03-22T11:06:34.552Z
+// 2015-03-24T08:00:56.194Z
 
 part of uix.example.read_write_batching.main;
 
@@ -9,11 +9,10 @@ part of uix.example.read_write_batching.main;
 // **************************************************************************
 
 OuterBox createOuterBox([dynamic data, Component parent]) {
-  final r = new OuterBox()
+  return new OuterBox()
     ..parent = parent
-    ..data = data;
-  r.init();
-  return r;
+    ..data = data
+    ..init();
 }
 VNode vOuterBox({dynamic data, Object key, String type,
     Map<String, String> attrs, Map<String, String> style, List<String> classes,
@@ -33,11 +32,10 @@ VNode vOuterBox({dynamic data, Object key, String type,
 // **************************************************************************
 
 InnerBox createInnerBox([dynamic data, Component parent]) {
-  final r = new InnerBox()
+  return new InnerBox()
     ..parent = parent
-    ..data = data;
-  r.init();
-  return r;
+    ..data = data
+    ..init();
 }
 VNode vInnerBox({dynamic data, Object key, String type,
     Map<String, String> attrs, Map<String, String> style, List<String> classes,
@@ -57,11 +55,10 @@ VNode vInnerBox({dynamic data, Object key, String type,
 // **************************************************************************
 
 Box createBox([dynamic data, Component parent]) {
-  final r = new Box()
+  return new Box()
     ..parent = parent
-    ..data = data;
-  r.init();
-  return r;
+    ..data = data
+    ..init();
 }
 VNode vBox({dynamic data, Object key, String type, Map<String, String> attrs,
     Map<String, String> style, List<String> classes,
@@ -81,11 +78,10 @@ VNode vBox({dynamic data, Object key, String type, Map<String, String> attrs,
 // **************************************************************************
 
 App createApp([dynamic data, Component parent]) {
-  final r = new App()
+  return new App()
     ..parent = parent
-    ..data = data;
-  r.init();
-  return r;
+    ..data = data
+    ..init();
 }
 VNode vApp({dynamic data, Object key, String type, Map<String, String> attrs,
     Map<String, String> style, List<String> classes,

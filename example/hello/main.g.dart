@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 2015-03-22T11:30:08.318Z
+// 2015-03-24T08:00:56.080Z
 
 part of uix.example.hello.main;
 
@@ -9,11 +9,10 @@ part of uix.example.hello.main;
 // **************************************************************************
 
 Main createMain([String data, Component parent]) {
-  final r = new Main()
+  return new Main()
     ..parent = parent
-    ..data = data;
-  r.init();
-  return r;
+    ..data = data
+    ..init();
 }
 VNode vMain({String data, Object key, String type, Map<String, String> attrs,
     Map<String, String> style, List<String> classes,

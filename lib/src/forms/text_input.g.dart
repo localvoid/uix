@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 2015-03-22T11:06:34.583Z
+// 2015-03-24T08:00:56.281Z
 
 part of uix.src.forms.input;
 
@@ -9,11 +9,10 @@ part of uix.src.forms.input;
 // **************************************************************************
 
 TextInput createTextInput([String data, Component parent]) {
-  final r = new TextInput()
+  return new TextInput()
     ..parent = parent
-    ..data = data;
-  r.init();
-  return r;
+    ..data = data
+    ..init();
 }
 VNode vTextInput({String data, Object key, String type,
     Map<String, String> attrs, Map<String, String> style, List<String> classes,

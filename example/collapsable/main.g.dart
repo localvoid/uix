@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 2015-03-22T11:06:34.567Z
+// 2015-03-24T08:00:56.263Z
 
 part of uix.example.collapsable.main;
 
@@ -9,11 +9,10 @@ part of uix.example.collapsable.main;
 // **************************************************************************
 
 Collapsable createCollapsable([bool data, Component parent]) {
-  final r = new Collapsable()
+  return new Collapsable()
     ..parent = parent
-    ..data = data;
-  r.init();
-  return r;
+    ..data = data
+    ..init();
 }
 VNode vCollapsable({bool data, Object key, String type,
     Map<String, String> attrs, Map<String, String> style, List<String> classes,
@@ -33,11 +32,10 @@ VNode vCollapsable({bool data, Object key, String type,
 // **************************************************************************
 
 Main createMain([dynamic data, Component parent]) {
-  final r = new Main()
+  return new Main()
     ..parent = parent
-    ..data = data;
-  r.init();
-  return r;
+    ..data = data
+    ..init();
 }
 VNode vMain({dynamic data, Object key, String type, Map<String, String> attrs,
     Map<String, String> style, List<String> classes,

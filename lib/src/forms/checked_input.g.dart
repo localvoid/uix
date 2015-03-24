@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 2015-03-22T11:06:34.575Z
+// 2015-03-24T08:00:56.272Z
 
 part of uix.src.forms.check_box;
 
@@ -9,11 +9,10 @@ part of uix.src.forms.check_box;
 // **************************************************************************
 
 CheckedInput createCheckedInput([bool data, Component parent]) {
-  final r = new CheckedInput()
+  return new CheckedInput()
     ..parent = parent
-    ..data = data;
-  r.init();
-  return r;
+    ..data = data
+    ..init();
 }
 VNode vCheckedInput({bool data, Object key, String type,
     Map<String, String> attrs, Map<String, String> style, List<String> classes,

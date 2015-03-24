@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 2015-03-22T11:06:34.559Z
+// 2015-03-24T08:00:56.219Z
 
 part of uix.example.state_diff.main;
 
@@ -9,11 +9,10 @@ part of uix.example.state_diff.main;
 // **************************************************************************
 
 CounterView createCounterView([dynamic data, Component parent]) {
-  final r = new CounterView()
+  return new CounterView()
     ..parent = parent
-    ..data = data;
-  r.init();
-  return r;
+    ..data = data
+    ..init();
 }
 VNode vCounterView({dynamic data, Object key, String type,
     Map<String, String> attrs, Map<String, String> style, List<String> classes,

@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 2015-03-22T11:06:34.494Z
+// 2015-03-24T08:00:56.036Z
 
 part of uix.example.timer.main;
 
@@ -9,11 +9,10 @@ part of uix.example.timer.main;
 // **************************************************************************
 
 Main createMain([int data, Component parent]) {
-  final r = new Main()
+  return new Main()
     ..parent = parent
-    ..data = data;
-  r.init();
-  return r;
+    ..data = data
+    ..init();
 }
 VNode vMain({int data, Object key, String type, Map<String, String> attrs,
     Map<String, String> style, List<String> classes,
