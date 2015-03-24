@@ -5,9 +5,12 @@
 library uix.src.meta;
 
 class ComponentMeta {
+  final bool immutableData;
+
+  /// TODO: rename to something more meaningful
   final bool dirtyCheck;
 
-  const ComponentMeta({this.dirtyCheck: true});
+  const ComponentMeta({this.immutableData: false, this.dirtyCheck: true});
 }
 
 class ShallowEqOperator {

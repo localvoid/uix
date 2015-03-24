@@ -15,7 +15,9 @@ class VNode {
   static const int componentFlag = 1 << 2;
   static const int rootFlag = 1 << 3;
   static const int svgFlag = 1 << 4;
-  static const int dirtyCheckFlag = 1 << 5;
+
+  static const int immutableDataFlag = 1 << 5;
+  static const int dirtyCheckFlag = 1 << 6;
 
   final int flags;
   final Object key;
@@ -141,7 +143,7 @@ class VNode {
         other.cref = cref;
         if ((flags & dirtyCheckFlag) != 0) {
           bool dirty = false;
-          if (data != other.data) {
+          if ((((flags & immutableDataFlag) != 0) && identical(data, other.data)) || (data != other.data)) {
             cref.data = other.data;
             dirty = true;
           }
@@ -155,7 +157,7 @@ class VNode {
           }
         } else {
           cref.data = other.data;
-          if (children != null && children != other.children) {
+          if (children != other.children) {
             cref.children = children;
           }
           cref.invalidate();
