@@ -22,6 +22,7 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
   int depth = 0;
   Component _parent;
   P data;
+  List<VNode> children;
   html.Element element;
   VNode _root;
 
@@ -32,9 +33,6 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
   }
 
   VNode get root => _root;
-
-  List<VNode> get children => null;
-  set children(List<VNode> c) {}
 
   bool get isDirty => (flags & dirtyFlag) != 0;
   bool get isAttached => (flags & attachedFlag) != 0;

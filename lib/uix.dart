@@ -16,5 +16,3 @@ export 'src/annotations.dart';
 export 'src/component.dart';
 export 'src/annotations.dart';
 export 'src/utils.dart';
-
-export 'src/mixins/container.dart';

@@ -23,7 +23,7 @@ class ButtonData extends ButtonBaseData with _ButtonDataShallowEqOperator {
   ButtonData({bool disabled: false, this.color: 'blue'}) : super(disabled);
 }
 
-abstract class ButtonBase<T extends ButtonBaseData> extends Component<T> with ContainerMixin {
+abstract class ButtonBase<T extends ButtonBaseData> extends Component<T> {
   int clickCounter = 0;
 
   void init() {

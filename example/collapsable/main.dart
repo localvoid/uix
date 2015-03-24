@@ -11,7 +11,7 @@ import 'package:uix/uix.dart';
 part 'main.g.dart';
 
 @ComponentMeta()
-class Collapsable extends Component<bool> with ContainerMixin {
+class Collapsable extends Component<bool> {
   updateView() {
     updateRoot(vRoot(type: 'Collapsable', classes: data ? const ['close'] : const ['open'])(children));
   }
