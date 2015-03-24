@@ -110,7 +110,7 @@ class Scheduler {
   static const int framePendingFlag = 1 << 2;
 
   int flags = 0;
-  int clock = 0;
+  int clock = 1;
 
   bool get isRunning => ((flags & runningFlag) != 0);
 
@@ -236,7 +236,6 @@ class Scheduler {
     _zone.run(() {
       flags &= ~framePendingFlag;
       flags |= runningFlag;
-      clock++;
 
       _nextTickCompleter.complete();
       _nextTickCompleter = null;
@@ -259,5 +258,16 @@ class Scheduler {
     if ((flags & tickPendingFlag) != 0) {
       _handleNextTick();
     }
+  }
+
+  void run(fn) {
+    _zone.run(() {
+      flags |= runningFlag;
+
+      fn();
+
+      clock++;
+      flags &= ~runningFlag;
+    });
   }
 }
