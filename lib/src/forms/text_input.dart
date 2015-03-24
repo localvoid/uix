@@ -11,9 +11,9 @@ part 'text_input.g.dart';
 
 @ComponentMeta(dirtyCheck: false)
 class TextInput extends Component<String> {
-  String get tag => 'input';
+  final String tag = 'input';
 
-  void updateView() {
+  updateView() {
     final html.InputElement e = element;
     if (e.value != data) {
       e.value = data;

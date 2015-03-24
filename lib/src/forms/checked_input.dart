@@ -11,9 +11,9 @@ part 'checked_input.g.dart';
 
 @ComponentMeta(dirtyCheck: false)
 class CheckedInput extends Component<bool> {
-  String get tag => 'input';
+  final String tag = 'input';
 
-  void updateView() {
+  updateView() {
     final html.InputElement e = element;
     if (e.checked != data) {
       e.checked = data;
