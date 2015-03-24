@@ -132,7 +132,7 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
   void detach() {
     assert(isAttached);
     if (_root != null) {
-      _root.detached();
+      _root.detach();
     }
     flags &= ~attachedFlag;
     detached();
