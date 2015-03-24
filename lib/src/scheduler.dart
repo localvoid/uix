@@ -105,14 +105,17 @@ class Frame {
 
 /// [Scheduler].
 class Scheduler {
-  static const int runningFlag = 1;
-  static const int tickPendingFlag = 1 << 1;
-  static const int framePendingFlag = 1 << 2;
+  static const int tickRunningFlag = 1;
+  static const int frameRunningFlag = 1 << 1;
+  static const int tickPendingFlag = 1 << 2;
+  static const int framePendingFlag = 1 << 3;
+  static const int runningFlags = tickRunningFlag | frameRunningFlag;
 
   int flags = 0;
   int clock = 1;
 
-  bool get isRunning => ((flags & runningFlag) != 0);
+  bool get isRunning => ((flags & runningFlags) != 0);
+  bool get isFrameRunning => ((flags & frameRunningFlag) != 0);
 
   Queue<Function> _currentTasks = new Queue<Function>();
 
@@ -188,7 +191,7 @@ class Scheduler {
 
     _zone.run(() {
       flags &= ~framePendingFlag;
-      flags |= runningFlag;
+      flags |= frameRunningFlag;
 
       final tmp = _currentFrame;
       _currentFrame = _nextFrame;
@@ -224,7 +227,7 @@ class Scheduler {
       }
 
       clock++;
-      flags &= ~runningFlag;
+      flags &= ~frameRunningFlag;
     });
   }
 
@@ -235,14 +238,14 @@ class Scheduler {
 
     _zone.run(() {
       flags &= ~framePendingFlag;
-      flags |= runningFlag;
+      flags |= tickRunningFlag;
 
       _nextTickCompleter.complete();
       _nextTickCompleter = null;
       _runTasks();
 
       clock++;
-      flags &= ~runningFlag;
+      flags &= ~tickRunningFlag;
     });
   }
 
@@ -262,12 +265,12 @@ class Scheduler {
 
   void run(fn) {
     _zone.run(() {
-      flags |= runningFlag;
+      flags |= tickRunningFlag;
 
       fn();
 
       clock++;
-      flags &= ~runningFlag;
+      flags &= ~tickRunningFlag;
     });
   }
 }

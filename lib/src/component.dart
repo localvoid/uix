@@ -85,7 +85,7 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
     if ((flags & dirtyFlag) == 0) {
       flags |= dirtyFlag;
 
-      if (!scheduler.isRunning) {
+      if (!scheduler.isFrameRunning) {
         if (identical(Zone.current, scheduler.zone)) {
           scheduler.nextFrame.write(depth).then(update);
         } else {
