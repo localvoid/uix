@@ -27,6 +27,7 @@ class ShallowEqGenerator extends GeneratorForAnnotation<ShallowEqOperator> {
     final classElement = element as ClassElement;
     final className = classElement.name;
 
+
     final fields = classElement.fields.fold(<String, FieldElement>{},
             (map, field) {
           map[field.name] = field;
@@ -41,11 +42,12 @@ class ShallowEqGenerator extends GeneratorForAnnotation<ShallowEqOperator> {
       buffer.writeln('  ${field.type.name} get $name;');
     });
 
-    buffer.writeln('  const $mixinName();');
-
     buffer.writeln('  bool operator==(${className} other) =>');
     buffer.write('  (identical(this, other) || (');
-    buffer.write('    ');
+    if (!classElement.supertype.isObject) {
+      buffer.write('(super == other) && ');
+    }
+    buffer.write('');
     buffer.write(fields.keys.map((name) => '($name == other.$name)').join(' && '));
     buffer.write('));');
 

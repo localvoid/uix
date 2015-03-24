@@ -9,19 +9,20 @@ import 'package:uix/uix.dart';
 
 part 'main.g.dart';
 
-class ButtonBaseData {
+@ShallowEqOperator()
+class ButtonBaseData extends Object with _ButtonBaseDataShallowEqOperator {
   final bool disabled;
 
-  const ButtonBaseData({this.disabled: false});
+  ButtonBaseData(this.disabled);
 }
 
-class ButtonData extends ButtonBaseData {
+@ShallowEqOperator()
+class ButtonData extends ButtonBaseData with _ButtonDataShallowEqOperator {
   final String color;
 
-  const ButtonData({bool disabled: false, this.color: 'blue'}) : super(disabled: disabled);
+  ButtonData({bool disabled: false, this.color: 'blue'}) : super(disabled);
 }
 
-@ComponentMeta()
 abstract class ButtonBase<T extends ButtonBaseData> extends Component<T> with ContainerMixin {
   int clickCounter = 0;
 
