@@ -38,6 +38,8 @@ class ComponentGenerator extends GeneratorForAnnotation<ComponentMeta> {
       if (i != null && i.prefix != null) {
         dataClassName = '${i.prefix.name}.$dataClassName';
       }
+    } else if (dataElement is TypeParameterElement) {
+      dataClassName = dataElement.bound.name;
     }
 
     var flags = 'VNode.componentFlag';
