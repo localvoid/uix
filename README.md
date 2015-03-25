@@ -7,7 +7,7 @@ inspired by [React](http://facebook.github.io/react/).
 
 Requirements:
 
- - Dart SDK 1.9 or greater
+ - Dart SDK 1.9.1 or greater
 
 #### 1. Create a new Dart Web Project
 #### 2. Add uix library in `pubspec.yaml` file:

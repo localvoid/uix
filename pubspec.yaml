@@ -1,10 +1,10 @@
 name: uix
-version: 0.2.0
+version: 0.2.1
 author: Boris Kaul <localvoid@gmail.com>
 description: Library to build Web User Interfaces.
 homepage: https://github.com/localvoid/uix
 environment:
-  sdk: '>=1.9.0-dev'
+  sdk: '>=1.9.1'
 dependencies:
   collection: '^1.1.0'
   source_gen: '^0.2.4'
