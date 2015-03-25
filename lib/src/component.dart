@@ -18,7 +18,7 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
   static const int shouldUpdateViewFlags = dirtyFlag | attachedFlag;
 
   final bool svg = false;
-  String get tag => 'div';
+  final String tag = 'div';
 
   int flags = dirtyFlag;
   int depth = 0;
