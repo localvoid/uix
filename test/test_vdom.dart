@@ -3,6 +3,13 @@ import 'package:unittest/unittest.dart';
 import 'package:unittest/html_enhanced_config.dart';
 import 'package:uix/uix.dart';
 
+void injectVNodeSync(VNode node, html.Node container) {
+  node.create(const VContext(false));
+  container.append(node.ref);
+  node.attached();
+  node.render(const VContext(true));
+}
+
 VNode ee(Object key, [Object c = null]) =>
     (c == null) ? vElement('div', key: key) : vElement('div', key: key)(c);
 VNode ei([Object c = null]) =>
@@ -29,8 +36,8 @@ List<VNode> gen(List items, [bool keys = true]) {
 void checkInnerHtmlEquals(VNode a, VNode b) {
   final aDiv = new html.DocumentFragment();
   final bDiv = new html.DocumentFragment();
-  injectVNode(a, aDiv);
-  injectVNode(b, bDiv);
+  injectVNodeSync(a, aDiv);
+  injectVNodeSync(b, bDiv);
 
   final bHtml = bDiv.innerHtml;
 
@@ -50,14 +57,14 @@ void main() {
       test('Create empty div', () {
         final frag = new html.DocumentFragment();
         final n = ve('div');
-        injectVNode(n, frag);
+        injectVNodeSync(n, frag);
         expect(frag.innerHtml, equals('<div></div>'));
       });
 
       test('Create empty span', () {
         final frag = new html.DocumentFragment();
         final n = ve('span');
-        injectVNode(n, frag);
+        injectVNodeSync(n, frag);
         expect(frag.innerHtml, equals('<span></span>'));
       });
     });
@@ -65,14 +72,14 @@ void main() {
       test('Create div with 1 attribute', () {
         final frag = new html.DocumentFragment();
         final n = ve('div', attrs: {'id': 'test-id'});
-        injectVNode(n, frag);
+        injectVNodeSync(n, frag);
         expect(frag.innerHtml, equals('<div id="test-id"></div>'));
       });
 
       test('Create div with 2 attributes', () {
         final frag = new html.DocumentFragment();
         final n = ve('div', attrs: {'id': 'test-id', 'data-test': 'test-data'});
-        injectVNode(n, frag);
+        injectVNodeSync(n, frag);
         expect(frag.innerHtml,
             equals('<div id="test-id" data-test="test-data"></div>'));
       });
@@ -82,14 +89,14 @@ void main() {
       test('Create div with 1 style', () {
         final frag = new html.DocumentFragment();
         final n = ve('div', style: {'top': '10px'});
-        injectVNode(n, frag);
+        injectVNodeSync(n, frag);
         expect(frag.innerHtml, equals('<div style="top: 10px;"></div>'));
       });
 
       test('Create div with 2 styles', () {
         final frag = new html.DocumentFragment();
         final n = ve('div', style: {'top': '10px', 'left': '20px'});
-        injectVNode(n, frag);
+        injectVNodeSync(n, frag);
         expect(frag.innerHtml,
             equals('<div style="top: 10px; left: 20px;"></div>'));
       });
@@ -99,14 +106,14 @@ void main() {
       test('Create div with 1 class', () {
         final frag = new html.DocumentFragment();
         final n = ve('div', classes: ['button']);
-        injectVNode(n, frag);
+        injectVNodeSync(n, frag);
         expect(frag.innerHtml, equals('<div class="button"></div>'));
       });
 
       test('Create div with 2 classes', () {
         final frag = new html.DocumentFragment();
         final n = ve('div', classes: ['button', 'button.important']);
-        injectVNode(n, frag);
+        injectVNodeSync(n, frag);
         expect(frag.innerHtml,
             equals('<div class="button button.important"></div>'));
       });
@@ -116,14 +123,14 @@ void main() {
       test('Create div with 1 child', () {
         final frag = new html.DocumentFragment();
         final n = ve('div')([ve('span')]);
-        injectVNode(n, frag);
+        injectVNodeSync(n, frag);
         expect(frag.innerHtml, equals('<div><span></span></div>'));
       });
 
       test('Create div with 2 children', () {
         final frag = new html.DocumentFragment();
         final n = ve('div')([ve('span'), ve('span')]);
-        injectVNode(n, frag);
+        injectVNodeSync(n, frag);
         expect(frag.innerHtml, equals('<div><span></span><span></span></div>'));
       });
     });
@@ -944,7 +951,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div');
       final b = ve('div');
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).attributes.isEmpty, isTrue);
     });
@@ -953,7 +960,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div');
       final b = ve('div', attrs: {});
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).attributes.isEmpty, isTrue);
     });
@@ -962,7 +969,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', attrs: {});
       final b = ve('div');
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).attributes.isEmpty, isTrue);
     });
@@ -971,7 +978,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', attrs: {});
       final b = ve('div', attrs: {});
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).attributes.isEmpty, isTrue);
     });
@@ -980,7 +987,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div');
       final b = ve('div', attrs: {'a': '1'});
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).attributes.isNotEmpty, isTrue);
       expect((f.firstChild as html.Element).attributes.length, 1);
@@ -991,7 +998,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', attrs: {});
       final b = ve('div', attrs: {'a': '1'});
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).attributes.isNotEmpty, isTrue);
       expect((f.firstChild as html.Element).attributes.length, 1);
@@ -1002,7 +1009,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', attrs: {});
       final b = ve('div', attrs: {'a': '1', 'b': '2'});
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).attributes.isNotEmpty, isTrue);
       expect((f.firstChild as html.Element).attributes.length, 2);
@@ -1014,7 +1021,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', attrs: {});
       final b = ve('div', attrs: {'a': '1', 'b': '2', 'c': '3'});
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).attributes.isNotEmpty, isTrue);
       expect((f.firstChild as html.Element).attributes.length, 3);
@@ -1027,7 +1034,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', attrs: {'a': '1'});
       final b = ve('div');
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).attributes.isEmpty, isTrue);
     });
@@ -1036,7 +1043,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', attrs: {'a': '1'});
       final b = ve('div', attrs: {});
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).attributes.isEmpty, isTrue);
     });
@@ -1045,7 +1052,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', attrs: {'a': '1', 'b': '2'});
       final b = ve('div', attrs: {});
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).attributes.isEmpty, isTrue);
     });
@@ -1054,7 +1061,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', attrs: {'a': '1'});
       final b = ve('div', attrs: {'b': '2'});
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).attributes.isNotEmpty, isTrue);
       expect((f.firstChild as html.Element).attributes.length, 1);
@@ -1065,7 +1072,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', attrs: {'a': '1', 'b': '2'});
       final b = ve('div', attrs: {'c': '3', 'd': '4'});
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).attributes.isNotEmpty, isTrue);
       expect((f.firstChild as html.Element).attributes.length, 2);
@@ -1077,7 +1084,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', attrs: {'a': '1'});
       final b = ve('div', attrs: {'a': '10'});
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).attributes.isNotEmpty, isTrue);
       expect((f.firstChild as html.Element).attributes.length, 1);
@@ -1088,7 +1095,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', attrs: {'a': '1', 'b': '2'});
       final b = ve('div', attrs: {'a': '10', 'b': '20'});
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).attributes.isNotEmpty, isTrue);
       expect((f.firstChild as html.Element).attributes.length, 2);
@@ -1102,7 +1109,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div');
       final b = ve('div');
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.cssText, isEmpty);
     });
@@ -1111,7 +1118,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div');
       final b = ve('div', style: {});
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.cssText, isEmpty);
     });
@@ -1120,7 +1127,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', style: {});
       final b = ve('div');
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.cssText, isEmpty);
     });
@@ -1129,7 +1136,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', style: {});
       final b = ve('div', style: {});
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.cssText, isEmpty);
     });
@@ -1138,7 +1145,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div');
       final b = ve('div', style: {'top': '10px'});
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.top, equals('10px'));
     });
@@ -1147,7 +1154,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', style: {});
       final b = ve('div', style: {'top': '10px'});
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.top, equals('10px'));
     });
@@ -1156,7 +1163,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', style: {});
       final b = ve('div', style: {'top': '10px', 'left': '20px'});
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.top, equals('10px'));
       expect((f.firstChild as html.Element).style.left, equals('20px'));
@@ -1166,7 +1173,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', style: {'top': '10px'});
       final b = ve('div');
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.top, equals(''));
     });
@@ -1175,7 +1182,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', style: {'top': '10px'});
       final b = ve('div', style: {});
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.top, equals(''));
     });
@@ -1184,7 +1191,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', style: {'top': '10px', 'left': '20px'});
       final b = ve('div', style: {});
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.top, equals(''));
       expect((f.firstChild as html.Element).style.left, equals(''));
@@ -1194,7 +1201,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', style: {'top': '10px'});
       final b = ve('div', style: {'left': '20px'});
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.top, equals(''));
       expect((f.firstChild as html.Element).style.left, equals('20px'));
@@ -1204,7 +1211,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', style: {'top': '10px', 'left': '20px'});
       final b = ve('div', style: {'right': '30px', 'bottom': '40px'});
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.top, equals(''));
       expect((f.firstChild as html.Element).style.left, equals(''));
@@ -1216,7 +1223,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', style: {'top': '10px'});
       final b = ve('div', style: {'top': '100px'});
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.top, equals('100px'));
     });
@@ -1225,7 +1232,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', style: {'top': '10px', 'left': '20px'});
       final b = ve('div', style: {'top': '100px', 'left': '200px'});
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.top, equals('100px'));
     });
@@ -1236,7 +1243,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div');
       final b = ve('div');
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).classes, isEmpty);
     });
@@ -1245,7 +1252,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div');
       final b = ve('div', classes: []);
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).classes, isEmpty);
     });
@@ -1254,7 +1261,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', classes: []);
       final b = ve('div');
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).classes, isEmpty);
     });
@@ -1263,7 +1270,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', classes: []);
       final b = ve('div', classes: []);
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).classes, isEmpty);
     });
@@ -1272,7 +1279,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div');
       final b = ve('div', classes: ['1']);
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).classes.length, equals(1));
       expect((f.firstChild as html.Element).classes.contains('1'), isTrue);
@@ -1282,7 +1289,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', classes: []);
       final b = ve('div', classes: ['1']);
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).classes.length, equals(1));
       expect((f.firstChild as html.Element).classes.contains('1'), isTrue);
@@ -1292,7 +1299,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', classes: []);
       final b = ve('div', classes: ['1', '2']);
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).classes.length, equals(2));
       expect((f.firstChild as html.Element).classes.contains('1'), isTrue);
@@ -1303,7 +1310,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', classes: ['1']);
       final b = ve('div');
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).classes, isEmpty);
     });
@@ -1312,7 +1319,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', classes: ['1']);
       final b = ve('div', classes: []);
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).classes, isEmpty);
     });
@@ -1321,7 +1328,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', classes: ['1', '2']);
       final b = ve('div', classes: []);
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).classes, isEmpty);
     });
@@ -1330,7 +1337,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', classes: ['1', '2']);
       final b = ve('div', classes: ['10', '20']);
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).classes.length, equals(2));
       expect((f.firstChild as html.Element).classes.contains('10'), isTrue);
@@ -1341,7 +1348,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', classes: ['1', '2']);
       final b = ve('div', classes: ['20', '10']);
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).classes.length, equals(2));
       expect((f.firstChild as html.Element).classes.contains('10'), isTrue);
@@ -1352,7 +1359,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', classes: ['1', '2']);
       final b = ve('div', classes: ['20', '10', '1']);
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).classes.length, equals(3));
       expect((f.firstChild as html.Element).classes.contains('10'), isTrue);
@@ -1364,7 +1371,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', classes: ['1', '2', '3', '4', '5']);
       final b = ve('div', classes: ['10', '20', '30', '40', '50']);
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).classes.length, equals(5));
       expect((f.firstChild as html.Element).classes.contains('10'), isTrue);
@@ -1378,7 +1385,7 @@ void main() {
       final f = new html.DocumentFragment();
       final a = ve('div', classes: ['1', '2', '3', '4', '5']);
       final b = ve('div', classes: ['10', '20', '30', '40', '50', '1']);
-      injectVNode(a, f);
+      injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).classes.length, equals(6));
       expect((f.firstChild as html.Element).classes.contains('10'), isTrue);
