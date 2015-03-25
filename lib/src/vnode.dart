@@ -131,15 +131,15 @@ class VNode {
       final html.Element r = ref;
 
       if (!identical(attrs, other.attrs)) {
-        _updateMap(attrs, other.attrs, r.attributes);
+        updateAttrs(attrs, other.attrs, r.attributes);
       }
 
       if (!identical(style, other.style)) {
-        _updateStyle(style, other.style, r.style);
+        updateStyle(style, other.style, r.style);
       }
 
       if (!identical(classes, other.classes)) {
-        _updateSet(classes, other.classes, r.classes);
+        updateClasses(classes, other.classes, r.classes);
       }
 
       if ((flags & componentFlag) != 0) {
@@ -770,7 +770,7 @@ List<int> _lis(List<int> a) {
 }
 
 /// Find changes between maps [a] and [b] and apply this changes to CssStyleDeclaration [n].
-void _updateStyle(Map a, Map b, html.CssStyleDeclaration n) {
+void updateStyle(Map a, Map b, html.CssStyleDeclaration n) {
   if (a != null && a.length > 0) {
     if (b == null || b.length == 0) {
       // all keys removed
@@ -804,7 +804,7 @@ void _updateStyle(Map a, Map b, html.CssStyleDeclaration n) {
 }
 
 /// Find changes between maps [a] and [b] and apply this changes to map [n].
-void _updateMap(Map a, Map b, Map n) {
+void updateAttrs(Map a, Map b, Map n) {
   if (a != null && a.length > 0) {
     if (b == null || b.length == 0) {
       // all keys removed
@@ -836,7 +836,7 @@ void _updateMap(Map a, Map b, Map n) {
 }
 
 /// Find changes between Lists [a] and [b] and apply this changes to Set [n].
-void _updateSet(List a, List b, Set n) {
+void updateClasses(List a, List b, Set n) {
   if (a != null && a.length > 0) {
     if (b == null || b.length == 0) {
       n.removeAll(a);
