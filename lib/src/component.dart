@@ -12,10 +12,12 @@ import 'vnode.dart';
 import 'env.dart';
 
 abstract class Component<P> extends RevisionedNode with StreamListenerNode implements VContext {
-  static const dirtyFlag = 1;
-  static const attachedFlag = 1 << 1;
-  static const shouldUpdateViewFlags = dirtyFlag | attachedFlag;
+  static const int dirtyFlag = 1;
+  static const int attachedFlag = 1 << 1;
+  static const int svgFlag = 1 << 2;
+  static const int shouldUpdateViewFlags = dirtyFlag | attachedFlag;
 
+  final bool svg = false;
   String get tag => 'div';
 
   int flags = dirtyFlag;
@@ -38,7 +40,9 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
   bool get isAttached => (flags & attachedFlag) != 0;
 
   Component() {
-    element = html.document.createElement(tag);
+    element = svg ?
+        html.document.createElementNS('http://www.w3.org/2000/svg', tag)
+      : html.document.createElement(tag);
   }
 
   void init() {}

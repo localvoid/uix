@@ -37,6 +37,9 @@ class VNode {
   VNode.element(this.tag, {this.key, this.type, this.attrs, this.style,
       this.classes, this.children})
       : flags = elementFlag;
+  VNode.svgElement(this.tag, {this.key, this.type, this.attrs, this.style,
+      this.classes, this.children})
+      : flags = elementFlag | svgFlag;
   VNode.component(this.tag, {this.flags: componentFlag, this.key, this.data,
       this.type, this.attrs, this.style, this.classes, this.children});
   VNode.root({this.type, this.attrs, this.style, this.classes, this.children})

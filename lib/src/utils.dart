@@ -49,6 +49,11 @@ VNode vElement(String tag, {Object key, String type, Map<String, String> attrs,
       new VNode.element(tag, key: key, type: type, attrs: attrs, style: style,
           classes: classes, children: children);
 
+VNode vSvgElement(String tag, {Object key, String type, Map<String, String> attrs,
+  Map<String, String> style, List<String> classes, List<VNode> children}) =>
+      new VNode.svgElement(tag, key: key, type: type, attrs: attrs, style: style,
+          classes: classes, children: children);
+
 VNode vRoot({String type, Map<String, String> attrs, Map<String, String> style,
   List<String> classes, List<VNode> children}) =>
       new VNode.root(type: type, attrs: attrs, style: style,

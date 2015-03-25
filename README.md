@@ -54,6 +54,7 @@ auto-build in [WebStorm](https://www.jetbrains.com/webstorm/), just
 - [State Diff](https://github.com/localvoid/uix/tree/master/example/state_diff)
 - [Read/Write DOM Batching](https://github.com/localvoid/uix/tree/master/example/read_write_batching)
 - [Component Inheritance](https://github.com/localvoid/uix/tree/master/example/inheritance)
+- [SVG](https://github.com/localvoid/uix/tree/master/example/svg)
 - [TodoMVC (observable)](https://github.com/localvoid/uix_todomvc/)
 - [TodoMVC (persistent)](https://github.com/localvoid/uix_todomvc_persistent/)
 - [MineSweeper Game](https://github.com/localvoid/uix_minesweeper/)
