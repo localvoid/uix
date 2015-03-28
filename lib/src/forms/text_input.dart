@@ -9,9 +9,14 @@ import '../../uix.dart';
 
 part 'text_input.g.dart';
 
-@ComponentMeta(dirtyCheck: false)
+@ComponentMeta()
 class TextInput extends Component<String> {
   final String tag = 'input';
+
+  set data(String otherData) {
+    data_ = otherData;
+    invalidate();
+  }
 
   updateView() {
     final html.InputElement e = element;

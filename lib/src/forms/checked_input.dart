@@ -9,9 +9,14 @@ import '../../uix.dart';
 
 part 'checked_input.g.dart';
 
-@ComponentMeta(dirtyCheck: false)
+@ComponentMeta()
 class CheckedInput extends Component<bool> {
   final String tag = 'input';
+
+  set data(bool otherData) {
+    data_ = otherData;
+    invalidate();
+  }
 
   updateView() {
     final html.InputElement e = element;

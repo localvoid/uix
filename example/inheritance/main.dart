@@ -9,18 +9,20 @@ import 'package:uix/uix.dart';
 
 part 'main.g.dart';
 
-@ShallowEqOperator()
-class ButtonBaseData extends Object with _ButtonBaseDataShallowEqOperator {
+class ButtonBaseData {
   final bool disabled;
 
-  ButtonBaseData(this.disabled);
+  const ButtonBaseData(this.disabled);
+
+  bool operator==(ButtonBaseData other) => disabled == other.disabled;
 }
 
-@ShallowEqOperator()
-class ButtonData extends ButtonBaseData with _ButtonDataShallowEqOperator {
+class ButtonData extends ButtonBaseData {
   final String color;
 
-  ButtonData({bool disabled: false, this.color: 'blue'}) : super(disabled);
+  const ButtonData({bool disabled: false, this.color: 'blue'}) : super(disabled);
+
+  bool operator==(ButtonBaseData other) => super == other && disabled == other.disabled;
 }
 
 abstract class ButtonBase<T extends ButtonBaseData> extends Component<T> {

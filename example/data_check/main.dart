@@ -10,11 +10,12 @@ import 'package:uix/uix.dart';
 
 part 'main.g.dart';
 
-@ShallowEqOperator()
-class CounterProps extends Object with _CounterPropsShallowEqOperator {
+class CounterProps extends Object {
   final int value;
 
   CounterProps(this.value);
+
+  bool operator==(CounterProps other) => value == other.value;
 }
 
 @ComponentMeta()

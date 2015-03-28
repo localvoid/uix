@@ -5,4 +5,3 @@
 library uix.generator;
 
 export 'src/generators/component_generator.dart';
-export 'src/generators/shallow_eq_generator.dart';

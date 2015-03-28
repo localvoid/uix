@@ -70,7 +70,9 @@ class VNode {
         ref = html.document.createElementNS('http://www.w3.org/2000/svg', tag);
       }
     } else if ((flags & componentFlag) != 0) {
-      cref = tag(data, context);
+      cref = (tag as componentConstructor)(data, children, context);
+      cref.create();
+      cref.init();
       ref = cref.element;
     }
   }
@@ -102,18 +104,18 @@ class VNode {
           r.className = className;
         }
       } else {
-        //html.DomTokenList classList;
+//        html.DomTokenList classList;
         html.CssClassSet classList;
 
         if (type != null) {
-          //classList = r.classList;
+//          classList = r.classList;
           classList = r.classes;
           classList.add(type);
         }
 
         if (classes != null) {
           if (classList == null) {
-            //classList = r.classList;
+//            classList = r.classList;
             classList = r.classes;
           }
           for (var i = 0; i < classes.length; i++) {
@@ -123,7 +125,6 @@ class VNode {
       }
 
       if ((flags & componentFlag) != 0) {
-        cref.children = children;
         cref.update();
       } else {
         if (children != null) {
@@ -170,32 +171,16 @@ class VNode {
             }
           }
         } else {
-          //updateClasses(classes, other.classes, r.classList);
+//          updateClasses(classes, other.classes, r.classList);
           updateClasses(classes, other.classes, r.classes);
         }
       }
 
       if ((flags & componentFlag) != 0) {
         other.cref = cref;
-        if ((flags & dirtyCheckFlag) != 0) {
-          bool dirty = false;
-          if ((((flags & immutableDataFlag) != 0) && identical(data, other.data)) || (data != other.data)) {
-            cref.data = other.data;
-            dirty = true;
-          }
-          cref.children = children; // TODO: FIX THIS
-          if (dirty) {
-            cref.invalidate();
-            cref.update();
-          }
-        } else {
-          cref.data = other.data;
-          if (children != other.children) {
-            cref.children = children;
-          }
-          cref.invalidate();
-          cref.update();
-        }
+        cref.data = other.data;
+        cref.children = other.children;
+        cref.update();
       } else {
         if (!identical(children, other.children)) {
           updateChildren(this, children, other.children, context);

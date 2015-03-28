@@ -30,6 +30,8 @@ Future injectVNode(VNode node, html.Node container) async {
 Future injectComponent(Component component, html.Node container) {
   final inject = () async {
     await scheduler.nextFrame.write();
+    component.create();
+    component.init();
     container.append(component.element);
     component.attach();
     component.update();

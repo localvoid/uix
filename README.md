@@ -33,7 +33,6 @@ import 'package:uix/generator.dart';
 
 void main(List<String> args) {
   build(args, const [
-    const ShallowEqGenerator(),
     const ComponentGenerator()
   ], librarySearchPaths: ['web']).then((msg) {
     print(msg);

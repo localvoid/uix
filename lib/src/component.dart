@@ -11,6 +11,8 @@ import 'vcontext.dart';
 import 'vnode.dart';
 import 'env.dart';
 
+typedef Component componentConstructor([dynamic data, List<VNode> children, Component parent]);
+
 abstract class Component<P> extends RevisionedNode with StreamListenerNode implements VContext {
   static const int dirtyFlag = 1;
   static const int attachedFlag = 1 << 1;
@@ -22,16 +24,32 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
 
   int flags = dirtyFlag;
   int depth = 0;
-  Component _parent;
-  P data;
-  List<VNode> children;
   html.Element element;
+  Component _parent;
+  P data_;
+  List<VNode> children_;
   VNode _root;
 
   Component get parent => _parent;
-  set parent(Component c) {
-    _parent = c;
-    depth = c == null ? 0 : c.depth + 1;
+  set parent(Component newParent) {
+    _parent = newParent;
+    depth = newParent == null ? 0 : newParent.depth + 1;
+  }
+
+  P get data => data_;
+  set data(P newData) {
+    if (data_ != newData) {
+      data_ = newData;
+      invalidate();
+    }
+  }
+
+  List<VNode> get children => children_;
+  set children(List<VNode> newChildren) {
+    if (children_ != newChildren) {
+      children_ = newChildren;
+      invalidate();
+    }
   }
 
   VNode get root => _root;
@@ -39,17 +57,17 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
   bool get isDirty => (flags & dirtyFlag) != 0;
   bool get isAttached => (flags & attachedFlag) != 0;
 
-  Component() {
+  void create() {
     element = svg ?
-        html.document.createElementNS('http://www.w3.org/2000/svg', tag)
-      : html.document.createElement(tag);
+    html.document.createElementNS('http://www.w3.org/2000/svg', tag)
+    : html.document.createElement(tag);
   }
 
   void init() {}
 
   void update([_]) {
     if ((flags & shouldUpdateViewFlags) == shouldUpdateViewFlags) {
-      var future;
+      Future future;
       if (updateState()) {
         future = updateView();
       }

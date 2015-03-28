@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 2015-03-24T08:00:56.194Z
+// 2015-03-28T09:55:09.377Z
 
 part of uix.example.read_write_batching.main;
 
@@ -8,16 +8,17 @@ part of uix.example.read_write_batching.main;
 // Target: class OuterBox
 // **************************************************************************
 
-OuterBox createOuterBox([dynamic data, Component parent]) {
+OuterBox createOuterBox(
+    [dynamic data, List<VNode> children, Component parent]) {
   return new OuterBox()
     ..parent = parent
     ..data = data
-    ..init();
+    ..children = children;
 }
 VNode vOuterBox({dynamic data, Object key, String type,
     Map<String, String> attrs, Map<String, String> style, List<String> classes,
     List<VNode> children}) => new VNode.component(createOuterBox,
-    flags: VNode.componentFlag | VNode.dirtyCheckFlag,
+    flags: VNode.componentFlag,
     key: key,
     data: data,
     type: type,
@@ -31,16 +32,17 @@ VNode vOuterBox({dynamic data, Object key, String type,
 // Target: class InnerBox
 // **************************************************************************
 
-InnerBox createInnerBox([dynamic data, Component parent]) {
+InnerBox createInnerBox(
+    [dynamic data, List<VNode> children, Component parent]) {
   return new InnerBox()
     ..parent = parent
     ..data = data
-    ..init();
+    ..children = children;
 }
 VNode vInnerBox({dynamic data, Object key, String type,
     Map<String, String> attrs, Map<String, String> style, List<String> classes,
     List<VNode> children}) => new VNode.component(createInnerBox,
-    flags: VNode.componentFlag | VNode.dirtyCheckFlag,
+    flags: VNode.componentFlag,
     key: key,
     data: data,
     type: type,
@@ -54,16 +56,16 @@ VNode vInnerBox({dynamic data, Object key, String type,
 // Target: class Box
 // **************************************************************************
 
-Box createBox([dynamic data, Component parent]) {
+Box createBox([dynamic data, List<VNode> children, Component parent]) {
   return new Box()
     ..parent = parent
     ..data = data
-    ..init();
+    ..children = children;
 }
 VNode vBox({dynamic data, Object key, String type, Map<String, String> attrs,
     Map<String, String> style, List<String> classes,
     List<VNode> children}) => new VNode.component(createBox,
-    flags: VNode.componentFlag | VNode.dirtyCheckFlag,
+    flags: VNode.componentFlag,
     key: key,
     data: data,
     type: type,
@@ -77,16 +79,16 @@ VNode vBox({dynamic data, Object key, String type, Map<String, String> attrs,
 // Target: class App
 // **************************************************************************
 
-App createApp([dynamic data, Component parent]) {
+App createApp([dynamic data, List<VNode> children, Component parent]) {
   return new App()
     ..parent = parent
     ..data = data
-    ..init();
+    ..children = children;
 }
 VNode vApp({dynamic data, Object key, String type, Map<String, String> attrs,
     Map<String, String> style, List<String> classes,
     List<VNode> children}) => new VNode.component(createApp,
-    flags: VNode.componentFlag | VNode.dirtyCheckFlag,
+    flags: VNode.componentFlag,
     key: key,
     data: data,
     type: type,

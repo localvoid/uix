@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// 2015-03-24T08:00:56.080Z
+// 2015-03-28T09:55:09.332Z
 
 part of uix.example.hello.main;
 
@@ -8,16 +8,16 @@ part of uix.example.hello.main;
 // Target: class Main
 // **************************************************************************
 
-Main createMain([String data, Component parent]) {
+Main createMain([String data, List<VNode> children, Component parent]) {
   return new Main()
     ..parent = parent
     ..data = data
-    ..init();
+    ..children = children;
 }
 VNode vMain({String data, Object key, String type, Map<String, String> attrs,
     Map<String, String> style, List<String> classes,
     List<VNode> children}) => new VNode.component(createMain,
-    flags: VNode.componentFlag | VNode.dirtyCheckFlag,
+    flags: VNode.componentFlag,
     key: key,
     data: data,
     type: type,
