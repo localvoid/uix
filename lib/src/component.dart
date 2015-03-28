@@ -46,7 +46,7 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
 
   List<VNode> get children => children_;
   set children(List<VNode> newChildren) {
-    if (children_ != newChildren) {
+    if (!identical(children_, newChildren)) {
       children_ = newChildren;
       invalidate();
     }
