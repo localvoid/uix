@@ -78,14 +78,6 @@ class VNode {
   void render(VContext context) {
     if ((flags & (elementFlag | componentFlag | rootFlag)) != 0) {
       final html.Element r = ref;
-      var c;
-
-      if (type != null) {
-        if (c == null) {
-          c = r.classes;
-        }
-        c.add(type);
-      }
 
       if (attrs != null) {
         attrs.forEach((k, v) {
@@ -99,11 +91,35 @@ class VNode {
         });
       }
 
-      if (classes != null) {
-        if (c == null) {
-          c = r.classes;
+      if ((flags & (elementFlag | componentFlag)) != 0) {
+        String className = type;
+        if (classes != null) {
+          final classesString = classes.join(' ');
+          className = className == null ? classesString : className + ' ' + classesString;
         }
-        c.addAll(classes);
+        if (className != null) {
+          data = className;
+          r.className = className;
+        }
+      } else {
+        //html.DomTokenList classList;
+        html.CssClassSet classList;
+
+        if (type != null) {
+          //classList = r.classList;
+          classList = r.classes;
+          classList.add(type);
+        }
+
+        if (classes != null) {
+          if (classList == null) {
+            //classList = r.classList;
+            classList = r.classes;
+          }
+          for (var i = 0; i < classes.length; i++) {
+            classList.add(classes[i]);
+          }
+        }
       }
 
       if ((flags & componentFlag) != 0) {
@@ -139,7 +155,24 @@ class VNode {
       }
 
       if (!identical(classes, other.classes)) {
-        updateClasses(classes, other.classes, r.classes);
+        if ((flags & elementFlag) != 0) {
+          String className = other.type;
+          if (other.classes != null) {
+            final classesString = other.classes.join(' ');
+            className = className == null ? classesString : className + ' ' + classesString;
+          }
+          other.data = className;
+          if ((data as String) != className) {
+            if (className == null) {
+              r.className = '';
+            } else {
+              r.className = className;
+            }
+          }
+        } else {
+          //updateClasses(classes, other.classes, r.classList);
+          updateClasses(classes, other.classes, r.classes);
+        }
       }
 
       if ((flags & componentFlag) != 0) {
@@ -150,10 +183,7 @@ class VNode {
             cref.data = other.data;
             dirty = true;
           }
-          if (children != other.children) {
-            cref.children = children;
-            dirty = true;
-          }
+          cref.children = children; // TODO: FIX THIS
           if (dirty) {
             cref.invalidate();
             cref.update();
@@ -835,65 +865,140 @@ void updateAttrs(Map a, Map b, Map n) {
   }
 }
 
-/// Find changes between Lists [a] and [b] and apply this changes to Set [n].
-void updateClasses(List a, List b, Set n) {
-  if (a != null && a.length > 0) {
+/// Find changes between Lists [a] and [b] and apply this changes to Set [classList].
+// TODO: https://code.google.com/p/dart/issues/detail?id=23012
+//void updateClasses(List<String> a, List<String> b, html.DomTokenList classList) {
+void updateClasses(List<String> a, List<String> b, html.CssClassSet classList) {
+  if (a != null && a.length != 0) {
     if (b == null || b.length == 0) {
-      n.removeAll(a);
+      for (int i = 0; i < a.length; i++) {
+        classList.remove(a[i]);
+      }
     } else {
-      final aLength = a.length;
-      final bLength = b.length;
-
-      if (aLength * bLength <= 16) {
-        final visited = new List(bLength);
-
-        for (var aItem in a) {
-          var removed = true;
-
-          for (var i = 0; i < bLength; i++) {
-            final bItem = b[i];
-
-            if (aItem == bItem) {
-              removed = false;
-              visited[i] = true;
-              break;
-            }
-          }
-          if (removed) {
-            n.remove(aItem);
+      if (a.length == 1 && b.length == 1) {
+        final String aItem = a[0];
+        final String bItem = b[0];
+        if (aItem != bItem) {
+          classList.remove(aItem);
+          classList.add(bItem);
+        }
+      } else if (a.length == 1) {
+        final String aItem = a[0];
+        int unchangedPosition = -1;
+        for (int i = 0; i < b.length; i++) {
+          final String bItem = b[i];
+          if (aItem != bItem) {
+            unchangedPosition = i;
+            break;
+          } else {
+            classList.add(bItem);
           }
         }
-        for (var i = 0; i < bLength; i++) {
-          if (visited[i] != true) {
-            n.add(b[i]);
+        if (unchangedPosition != -1) {
+          for (int i = unchangedPosition + 1; i < b.length; i++) {
+            classList.add(b[i]);
           }
+        } else {
+          classList.remove(aItem);
+        }
+      } else if (b.length == 1) {
+        final String bItem = b[0];
+        int unchangedPosition = -1;
+        for (int i = 0; i < a.length; i++) {
+          final String aItem = a[i];
+          if (aItem != bItem) {
+            unchangedPosition = i;
+            break;
+          } else {
+            classList.remove(aItem);
+          }
+        }
+        if (unchangedPosition != -1) {
+          for (int i = unchangedPosition + 1; i < a.length; i++) {
+            classList.remove(a[i]);
+          }
+        } else {
+          classList.add(bItem);
         }
       } else {
-        final bIndex = new HashMap();
+        int aStart = 0;
+        int bStart = 0;
+        int aEnd = a.length - 1;
+        int bEnd = b.length - 1;
 
-        for (var bItem in b) {
-          bIndex[bItem] = false;
+        while (aStart <= aEnd && bStart <= bEnd) {
+          if (a[aStart] != b[bStart]) {
+            break;
+          }
+          aStart++;
+          bStart++;
+        }
+        while (aStart <= aEnd && bStart <= bEnd) {
+          if (a[aEnd] != b[bEnd]) {
+            break;
+          }
+          aEnd--;
+          bEnd--;
         }
 
-        for (var aItem in a) {
-          if (!bIndex.containsKey(aItem)) {
-            n.remove(aItem);
-          } else {
-            bIndex[aItem] = true;
-          }
-        }
+        final int aLength = aEnd - aStart + 1;
+        final int bLength = bEnd - bStart + 1;
 
-        bIndex.forEach((k, v) {
-          if (v == false) {
-            n.add(k);
+        if (aLength * bLength <= 16) {
+          final List<bool> visited = new List<bool>(bLength);
+
+          for (int i = aStart; i <= aEnd; i++) {
+            final String aItem = a[i];
+            bool removed = true;
+
+            for (int j = bStart; j <= bEnd; j++) {
+              final String bItem = b[j];
+
+              if (aItem == bItem) {
+                removed = false;
+                visited[j - bStart] = true;
+                break;
+              }
+            }
+            if (removed) {
+              classList.remove(aItem);
+            }
           }
-        });
+          for (int i = bStart; i <= bEnd; i++) {
+            if (visited[i - bStart] != true) {
+              classList.add(b[i]);
+            }
+          }
+        } else {
+          final HashMap<String, bool> bIndex = new HashMap<String, bool>();
+
+          for (int i = bStart; i <= bEnd; i++) {
+            bIndex[b[i]] = false;
+          }
+
+          for (int i = aStart; i <= aEnd; i++) {
+            final String aItem = a[i];
+
+            if (!bIndex.containsKey(aItem)) {
+              classList.remove(aItem);
+            } else {
+              bIndex[aItem] = true;
+            }
+          }
+
+          bIndex.forEach((k, v) {
+            if (v == false) {
+              classList.add(k);
+            }
+          });
+        }
       }
     }
   } else if (b != null && b.length > 0) {
-    n.addAll(b);
+    for (int i = 0; i < b.length; i++) {
+      classList.add(b[i]);
+    }
   }
-  return null;
 }
 
 void writeAttrsToHtmlString(StringBuffer b, Map<String, String> attrs) {
