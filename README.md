@@ -63,6 +63,6 @@ auto-build in [WebStorm](https://www.jetbrains.com/webstorm/), just
 
 ## DBMonster Benchmark
 
-[Run](http://localvoid.github.io/uix_dbmon/)
-[Run](http://localvoid.github.io/uix_dbmon/classlist2) (compiled with [patched dart-sdk](https://code.google.com/p/dart/issues/detail?id=23012))
+- [Run](http://localvoid.github.io/uix_dbmon/)
+- [Run](http://localvoid.github.io/uix_dbmon/classlist2) (compiled with [patched dart-sdk](https://code.google.com/p/dart/issues/detail?id=23012))
 
