@@ -872,7 +872,7 @@ void updateClasses(List<String> a, List<String> b, html.CssClassSet classList) {
         int unchangedPosition = -1;
         for (int i = 0; i < b.length; i++) {
           final String bItem = b[i];
-          if (aItem != bItem) {
+          if (aItem == bItem) {
             unchangedPosition = i;
             break;
           } else {
@@ -891,7 +891,7 @@ void updateClasses(List<String> a, List<String> b, html.CssClassSet classList) {
         int unchangedPosition = -1;
         for (int i = 0; i < a.length; i++) {
           final String aItem = a[i];
-          if (aItem != bItem) {
+          if (aItem == bItem) {
             unchangedPosition = i;
             break;
           } else {
