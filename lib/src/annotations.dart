@@ -7,7 +7,3 @@ library uix.src.meta;
 class ComponentMeta {
   const ComponentMeta();
 }
-
-class ShallowEqOperator {
-  const ShallowEqOperator();
-}
