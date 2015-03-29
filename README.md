@@ -60,6 +60,10 @@ auto-build in [WebStorm](https://www.jetbrains.com/webstorm/), just
 - [Snake Game](https://github.com/localvoid/uix_snake/)
 - [Dual N-Back Game](https://github.com/localvoid/dual_nback/)
 
+## VDom Benchmark
+
+- [Run](http://vdom-benchmark.github.io/vdom-benchmark/?cfg=http://localvoid.github.io/vdom-benchmark-uix/config.js)
+
 ## DBMonster Benchmark
 
 - [Run](http://localvoid.github.io/uix_dbmon/)
