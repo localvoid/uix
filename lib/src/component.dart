@@ -19,7 +19,6 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
   static const int svgFlag = 1 << 2;
   static const int shouldUpdateViewFlags = dirtyFlag | attachedFlag;
 
-  final bool svg = false;
   final String tag = 'div';
 
   int flags = dirtyFlag;
@@ -56,11 +55,12 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
 
   bool get isDirty => (flags & dirtyFlag) != 0;
   bool get isAttached => (flags & attachedFlag) != 0;
+  bool get isSvg => (flags & svgFlag) != 0;
 
   void create() {
-    element = svg ?
-    html.document.createElementNS('http://www.w3.org/2000/svg', tag)
-    : html.document.createElement(tag);
+    element = isSvg ?
+        html.document.createElementNS('http://www.w3.org/2000/svg', tag)
+      : html.document.createElement(tag);
   }
 
   void init() {}
@@ -223,4 +223,9 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
     }
     b.write('</$tag>');
   }
+}
+
+abstract class SvgComponent<P> extends Component<P> {
+  final String tag = 'svg';
+  int flags = Component.dirtyFlag | Component.svgFlag;
 }
