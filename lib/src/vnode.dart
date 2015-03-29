@@ -242,13 +242,6 @@ class VNode {
     node.dispose();
   }
 
-  void mountChild(VNode node, VContext context, bool attached) {
-    node.mount(context);
-    if (attached) {
-      node.attached();
-    }
-  }
-
   void dispose() {
     if ((flags & componentFlag) != 0) {
       cref.dispose();
