@@ -6,6 +6,7 @@ library uix.src.vnode;
 
 import 'dart:collection';
 import 'dart:html' as html;
+import 'assert.dart';
 import 'vcontext.dart';
 import 'component.dart';
 
@@ -27,6 +28,9 @@ class VNode {
   List<VNode> children;
   html.Node ref;
   Component cref;
+
+  VNode(this.flags, {this.key, this.tag, this.data, this.type, this.attrs, this.style,
+        this.classes, this.children});
 
   VNode.text(this.data, {this.key})
       : flags = textFlag,
@@ -169,6 +173,7 @@ class VNode {
   }
 
   void update(VNode other, VContext context) {
+    assert(invariant(other.ref == null, 'VNode objects cannot be reused'));
     other.ref = ref;
     if ((flags & textFlag) != 0) {
       if (data != other.data) {

@@ -10,6 +10,12 @@ void injectVNodeSync(VNode node, html.Node container) {
   node.render(const VContext(true));
 }
 
+VNode deepCopy(VNode n) {
+  final children = n.children == null ? null : n.children.map((c) => deepCopy(c)).toList();
+  return new VNode(n.flags, key: n.key, tag: n.tag, data: n.data, type: n.type, attrs: n.attrs, style: n.style,
+      classes: n.classes, children: children);
+}
+
 VNode ee(Object key, [Object c = null]) =>
     (c == null) ? vElement('div', key: key) : vElement('div', key: key)(c);
 VNode ei([Object c = null]) =>
@@ -37,7 +43,7 @@ void checkInnerHtmlEquals(VNode a, VNode b) {
   final aDiv = new html.DocumentFragment();
   final bDiv = new html.DocumentFragment();
   injectVNodeSync(a, aDiv);
-  injectVNodeSync(b, bDiv);
+  injectVNodeSync(deepCopy(b), bDiv);
 
   final bHtml = bDiv.innerHtml;
 
