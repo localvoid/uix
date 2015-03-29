@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>uix example: Mount</title>
+    <style>
+      .Collapsable {
+        margin: 20px;
+        background: #ccc;
+        overflow: hidden;
+        height: 200px;
+        line-height: 200px;
+        text-align: center;
+        font-size: 48px;
+        transition: height 1000ms;
+      }
+      .Collapsable.open {
+      }
+      .Collapsable.close {
+        height: 0;
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="Main"><button class="CloseButton">Close</button><div class="Collapsable open">0</div></div>
+
+    <script type="application/dart" src="main.dart"></script>
+    <script src="packages/browser/dart.js"></script>
+  </body>
+</html>

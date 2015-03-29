@@ -44,6 +44,22 @@ Future injectComponent(Component component, html.Node container) {
   }
 }
 
+Future mountComponent(Component component, html.Node node) {
+  final mount = () async {
+    await scheduler.nextFrame.write();
+    component.mount(node);
+    component.init();
+    component.attach();
+    component.update();
+  };
+
+  if (identical(Zone.current, scheduler.zone)) {
+    return mount();
+  } else {
+    return scheduler.zone.run(mount);
+  }
+}
+
 VNode vText(String data, {Object key}) => new VNode.text(data, key: key);
 
 VNode vElement(String tag, {Object key, String type, Map<String, String> attrs,

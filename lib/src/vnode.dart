@@ -74,6 +74,38 @@ class VNode {
     }
   }
 
+  void mount(html.Node node, VContext context) {
+    ref = node;
+
+    if ((flags & componentFlag) != 0) {
+      cref = (tag as componentConstructor)(data, children, context);
+      cref.mount(node);
+      cref.init();
+      if (context.isAttached) {
+        attached();
+      }
+      cref.update();
+    } else {
+      if ((flags & elementFlag) != 0) {
+        String className = type;
+        if (classes != null) {
+          final classesString = classes.join(' ');
+          className = className == null ? classesString : className + ' ' + classesString;
+        }
+        if (className != null) {
+          data = className;
+        }
+      }
+      if (children != null && children.length > 0) {
+        html.Node child = node.childNodes.first;
+        for (int i = 0; i < children.length; i++) {
+          children[i].mount(child, context);
+          child = child.nextNode;
+        }
+      }
+    }
+  }
+
   void render(VContext context) {
     if ((flags & (elementFlag | componentFlag | rootFlag)) != 0) {
       final html.Element r = ref;
@@ -208,6 +240,13 @@ class VNode {
   void removeChild(VNode node, bool attached) {
     node.ref.remove();
     node.dispose();
+  }
+
+  void mountChild(VNode node, VContext context, bool attached) {
+    node.mount(context);
+    if (attached) {
+      node.attached();
+    }
   }
 
   void dispose() {

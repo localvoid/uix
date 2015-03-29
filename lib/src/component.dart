@@ -17,6 +17,7 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
   static const int dirtyFlag = 1;
   static const int attachedFlag = 1 << 1;
   static const int svgFlag = 1 << 2;
+  static const int mountFlag = 1 << 3;
   static const int shouldUpdateViewFlags = dirtyFlag | attachedFlag;
 
   final String tag = 'div';
@@ -61,6 +62,11 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
     element = html.document.createElement(tag);
   }
 
+  void mount(html.Element e) {
+    flags |= mountFlag;
+    element = e;
+  }
+
   void init() {}
 
   void update([_]) {
@@ -89,9 +95,13 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
   void updateRoot(VNode n) {
     if (n != null) {
       if (_root == null) {
-        n.ref = element;
         n.cref = this;
-        n.render(this);
+        if ((flags & mountFlag) != 0) {
+          n.mount(element, this);
+        } else {
+          n.ref = element;
+          n.render(this);
+        }
       } else {
         _root.update(n, this);
       }
