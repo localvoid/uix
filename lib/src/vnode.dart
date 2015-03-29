@@ -16,9 +16,6 @@ class VNode {
   static const int rootFlag = 1 << 3;
   static const int svgFlag = 1 << 4;
 
-  static const int immutableDataFlag = 1 << 5;
-  static const int dirtyCheckFlag = 1 << 6;
-
   final int flags;
   final Object key;
   final dynamic tag;
