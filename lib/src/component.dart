@@ -93,20 +93,19 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
   Future updateView();
 
   void updateRoot(VNode n) {
-    if (n != null) {
-      if (_root == null) {
-        n.cref = this;
-        if ((flags & mountFlag) != 0) {
-          n.mount(element, this);
-        } else {
-          n.ref = element;
-          n.render(this);
-        }
+    assert(n != null);
+    if (_root == null) {
+      n.cref = this;
+      if ((flags & mountFlag) != 0) {
+        n.mount(element, this);
       } else {
-        _root.update(n, this);
+        n.ref = element;
+        n.render(this);
       }
-      _root = n;
+    } else {
+      _root.update(n, this);
     }
+    _root = n;
   }
 
   void invalidate([_]) {
