@@ -8,12 +8,12 @@ import 'dart:async';
 import '../env.dart';
 
 abstract class RevisionedNode {
-  int _rev = 0;
-  int get rev => _rev;
+  int _revision = 0;
+  int get revision => _revision;
 
-  void updateRev() { _rev = scheduler.clock; }
+  void updateRevision() { _revision = scheduler.clock; }
 
-  bool isNewer(RevisionedNode other) => _rev > other._rev;
+  bool isNewer(RevisionedNode other) => _revision > other._revision;
 }
 
 abstract class StreamListenerNode {

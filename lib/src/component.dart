@@ -80,7 +80,7 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
   }
 
   void _finishUpdate([_]) {
-    updateRev();
+    updateRevision();
     flags &= ~dirtyFlag;
     updated();
   }
