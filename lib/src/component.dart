@@ -58,9 +58,7 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
   bool get isSvg => (flags & svgFlag) != 0;
 
   void create() {
-    element = isSvg ?
-        html.document.createElementNS('http://www.w3.org/2000/svg', tag)
-      : html.document.createElement(tag);
+    element = html.document.createElement(tag);
   }
 
   void init() {}
@@ -228,4 +226,8 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
 abstract class SvgComponent<P> extends Component<P> {
   final String tag = 'svg';
   int flags = Component.dirtyFlag | Component.svgFlag;
+
+  void create() {
+    element = html.document.createElementNS('http://www.w3.org/2000/svg', tag);
+  }
 }
