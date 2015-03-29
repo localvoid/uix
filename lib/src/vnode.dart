@@ -97,7 +97,9 @@ class VNode {
           className = className == null ? classesString : className + ' ' + classesString;
         }
         if (className != null) {
-          data = className;
+          if ((flags & elementFlag) != 0) {
+            data = className;
+          }
           r.className = className;
         }
       } else {
@@ -152,8 +154,8 @@ class VNode {
         updateStyle(style, other.style, r.style);
       }
 
-      if (!identical(classes, other.classes)) {
-        if ((flags & elementFlag) != 0) {
+      if ((flags & elementFlag) != 0) {
+        if (!identical(classes, other.classes)) {
           String className = other.type;
           if (other.classes != null) {
             final classesString = other.classes.join(' ');
@@ -168,9 +170,11 @@ class VNode {
             }
           }
         } else {
-//          updateClasses(classes, other.classes, r.classList);
-          updateClasses(classes, other.classes, r.classes);
+          other.data = data;
         }
+      } else if (!identical(classes, other.classes)) {
+//        updateClasses(classes, other.classes, r.classList);
+        updateClasses(classes, other.classes, r.classes);
       }
 
       if ((flags & componentFlag) != 0) {
