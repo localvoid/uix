@@ -13,8 +13,13 @@ part 'main.g.dart';
 @ComponentMeta()
 class Collapsable extends Component<bool> {
   updateView() {
-    updateRoot(vRoot(type: 'Collapsable', classes: data ? const ['close'] : const ['open'])(children));
+    if (isMounting) {
+      updateRoot(_build('Not Mounted'));
+    }
+    updateRoot(_build(children));
   }
+
+  _build(c) => vRoot(type: 'Collapsable', classes: data ? const ['close'] : const ['open'])(c);
 }
 
 @ComponentMeta()
