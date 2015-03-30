@@ -10,23 +10,66 @@ import 'assert.dart';
 import 'vcontext.dart';
 import 'component.dart';
 
+/// Virtual DOM Node.
 class VNode {
+  /// Flag indicating that [VNode] is [html.Text].
   static const int textFlag = 1;
+  /// Flag indicating that [VNode] is [html.Element].
   static const int elementFlag = 1 << 1;
+  /// Flag indicating that [VNode] is [Component].
   static const int componentFlag = 1 << 2;
+  /// Flag indicating that [VNode] is root element of the [Component].
   static const int rootFlag = 1 << 3;
+  /// Flag indicating that [VNode] represents node that is in svg namespace.
   static const int svgFlag = 1 << 4;
 
+  /// Flags.
   final int flags;
+
+  /// Key that should be unique among its siblings. If the key is [:null:],
+  /// it means that the key is implicit.
+  /// When [key] is implicit, all siblings should also have implicit keys,
+  /// otherwise it will result in undefined behaviour in "production" mode,
+  /// or runtime error in "development" mode.
   final Object key;
-  final dynamic tag;
+
+  /// Tag should contain tag name if [VNode] represents an element, or
+  /// reference to the [componentConstructor] if it represents a
+  /// [Component].
+  final dynamic/*<String | componentConstructor>*/ tag;
+
+  /// Data that should be passed to [Component]s. Data is transferred to the
+  /// [Component] using `set data(P data)` setter.
+  ///
+  /// When [VNode] represents an element, [data] is used as a cache for
+  /// className string that was built from [type] and [classes] properties.
   dynamic data;
+
+  /// Type represents an immutable class name.
   String type;
+
+  /// Attributes.
   Map<String, String> attrs;
+
+  /// Styles.
   Map<String, String> style;
+
+  /// Classes.
   List<String> classes;
+
+  /// List of children nodes. When [VNode] represents a [Component], children
+  /// nodes are transferred to the [Component] using
+  /// `set children(List<VNode> children)` setter.
   List<VNode> children;
+
+  /// Reference to the [html.Node]. It will be available after [VNode] is
+  /// [create]d or [update]d. Each time [VNode] is updated, reference to the
+  /// [html.Node] is passed from the previous node to the new one.
   html.Node ref;
+
+  /// Reference to the [Component]. It will be available after [VNode] is
+  /// [create]d or [update]d. Each time [VNode] is updated, reference to the
+  /// [Component] is passed from the previous node to the new one.
   Component cref;
 
   VNode(this.flags, {this.key, this.tag, this.data, this.type, this.attrs, this.style,
@@ -35,17 +78,26 @@ class VNode {
   VNode.text(this.data, {this.key})
       : flags = textFlag,
         tag = null;
+
   VNode.element(this.tag, {this.key, this.type, this.attrs, this.style,
       this.classes, this.children})
       : flags = elementFlag;
+
   VNode.svgElement(this.tag, {this.key, this.type, this.attrs, this.style,
       this.classes, this.children})
       : flags = elementFlag | svgFlag;
+
   VNode.component(this.tag, {this.flags: componentFlag, this.key, this.data,
       this.type, this.attrs, this.style, this.classes, this.children});
+
   VNode.root({this.type, this.attrs, this.style, this.classes, this.children})
       : flags = rootFlag, key = null, tag = null;
 
+  /// Helper method for children assignment using call operator.
+  ///
+  /// ```dart
+  /// vElement('div')([vElement('span'), vElement('span')]);
+  /// ```
   VNode call(c) {
     if (c is List) {
       children = c;
@@ -59,8 +111,13 @@ class VNode {
     return this;
   }
 
+  /// Check if [VNode]s have the same type.
+  ///
+  /// [VNode]s can be updated only when they have the same type.
   bool sameType(VNode other) => (flags == other.flags && tag == other.tag);
 
+  /// Create root level element of the [VNode] object, or [Component] for
+  /// component nodes.
   void create(VContext context) {
     if ((flags & textFlag) != 0) {
       ref = new html.Text(data);
@@ -78,6 +135,7 @@ class VNode {
     }
   }
 
+  /// Mount [VNode] on top of existing [node].
   void mount(html.Node node, VContext context) {
     ref = node;
 
@@ -110,6 +168,7 @@ class VNode {
     }
   }
 
+  /// Render internal representation of the [VNode].
   void render(VContext context) {
     if ((flags & (elementFlag | componentFlag | rootFlag)) != 0) {
       final html.Element r = ref;
@@ -172,6 +231,7 @@ class VNode {
     }
   }
 
+  /// Perform a diff and patch between this [VNode] and [other].
   void update(VNode other, VContext context) {
     assert(invariant(other.ref == null || identical(ref, other.ref), 'VNode objects cannot be reused'));
     other.ref = ref;
@@ -334,6 +394,10 @@ class VNode {
   }
 }
 
+/// Perform a diff/patch on children [a] and [b].
+///
+/// Mixing children with explicit and implicit keys will result in undefined
+/// behaviour in "production" mode, and runtime error in "development" mode.
 void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context) {
   final bool attached = context.isAttached;
   if (a != null && a.isNotEmpty) {
@@ -449,6 +513,11 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
   }
 }
 
+/// Update children with implicit keys.
+///
+/// Any heuristics that is used in this algorithm is an undefined behaviour,
+/// external code should not rely on the knowledge of this algorithm, because
+/// it can be changed in any time.
 void _updateImplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context, bool attached) {
   int aStart = 0;
   int bStart = 0;
@@ -513,6 +582,7 @@ void _updateImplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
   }
 }
 
+/// Update children with explicit keys.
 void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context, bool attached) {
   int aStart = 0;
   int bStart = 0;
@@ -628,7 +698,7 @@ void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
     // to find all removed nodes and simultaneously perform updates on
     // the nodes that exists in both lists and replacing "inserted"
     // marks with the position of the node from the list [b] in list [a].
-    // Then we just need to perform slightly modified LIS algorith,
+    // Then we just need to perform slightly modified LIS algorithm,
     // that ignores "inserted" marks and find common subsequence and
     // move all nodes that doesn't belong to this subsequence, or
     // insert if they have "inserted" mark.
