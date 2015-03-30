@@ -173,7 +173,7 @@ class VNode {
   }
 
   void update(VNode other, VContext context) {
-    assert(invariant(other.ref == null, 'VNode objects cannot be reused'));
+    assert(invariant(other.ref == null || identical(ref, other.ref), 'VNode objects cannot be reused'));
     other.ref = ref;
     if ((flags & textFlag) != 0) {
       if (data != other.data) {
@@ -193,17 +193,19 @@ class VNode {
 
       if ((flags & elementFlag) != 0) {
         if (!identical(classes, other.classes)) {
-          String className = other.type;
-          if (other.classes != null) {
-            final classesString = other.classes.join(' ');
-            className = className == null ? classesString : className + ' ' + classesString;
+          if (other.data == null) {
+            String className = other.type;
+            if (other.classes != null) {
+              final classesString = other.classes.join(' ');
+              className = className == null ? classesString : className + ' ' + classesString;
+            }
+            other.data = className;
           }
-          other.data = className;
-          if ((data as String) != className) {
-            if (className == null) {
+          if ((data as String) != (other.data as String)) {
+            if (other.data == null) {
               r.className = '';
             } else {
-              r.className = className;
+              r.className = (other.data as String);
             }
           }
         } else {
