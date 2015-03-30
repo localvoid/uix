@@ -69,3 +69,16 @@ auto-build in [WebStorm](https://www.jetbrains.com/webstorm/), just
 - [Run](http://localvoid.github.io/uix_dbmon/)
 - [Run](http://localvoid.github.io/uix_dbmon/classlist2) (compiled with [patched dart-sdk](https://code.google.com/p/dart/issues/detail?id=23012))
 
+## Server-Side rendering
+
+uix library with
+[simple tweaks](https://github.com/localvoid/uix_standalone) is fully
+capable to render components on the server and mounting on top of the
+existing html tree. Unfortunately Dart doesn't support any usable way
+to build uix Components this way. There are several proposals for
+Configured Imports [1](https://github.com/lrhn/dep-configured-imports)
+[2](https://github.com/eernstg/dep-configured-imports)
+[3](https://github.com/munificent/dep-external-libraries/blob/master/Proposal.md)
+that will solve some problems, but all this proposals will be really
+bad in terms of developer experience for building isomorphic uix
+components compared to simple conditional compilation.
