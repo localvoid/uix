@@ -187,7 +187,7 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
         || (root != null && (root.type != null || (root.classes != null && root.classes.isNotEmpty)))) {
       b.write(' class="');
       bool off = false;
-      if (p.type != null) {
+      if (p != null && p.type != null) {
         b.write(p.type);
         off = true;
       }
@@ -225,9 +225,9 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
       b.write('"');
     }
     b.write('>');
-    if (children != null) {
-      for (var i = 0; i < children.length; i++) {
-        children[i].writeHtmlString(b);
+    if (root != null && root.children != null) {
+      for (var i = 0; i < root.children.length; i++) {
+        root.children[i].writeHtmlString(b);
       }
     }
     b.write('</$tag>');
