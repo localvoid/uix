@@ -364,10 +364,10 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
         // fast path when [a] have 1 child
         final aNode = a.first;
 
-        // implicit keys
+        int i = 0;
+        bool updated = false;
+
         if (aNode.key == null) {
-          int i = 0;
-          bool updated = false;
           while (i < b.length) {
             final VNode bNode = b[i++];
             if (aNode.sameType(bNode)) {
@@ -377,17 +377,7 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
             }
             parent.insertChild(bNode, aNode, context, attached);
           }
-
-          if (!updated) {
-            parent.removeChild(aNode, attached);
-          } else {
-            while (i < b.length) {
-              parent.insertChild(b[i++], null, context, attached);
-            }
-          }
         } else {
-          int i = 0;
-          bool updated = false;
           while (i < b.length) {
             final VNode bNode = b[i++];
             if (aNode.key == bNode.key) {
@@ -397,23 +387,23 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
             }
             parent.insertChild(bNode, aNode, context, attached);
           }
+        }
 
-          if (!updated) {
-            parent.removeChild(aNode, attached);
-          } else {
-            while (i < b.length) {
-              parent.insertChild(b[i++], null, context, attached);
-            }
+        if (!updated) {
+          parent.removeChild(aNode, attached);
+        } else {
+          while (i < b.length) {
+            parent.insertChild(b[i++], null, context, attached);
           }
         }
       } else if (b.length == 1) {
         // fast path when [b] have 1 child
         final bNode = b.first;
 
-        // implicit keys
+        int i = 0;
+        bool updated = false;
+
         if (bNode.key == null) {
-          int i = 0;
-          bool updated = false;
           while (i < a.length) {
             final VNode aNode = a[i++];
             if (aNode.sameType(bNode)) {
@@ -423,17 +413,7 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
             }
             parent.removeChild(aNode, attached);
           }
-
-          if (!updated) {
-            parent.insertChild(bNode, null, context, attached);
-          } else {
-            while (i < a.length) {
-              parent.removeChild(a[i++], attached);
-            }
-          }
         } else {
-          int i = 0;
-          bool updated = false;
           while (i < a.length) {
             final VNode aNode = a[i++];
             if (aNode.key == bNode.key) {
@@ -443,13 +423,12 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
             }
             parent.removeChild(aNode, attached);
           }
-
-          if (!updated) {
-            parent.insertChild(bNode, null, context, attached);
-          } else {
-            while (i < a.length) {
-              parent.removeChild(a[i++], attached);
-            }
+        }
+        if (!updated) {
+          parent.insertChild(bNode, null, context, attached);
+        } else {
+          while (i < a.length) {
+            parent.removeChild(a[i++], attached);
           }
         }
       } else {
