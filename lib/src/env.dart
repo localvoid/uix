@@ -6,8 +6,12 @@ library uix.src.env;
 
 import 'scheduler.dart';
 
+/// Global [Scheduler] instance.
 Scheduler scheduler;
 
+/// Initialize uix library.
+///
+/// Creates [Scheduler] instance.
 void initUix() {
   scheduler = new Scheduler();
 }

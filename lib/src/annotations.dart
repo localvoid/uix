@@ -4,6 +4,12 @@
 
 library uix.src.meta;
 
+/// Each Component should have @ComponentMeta() annotation, it is used
+/// by source_gen to generate additional code for Components:
+///
+/// - create${className}([data, children, parent]) - create Component
+/// - v${className}(...) - create virtual dom node representing Component
+///
 class ComponentMeta {
   const ComponentMeta();
 }

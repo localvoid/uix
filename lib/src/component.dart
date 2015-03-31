@@ -159,19 +159,23 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
   /// Lifecycle method [updateState].
   ///
   /// update internal state, it should return [:bool:] value that indicates
-  /// if the state is changed.
+  /// that the internal state changes will result in modified view
+  /// representation of the component.
   ///
   /// Invoked during the [Scheduler] writeDom phase.
   bool updateState() => true;
 
-  /// Lifecycle method [updateState].
+  /// Lifecycle method [updateView].
   ///
   /// update view.
   ///
   /// Invoked during the [Scheduler] writeDom phase.
   Future updateView();
 
-  /// update internal tree using virtual dom representation.
+  /// Update internal tree using virtual dom representation.
+  ///
+  /// If this method is called during [isMounting] phase, then virtual dom
+  /// will be mounted on top of existing html tree.
   void updateRoot(VNode n) {
     assert(n != null);
     if (_root == null) {
@@ -189,7 +193,10 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
     _root = n;
   }
 
-  /// invalidate
+  /// Invalidate [Component].
+  ///
+  /// Component will be marked as dirty and added to the update queue. All
+  /// transient subscriptions will be canceled immediately.
   void invalidate([_]) {
     if ((flags & dirtyFlag) == 0) {
       flags |= dirtyFlag;
@@ -210,28 +217,41 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
   }
 
   /// Lifecycle method [invalidated].
+  ///
+  /// Invoked after [invalidate] method is called.
   void invalidated() {}
 
   /// Lifecycle method [updated].
   ///
-  /// Invoked during the [Scheduler] writeDom phase.
+  /// Invoked during the [Scheduler] writeDom phase after [update] method is
+  /// finished.
   void updated() {}
 
   /// Lifecycle method [attached].
   ///
-  /// Invoked during the [Scheduler] writeDom phase.
+  /// Invoked during the [Scheduler] writeDom phase when [Component] is
+  /// attached to the html document.
   void attached() {}
 
   /// Lifecycle method [detached].
   ///
-  /// Invoked during the [Scheduler] writeDom phase.
+  /// Invoked during the [Scheduler] writeDom phase when [Component] is
+  /// detached from the html document.
   void detached() {}
 
   /// Lifecycle method [disposed].
   ///
-  /// Invoked during the [Scheduler] writeDom phase.
+  /// Invoked during the [Scheduler] writeDom phase when [Component] is
+  /// disposed.
   void disposed() {}
 
+  /// Dispose [Component]
+  ///
+  /// This method should be called when [Component] is no longer in use.
+  ///
+  /// NOTE: Use it only when you want to manually control the lifecycle of the
+  /// [Component], otherwise just use helper methods like [injectComponent]
+  /// that will call lifecycle methods in the right order.
   void dispose() {
     if (_root != null) {
       _root.dispose();
@@ -245,6 +265,14 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
     disposed();
   }
 
+  /// Attach [Component]
+  ///
+  /// This method should be called when [Component] is attached to the
+  /// html document.
+  ///
+  /// NOTE: Use it only when you want to manually control the lifecycle of the
+  /// [Component], otherwise just use helper methods like [injectComponent]
+  /// that will call lifecycle methods in the right order.
   void attach() {
     assert(!isAttached);
     flags |= attachedFlag;
@@ -254,6 +282,14 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
     }
   }
 
+  /// Detach [Component]
+  ///
+  /// This method should be called when [Component] is detached to the
+  /// html document.
+  ///
+  /// NOTE: Use it only when you want to manually control the lifecycle of the
+  /// [Component], otherwise just use helper methods like [injectComponent]
+  /// that will call lifecycle methods in the right order.
   void detach() {
     assert(isAttached);
     if (_root != null) {
@@ -263,6 +299,7 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
     detached();
   }
 
+  /// Serialize [Component] as a html string, ignoring any internal state.
   String toHtmlString() {
     final b = new StringBuffer();
     writeHtmlString(b);
