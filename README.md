@@ -3,6 +3,18 @@
 Library to build Web User Interfaces in [Dart](https://dartlang.org)
 inspired by [React](http://facebook.github.io/react/).
 
+- **Virtual DOM** Virtual DOM simplifies the way to manage DOM
+  mutations, just describe how your Component should look at any point
+  in time. uix library has a highly optimized virtual dom
+  implementation, see benchmarks below.
+- **Scheduler** Proper read/write DOM batching, revisioned nodes for
+  fast "dirty checking" using mutable data structures.
+- **Sideways Data Dependencies** Automatic management of data
+  dependencies using Dart
+  [streams](https://www.dartlang.org/docs/tutorials/streams/):
+  `addSubscription(StreamSubscription s)`,
+  `addTransientSubscription(StreamSubscription s)`.
+
 ## Quick Start
 
 Requirements:
