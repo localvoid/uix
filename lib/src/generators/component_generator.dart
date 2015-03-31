@@ -18,7 +18,7 @@ class ComponentGenerator extends GeneratorForAnnotation<ComponentMeta> {
   @override
   Future<String> generateForAnnotatedElement(Element element, ComponentMeta annotation) async {
     if (element is! ClassElement) {
-      final friendlyName = frieldlyNameForElement(element);
+      final friendlyName = friendlyNameForElement(element);
       throw new InvalidGenerationSourceError(
           'Generator cannot target `$friendlyName`.',
           todo: 'Remove the ComponentMeta annotation from `$friendlyName`.');
