@@ -1,13 +1,13 @@
 name: uix
-version: 0.3.0
+version: 0.3.1
 author: Boris Kaul <localvoid@gmail.com>
-description: Library to build Web User Interfaces.
+description: Library to build Web User Interfaces inspired by React.
 homepage: https://github.com/localvoid/uix
 environment:
   sdk: '>=1.9.1'
 dependencies:
   collection: '^1.1.0'
-  source_gen: '^0.2.4'
+  source_gen: '^0.3.0'
 dev_dependencies:
   browser: any
   unittest: any
