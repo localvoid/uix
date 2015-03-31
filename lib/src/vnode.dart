@@ -453,12 +453,12 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
           }
         }
 
-        if (!updated) {
-          parent.removeChild(aNode, attached);
-        } else {
+        if (updated) {
           while (i < b.length) {
             parent.insertChild(b[i++], null, context, attached);
           }
+        } else {
+          parent.removeChild(aNode, attached);
         }
       } else if (b.length == 1) {
         // fast path when [b] have 1 child
@@ -488,12 +488,12 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
             parent.removeChild(aNode, attached);
           }
         }
-        if (!updated) {
-          parent.insertChild(bNode, null, context, attached);
-        } else {
+        if (updated) {
           while (i < a.length) {
             parent.removeChild(a[i++], attached);
           }
+        } else {
+          parent.insertChild(bNode, null, context, attached);
         }
       } else {
         // both [a] and [b] have more then 1 child, so we should handle
