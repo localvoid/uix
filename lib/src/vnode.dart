@@ -22,6 +22,8 @@ class VNode {
   static const int rootFlag = 1 << 3;
   /// Flag indicating that [VNode] represents node that is in svg namespace.
   static const int svgFlag = 1 << 4;
+  /// Flag indicating that children lifecycle is controlled by owner [Context].
+  static const int contentFlag = 1 << 5;
 
   /// Flags.
   final int flags;
@@ -80,18 +82,23 @@ class VNode {
         tag = null;
 
   VNode.element(this.tag, {this.key, this.type, this.attrs, this.style,
-      this.classes, this.children})
-      : flags = elementFlag;
+      this.classes, this.children, bool content: false})
+      : flags = content ? elementFlag | contentFlag
+                        : elementFlag;
 
   VNode.svgElement(this.tag, {this.key, this.type, this.attrs, this.style,
-      this.classes, this.children})
-      : flags = elementFlag | svgFlag;
+      this.classes, this.children, bool content: false})
+      : flags = content ? elementFlag | svgFlag | contentFlag
+                        : elementFlag | svgFlag;
 
   VNode.component(this.tag, {this.flags: componentFlag, this.key, this.data,
       this.type, this.attrs, this.style, this.classes, this.children});
 
-  VNode.root({this.type, this.attrs, this.style, this.classes, this.children})
-      : flags = rootFlag, key = null, tag = null;
+  VNode.root({this.type, this.attrs, this.style, this.classes, this.children,
+              bool content: false})
+      : flags = content ? rootFlag | contentFlag
+                        : rootFlag,
+        key = null, tag = null;
 
   /// Helper method for children assignment using call operator.
   ///
@@ -290,23 +297,35 @@ class VNode {
   }
 
   void insertChild(VNode node, VNode next, VContext context, bool attached) {
-    final nextRef = next == null ? null : next.ref;
-    node.create(context);
-    ref.insertBefore(node.ref, nextRef);
-    if (attached) {
-      node.attached();
+    if ((flags & contentFlag) == 0) {
+      final nextRef = next == null ? null : next.ref;
+      node.create(context);
+      ref.insertBefore(node.ref, nextRef);
+      if (attached) {
+        node.attached();
+      }
+      node.render(context);
+    } else {
+      context.insertChild(node, next);
     }
-    node.render(context);
   }
 
-  void moveChild(VNode node, VNode next) {
-    final nextRef = next == null ? null : next.ref;
-    ref.insertBefore(node.ref, nextRef);
+  void moveChild(VNode node, VNode next, VContext context) {
+    if ((flags & contentFlag) == 0) {
+      final nextRef = next == null ? null : next.ref;
+      ref.insertBefore(node.ref, nextRef);
+    } else {
+      context.moveChild(node, next);
+    }
   }
 
-  void removeChild(VNode node, bool attached) {
-    node.ref.remove();
-    node.dispose();
+  void removeChild(VNode node, VContext context) {
+    if ((flags & contentFlag) == 0) {
+      node.ref.remove();
+      node.dispose();
+    } else {
+      context.removeChild(node);
+    }
   }
 
   void dispose() {
@@ -405,7 +424,7 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
       // when [b] is empty, it means that all children from list [a] were
       // removed
       for (int i = 0; i < a.length; i++) {
-        parent.removeChild(a[i], attached);
+        parent.removeChild(a[i], context);
       }
     } else {
       if (a.length == 1 && b.length == 1) {
@@ -421,7 +440,7 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
             aNode.key != null && aNode.key == bNode.key) {
           aNode.update(bNode, context);
         } else {
-          parent.removeChild(aNode, attached);
+          parent.removeChild(aNode, context);
           parent.insertChild(bNode, null, context, attached);
         }
       } else if (a.length == 1) {
@@ -458,7 +477,7 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
             parent.insertChild(b[i++], null, context, attached);
           }
         } else {
-          parent.removeChild(aNode, attached);
+          parent.removeChild(aNode, context);
         }
       } else if (b.length == 1) {
         // fast path when [b] have 1 child
@@ -475,7 +494,7 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
               updated = true;
               break;
             }
-            parent.removeChild(aNode, attached);
+            parent.removeChild(aNode, context);
           }
         } else {
           while (i < a.length) {
@@ -485,12 +504,12 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
               updated = true;
               break;
             }
-            parent.removeChild(aNode, attached);
+            parent.removeChild(aNode, context);
           }
         }
         if (updated) {
           while (i < a.length) {
-            parent.removeChild(a[i++], attached);
+            parent.removeChild(a[i++], context);
           }
         } else {
           parent.insertChild(bNode, null, context, attached);
@@ -564,13 +583,13 @@ void _updateImplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
       aNode.update(bNode, context);
     } else {
       parent.insertChild(bNode, aNode, context, attached);
-      parent.removeChild(aNode, attached);
+      parent.removeChild(aNode, context);
     }
   }
 
   // All nodes from [a] are updated, insert the rest from [b].
   while (aStart <= aEnd) {
-    parent.removeChild(a[aStart++], attached);
+    parent.removeChild(a[aStart++], context);
   }
 
   final nextPos = bEnd + 1;
@@ -645,7 +664,7 @@ void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
 
       final nextPos = bEnd + 1;
       final next = nextPos < b.length ? b[nextPos] : null;
-      parent.moveChild(bEndNode, next);
+      parent.moveChild(bEndNode, next, context);
 
       aStart++;
       bEnd--;
@@ -664,7 +683,7 @@ void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
     while (aEndNode.key == bStartNode.key) {
       aEndNode.update(bStartNode, context);
 
-      parent.moveChild(aEndNode, a[aStart]);
+      parent.moveChild(aEndNode, a[aStart], context);
 
       aEnd--;
       bStart++;
@@ -689,7 +708,7 @@ void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
   } else if (bStart > bEnd) {
     // All nodes from [b] are updated, remove the rest from [a].
     while (aStart <= aEnd) {
-      parent.removeChild(a[aStart++], attached);
+      parent.removeChild(a[aStart++], context);
     }
   } else {
     // Perform more complex update algorithm on the remaining nodes.
@@ -739,7 +758,7 @@ void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
         }
 
         if (removed) {
-          parent.removeChild(aNode, attached);
+          parent.removeChild(aNode, context);
           removeOffset++;
         }
       }
@@ -767,7 +786,7 @@ void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
 
           aNode.update(bNode, context);
         } else {
-          parent.removeChild(aNode, attached);
+          parent.removeChild(aNode, context);
           removeOffset++;
         }
       }
@@ -794,7 +813,7 @@ void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
             final node = a[sources[i]];
             final nextPos = pos + 1;
             final next = nextPos < b.length ? b[nextPos] : null;
-            parent.moveChild(node, next);
+            parent.moveChild(node, next, context);
           } else {
             j--;
           }
