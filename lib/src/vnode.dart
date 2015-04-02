@@ -8,6 +8,7 @@ import 'dart:collection';
 import 'dart:html' as html;
 import 'assert.dart';
 import 'vcontext.dart';
+import 'container.dart';
 import 'component.dart';
 
 /// Virtual DOM Node.
@@ -121,7 +122,7 @@ class VNode {
   /// Check if [VNode]s have the same type.
   ///
   /// [VNode]s can be updated only when they have the same type.
-  bool sameType(VNode other) => (flags == other.flags && tag == other.tag);
+  bool _sameType(VNode other) => (flags == other.flags && tag == other.tag);
 
   /// Create root level element of the [VNode] object, or [Component] for
   /// component nodes.
@@ -306,7 +307,7 @@ class VNode {
       }
       node.render(context);
     } else {
-      context.insertChild(node, next);
+      (context as Container).insertChild(this, node, next);
     }
   }
 
@@ -315,7 +316,7 @@ class VNode {
       final nextRef = next == null ? null : next.ref;
       ref.insertBefore(node.ref, nextRef);
     } else {
-      context.moveChild(node, next);
+      (context as Container).moveChild(this, node, next);
     }
   }
 
@@ -324,7 +325,15 @@ class VNode {
       node.ref.remove();
       node.dispose();
     } else {
-      context.removeChild(node);
+      (context as Container).removeChild(this, node);
+    }
+  }
+
+  void _updateChild(VNode aNode, VNode bNode, VContext context) {
+    if ((flags & contentFlag) == 0) {
+      aNode.update(bNode, context);
+    } else {
+      (context as Container).updateChild(this, aNode, bNode);
     }
   }
 
@@ -436,9 +445,9 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
         final VNode aNode = a.first;
         final VNode bNode = b.first;
 
-        if ((aNode.key == null && aNode.sameType(bNode)) ||
+        if ((aNode.key == null && aNode._sameType(bNode)) ||
             aNode.key != null && aNode.key == bNode.key) {
-          aNode.update(bNode, context);
+          parent._updateChild(aNode, bNode, context);
         } else {
           parent._removeChild(aNode, context);
           parent._insertChild(bNode, null, context, attached);
@@ -453,8 +462,8 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
         if (aNode.key == null) {
           while (i < b.length) {
             final VNode bNode = b[i++];
-            if (aNode.sameType(bNode)) {
-              aNode.update(bNode, context);
+            if (aNode._sameType(bNode)) {
+              parent._updateChild(aNode, bNode, context);
               updated = true;
               break;
             }
@@ -464,7 +473,7 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
           while (i < b.length) {
             final VNode bNode = b[i++];
             if (aNode.key == bNode.key) {
-              aNode.update(bNode, context);
+              parent._updateChild(aNode, bNode, context);
               updated = true;
               break;
             }
@@ -489,8 +498,8 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
         if (bNode.key == null) {
           while (i < a.length) {
             final VNode aNode = a[i++];
-            if (aNode.sameType(bNode)) {
-              aNode.update(bNode, context);
+            if (aNode._sameType(bNode)) {
+              parent._updateChild(aNode, bNode, context);
               updated = true;
               break;
             }
@@ -500,7 +509,7 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
           while (i < a.length) {
             final VNode aNode = a[i++];
             if (aNode.key == bNode.key) {
-              aNode.update(bNode, context);
+              parent._updateChild(aNode, bNode, context);
               updated = true;
               break;
             }
@@ -548,14 +557,14 @@ void _updateImplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
     final aNode = a[aStart];
     final bNode = b[bStart];
 
-    if (!aNode.sameType(bNode)) {
+    if (!aNode._sameType(bNode)) {
       break;
     }
 
     aStart++;
     bStart++;
 
-    aNode.update(bNode, context);
+    parent._updateChild(aNode, bNode, context);
   }
 
   // Update nodes with the same type at the end.
@@ -563,14 +572,14 @@ void _updateImplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
     final aNode = a[aEnd];
     final bNode = b[bEnd];
 
-    if (!aNode.sameType(bNode)) {
+    if (!aNode._sameType(bNode)) {
       break;
     }
 
     aEnd--;
     bEnd--;
 
-    aNode.update(bNode, context);
+    parent._updateChild(aNode, bNode, context);
   }
 
   // Iterate through the remaining nodes and if they have the same
@@ -579,8 +588,8 @@ void _updateImplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
   while (aStart <= aEnd && bStart <= bEnd) {
     final aNode = a[aStart++];
     final bNode = b[bStart++];
-    if (aNode.sameType(bNode)) {
-      aNode.update(bNode, context);
+    if (aNode._sameType(bNode)) {
+      parent._updateChild(aNode, bNode, context);
     } else {
       parent._insertChild(bNode, aNode, context, attached);
       parent._removeChild(aNode, context);
@@ -628,7 +637,7 @@ void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
 
     // Update nodes with the same key at the beginning.
     while (aStartNode.key == bStartNode.key) {
-      aStartNode.update(bStartNode, context);
+      parent._updateChild(aStartNode, bStartNode, context);
 
       aStart++;
       bStart++;
@@ -644,7 +653,7 @@ void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
 
     // Update nodes with the same key at the end.
     while (aEndNode.key == bEndNode.key) {
-      aEndNode.update(bEndNode, context);
+      parent._updateChild(aEndNode, bEndNode, context);
 
       aEnd--;
       bEnd--;
@@ -660,7 +669,7 @@ void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
 
     // Move nodes from left to right.
     while (aStartNode.key == bEndNode.key) {
-      aStartNode.update(bEndNode, context);
+      parent._updateChild(aStartNode, bEndNode, context);
 
       final nextPos = bEnd + 1;
       final next = nextPos < b.length ? b[nextPos] : null;
@@ -681,7 +690,7 @@ void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
 
     // Move nodes from right to left.
     while (aEndNode.key == bStartNode.key) {
-      aEndNode.update(bStartNode, context);
+      parent._updateChild(aEndNode, bStartNode, context);
 
       parent._moveChild(aEndNode, a[aStart], context);
 
@@ -750,7 +759,7 @@ void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
               lastTarget = j;
             }
 
-            aNode.update(bNode, context);
+            parent._updateChild(aNode, bNode, context);
 
             removed = false;
             break;
@@ -784,7 +793,7 @@ void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
             lastTarget = j;
           }
 
-          aNode.update(bNode, context);
+          parent._updateChild(aNode, bNode, context);
         } else {
           parent._removeChild(aNode, context);
           removeOffset++;

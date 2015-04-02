@@ -14,8 +14,4 @@ class VContext {
   int get depth => _depth;
 
   const VContext([this._isAttached = false]);
-
-  void insertChild(VNode nodeIdx, VNode nextIdx) {}
-  void moveChild(VNode node, VNode next) {}
-  void removeChild(VNode node) {}
 }
