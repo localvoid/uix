@@ -17,5 +17,5 @@ class Main extends Component<String> {
 main() {
   initUix();
 
-  injectComponent(createMain('World'), html.document.body);
+  injectComponent(new Main()..data = 'World', html.document.body);
 }

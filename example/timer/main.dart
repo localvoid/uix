@@ -22,7 +22,7 @@ class Main extends Component<int> {
 main() {
   initUix();
 
-  final c = createMain(0);
+  final c = new Main()..data = 0;
 
   injectComponent(c, html.document.body);
 

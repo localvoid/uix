@@ -12,7 +12,7 @@ part 'main.g.dart';
 @ComponentMeta()
 class OuterBox extends Component {
   updateView() {
-    updateRoot(vRoot(type: 'OuterBox')(vBox()));
+    updateRoot(vRoot(type: 'OuterBox')(vComponent($Box)));
   }
 }
 
@@ -33,7 +33,7 @@ class Box extends Component {
   }
 
   updateView() async {
-    final innerBox = vInnerBox();
+    final innerBox = vComponent($InnerBox);
     updateRoot(_build(innerBox));
 
     await scheduler.currentFrame.read();
@@ -41,7 +41,7 @@ class Box extends Component {
     _innerWidth = innerBox.ref.clientWidth;
 
     await scheduler.currentFrame.write();
-    updateRoot(_build(vInnerBox()));
+    updateRoot(_build(vComponent($InnerBox)));
   }
 
   _build(innerBox) => vRoot()([
@@ -55,9 +55,9 @@ class Box extends Component {
 class App extends Component {
   updateView() {
     updateRoot(vRoot()([
-      vOuterBox(),
-      vOuterBox(),
-      vOuterBox()
+      vComponent($OuterBox),
+      vComponent($OuterBox),
+      vComponent($OuterBox)
     ]));
   }
 }
@@ -65,5 +65,5 @@ class App extends Component {
 main() {
   initUix();
 
-  injectComponent(createApp(), html.document.body);
+  injectComponent(new App(), html.document.body);
 }

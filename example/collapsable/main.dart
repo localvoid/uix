@@ -41,7 +41,7 @@ class Main extends Component {
   updateView() {
     updateRoot(vRoot()([
       vElement('button', type: 'CloseButton')(closed ? 'Open' : 'Close'),
-      vCollapsable(data: closed)(elapsedSeconds)
+      vComponent($Collapsable, data: closed)(elapsedSeconds)
     ]));
   }
 }
@@ -49,5 +49,5 @@ class Main extends Component {
 main() {
   initUix();
 
-  injectComponent(createMain(), html.document.body);
+  injectComponent(new Main(), html.document.body);
 }

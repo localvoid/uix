@@ -25,36 +25,10 @@ class ComponentGenerator extends GeneratorForAnnotation<ComponentMeta> {
     }
 
     final classElement = element as ClassElement;
-    final classArguments = classElement.supertype.typeArguments;
     final className = classElement.name;
+    final createFnName = '\$$className';
 
-    final createFnName = 'create$className';
-
-    final dataElement = classArguments[0].element;
-    var dataClassName = classArguments[0].name;
-    if (dataElement is ClassElement) {
-      final i = element.library.imports.firstWhere((e) => e.importedLibrary == dataElement.library,
-          orElse: () => null);
-      if (i != null && i.prefix != null) {
-        dataClassName = '${i.prefix.name}.$dataClassName';
-      }
-    } else if (dataElement is TypeParameterElement) {
-      dataClassName = dataElement.bound.name;
-    }
-
-    var flags = 'VNode.componentFlag';
-
-    final buffer = new StringBuffer();
-
-    buffer.writeln('$className $createFnName([$dataClassName data, List<VNode> children, Component parent]) {');
-    buffer.writeln('  return new $className()');
-    buffer.writeln('    ..parent = parent');
-    buffer.writeln('    ..data = data');
-    buffer.writeln('    ..children = children;');
-    buffer.writeln('}');
-    buffer.writeln('VNode v$className({$dataClassName data, Object key, String type, Map<String, String> attrs, Map<String, String> style, List<String> classes, List<VNode> children}) => new VNode.component($createFnName, flags: $flags, key: key, data: data, type: type, attrs: attrs, style: style, classes: classes, children: children);');
-
-    return buffer.toString();
+    return '$className $createFnName() => new $className();';
   }
 
   @override

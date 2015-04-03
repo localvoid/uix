@@ -53,12 +53,12 @@ class Button extends ButtonBase<ButtonData>{
 @ComponentMeta()
 class App extends Component {
   updateView() {
-    updateRoot(vRoot()(vButton(data: new ButtonData(color: 'red'))('button')));
+    updateRoot(vRoot()(vComponent($Button, data: new ButtonData(color: 'red'))('button')));
   }
 }
 
 main() {
   initUix();
 
-  injectComponent(createApp(), html.document.body);
+  injectComponent(new App(), html.document.body);
 }

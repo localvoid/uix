@@ -47,10 +47,10 @@ class Main extends Component {
         vElement('div')('Checked: $checked')
       ]),
       vElement('section', type: 'FormSection')([
-        vTextInput(data: username, type: 'UserNameInput', attrs: const {'type': 'text', 'placeholder': 'Username'}),
-        vTextInput(data: email, type: 'EmailInput', attrs: const {'type': 'email', 'placeholder': 'Email'}),
-        vTextInput(data: password, type: 'PasswordInput', attrs: const {'type': 'password', 'placeholder': 'Password'}),
-        vCheckedInput(data: checked, type: 'CheckedInput', attrs: const {'type': 'checkbox'})
+        vComponent($TextInput, data: username, type: 'UserNameInput', attrs: const {'type': 'text', 'placeholder': 'Username'}),
+        vComponent($TextInput, data: email, type: 'EmailInput', attrs: const {'type': 'email', 'placeholder': 'Email'}),
+        vComponent($TextInput, data: password, type: 'PasswordInput', attrs: const {'type': 'password', 'placeholder': 'Password'}),
+        vComponent($CheckedInput, data: checked, type: 'CheckedInput', attrs: const {'type': 'checkbox'})
       ])
     ]));
   }
@@ -59,5 +59,5 @@ class Main extends Component {
 main() {
   initUix();
 
-  injectComponent(createMain(), html.document.body);
+  injectComponent(new Main(), html.document.body);
 }

@@ -379,6 +379,6 @@ abstract class SvgComponent<P> extends Component<P> {
 
 /// [Component] constructor method type.
 ///
-/// It will be removed when constructor closurization is implemented in Dart.
-/// https://github.com/dart-lang/dart_enhancement_proposals/blob/master/Accepted/0003%20-%20Generalized%20Tear-offs/proposal.md
-typedef Component componentConstructor([dynamic data, List<VNode> children, Component parent]);
+/// It will be removed when metaclasses will be implemented in Dart
+/// https://github.com/gbracha/metaclasses
+typedef Component componentConstructor();

@@ -136,7 +136,10 @@ class VNode {
         ref = html.document.createElementNS('http://www.w3.org/2000/svg', tag);
       }
     } else if ((flags & componentFlag) != 0) {
-      cref = (tag as componentConstructor)(data, children, context);
+      cref = (tag as componentConstructor)();
+      cref.parent = context;
+      cref.data = data;
+      cref.children = children;
       cref.create();
       cref.init();
       ref = cref.element;
@@ -148,7 +151,10 @@ class VNode {
     ref = node;
 
     if ((flags & componentFlag) != 0) {
-      cref = (tag as componentConstructor)(data, children, context);
+      cref = (tag as componentConstructor)();
+      cref.parent = context;
+      cref.data = data;
+      cref.children = children;
       cref.mount(node);
       cref.init();
       if (context.isAttached) {

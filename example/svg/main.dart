@@ -25,7 +25,7 @@ class Main extends Component {
       vSvgElement('svg', attrs: const {'width': '24', 'height': '24', 'viewBox': '0 0 24 24'})(
         vSvgElement('path', attrs: const {'d': 'M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z'})
       ),
-      vSvgIcon()
+      vComponent($SvgIcon)
     ]));
   }
 }
@@ -33,5 +33,5 @@ class Main extends Component {
 main() {
   initUix();
 
-  injectComponent(createMain(), html.document.body);
+  injectComponent(new Main(), html.document.body);
 }

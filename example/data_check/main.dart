@@ -40,12 +40,12 @@ class Main extends Component {
   }
 
   updateView() {
-    updateRoot(vRoot()(vCounter(data: new CounterProps(_value))));
+    updateRoot(vRoot()(vComponent($Counter, data: new CounterProps(_value))));
   }
 }
 
 main() {
   initUix();
 
-  injectComponent(createMain(), html.document.body);
+  injectComponent(new Main(), html.document.body);
 }

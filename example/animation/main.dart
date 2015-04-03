@@ -25,7 +25,7 @@ class Main extends Component<List<int>> with CssTransitionContainer {
   updateView() {
     updateRoot(vRoot()([
       vElement('h1')('Animation Example'),
-      vElement('div', content: true)(data.map((i) => vBox(key: i, data: i)))
+      vElement('div', content: true)(data.map((i) => vComponent($Box, key: i, data: i)))
     ]));
   }
 }
@@ -40,7 +40,7 @@ main() {
     boxes.add(boxId++);
   }
 
-  final c = createMain(boxes);
+  final c = new Main()..data = boxes;
 
   injectComponent(c, html.document.body);
 

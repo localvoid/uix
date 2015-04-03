@@ -56,5 +56,5 @@ main() {
 
   store = new CounterStore();
 
-  injectComponent(createCounterView(), html.document.body);
+  injectComponent(new CounterView(), html.document.body);
 }
