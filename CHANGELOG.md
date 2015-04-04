@@ -8,3 +8,5 @@
   create virtual nodes with `vComponent(ClassName, ...)`. And it will be
   quite easy to migrate existing codebase just by removing `$` prefix
   in all `vComponent` calls.
+- `resetTransientSubscriptions`, `resetSubscriptions` renamed to
+  `cancelTransientSubscriptions` and `cancelSubscriptions`.
