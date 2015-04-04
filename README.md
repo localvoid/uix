@@ -13,8 +13,14 @@ uix library has a highly optimized virtual dom implementation,
 
 ### Scheduler
 
-- read/write DOM
-  batching. [Example](https://github.com/localvoid/uix/tree/master/example/read_write_batching)
+Each time component is invalidated, it registers itself in the
+Scheduler, and Scheduler is responsible for updating Components.
+
+Scheduler is running tasks that updates visual representation when the
+new frame is rendered.
+
+It also provides different queues for read/write DOM batching with
+priorities. [Example](https://github.com/localvoid/uix/tree/master/example/read_write_batching)
 
 ### Misc
 
@@ -67,8 +73,11 @@ class LineView extends Component<RichLine> {
 }
 ```
 
-- Control lifecycle of children virtual nodes to implement complex
-  animations. [CssTransitionContainer](https://github.com/localvoid/uix/blob/master/lib/src/misc/css_transition_container.dart)
+- Lifecycle control of children virtual nodes to implement complex
+  animations. For example: [CssTransitionContainer](https://github.com/localvoid/uix/blob/master/lib/src/misc/css_transition_container.dart)
+
+- Mount on top of existing html
+  document. [Mount example](https://github.com/localvoid/uix/tree/master/example/mount)
 
 ## Quick Start
 
@@ -110,6 +119,10 @@ void main(List<String> args) {
 Dart Editor will automatically run `build.dart` file. To configure
 auto-build in [WebStorm](https://www.jetbrains.com/webstorm/), just
 [add File Watcher](http://stackoverflow.com/questions/17266106/how-to-run-build-dart-in-webstorm).
+
+*build step will be removed in the future, when
+ [metaclasses](https://github.com/gbracha/metaclasses) are implemented
+ in Dart*
 
 #### 5. Create `web/index.html` file:
 
@@ -217,6 +230,6 @@ to build uix Components this way. There are several proposals for
 Configured Imports [1](https://github.com/lrhn/dep-configured-imports)
 [2](https://github.com/eernstg/dep-configured-imports)
 [3](https://github.com/munificent/dep-external-libraries/blob/master/Proposal.md)
-that will solve some problems, but all this proposals will be really
-bad in terms of developer experience for building isomorphic uix
-components compared to simple conditional compilation.
+that will solve some problems, but it is still not enough to provide a
+good developer experience for users of this library. Conditional
+compilation will be way much better to write "isomorphic" Components.
