@@ -27,7 +27,7 @@ abstract class StreamListenerNode {
     _subscriptions.add(s);
   }
 
-  void resetSubscriptions() {
+  void cancelSubscriptions() {
     if (_subscriptions != null) {
       for (var i = 0; i < _subscriptions.length; i++) {
         _subscriptions[i].cancel();
@@ -43,7 +43,7 @@ abstract class StreamListenerNode {
     _transientSubscriptions.add(s);
   }
 
-  void resetTransientSubscriptions() {
+  void cancelTransientSubscriptions() {
     if (_transientSubscriptions != null) {
       for (var i = 0; i < _transientSubscriptions.length; i++) {
         _transientSubscriptions[i].cancel();

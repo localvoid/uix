@@ -211,7 +211,7 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
         }
       }
 
-      resetTransientSubscriptions();
+      cancelTransientSubscriptions();
       invalidated();
     }
   }
@@ -260,8 +260,8 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
       flags &= ~attachedFlag;
       detached();
     }
-    resetTransientSubscriptions();
-    resetSubscriptions();
+    cancelTransientSubscriptions();
+    cancelSubscriptions();
     disposed();
   }
 
