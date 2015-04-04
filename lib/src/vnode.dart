@@ -534,9 +534,10 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
         // more complex situations with inserting/removing and repositioning
         // children.
         if (a.first.key == null) {
-          return _updateImplicitChildren(parent, a, b, context, attached);
+          _updateImplicitChildren(parent, a, b, context, attached);
+        } else {
+          _updateExplicitChildren(parent, a, b, context, attached);
         }
-        return _updateExplicitChildren(parent, a, b, context, attached);
       }
     }
   } else if (b != null && b.length > 0) {
