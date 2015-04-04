@@ -148,6 +148,8 @@ class VNode {
 
   /// Mount [VNode] on top of existing [node].
   void mount(html.Node node, VContext context) {
+    assert(invariant(node != null, 'Cannot mount on top of null Node'));
+
     ref = node;
 
     if ((flags & componentFlag) != 0) {
@@ -236,6 +238,24 @@ class VNode {
         cref.update();
       } else {
         if (children != null) {
+          assert(() {
+            if (children.isNotEmpty) {
+              final key = children[0].key;
+              for (var i = 1; i < children.length; i++) {
+                if ((key == null && children[i].key != null) ||
+                (key != null && children[i].key == null)) {
+                  throw
+                  'All children inside of the Virtual DOM Node should have '
+                  'either explicit, or implicit keys.\n'
+                  'Child at position 0 has key $key\n'
+                  'Child at position $i has key ${children[i].key}\n'
+                  'Children: $children';
+                }
+              }
+            }
+            return true;
+          }());
+
           final bool attached = context.isAttached;
           for (var i = 0; i < children.length; i++) {
             _insertChild(children[i], null, context, attached);
@@ -247,14 +267,16 @@ class VNode {
 
   /// Perform a diff and patch between this [VNode] and [other].
   void update(VNode other, VContext context) {
-    assert(invariant(other.ref == null || identical(ref, other.ref), 'VNode objects cannot be reused'));
+    assert(invariant(_sameType(other), 'VNode objects with different types cannot be updated.'));
+    assert(invariant(other.ref == null || identical(ref, other.ref), 'VNode objects cannot be reused.'));
+    assert(invariant(key == other.key, 'VNode objects with different keys cannot be updated.'));
+
     other.ref = ref;
     if ((flags & textFlag) != 0) {
       if (data != other.data) {
         ref.text = other.data;
       }
-    } else if ((flags & (elementFlag | componentFlag | rootFlag)) !=
-        0) {
+    } else if ((flags & (elementFlag | componentFlag | rootFlag)) != 0) {
       final html.Element r = ref;
 
       if (!identical(attrs, other.attrs)) {
@@ -451,6 +473,16 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
         final VNode aNode = a.first;
         final VNode bNode = b.first;
 
+        assert(invariant(
+            (aNode.key == null && bNode.key == null) ||
+            (aNode.key != null && bNode.key != null), () =>
+            'All children inside of the Virtual DOM Node should have '
+            'either explicit, or implicit keys.\n'
+            'Child at position old:0 has key ${aNode.key}\n'
+            'Child at position new:0 has key ${bNode.key}\n'
+            'Old children: $a\n'
+            'New children: $b'));
+
         if ((aNode.key == null && aNode._sameType(bNode)) ||
             aNode.key != null && aNode.key == bNode.key) {
           parent._updateChild(aNode, bNode, context);
@@ -466,6 +498,21 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
         bool updated = false;
 
         if (aNode.key == null) {
+          assert(() {
+            for (var i = 0; i < b.length; i++) {
+              if (b[i].key != null) {
+                throw
+                'All children inside of the Virtual DOM Node should have '
+                'either explicit, or implicit keys.\n'
+                'Child at position old:0 has implicit key\n'
+                'Child at position new:$i has explicit key ${b[i].key}\n'
+                'Old children: $a\n'
+                'New children: $b';
+              }
+            }
+            return true;
+          }());
+
           while (i < b.length) {
             final VNode bNode = b[i++];
             if (aNode._sameType(bNode)) {
@@ -476,6 +523,21 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
             parent._insertChild(bNode, aNode, context, attached);
           }
         } else {
+          assert(() {
+            for (var i = 0; i < b.length; i++) {
+              if (b[i].key == null) {
+                throw
+                'All children inside of the Virtual DOM Node should have '
+                'either explicit, or implicit keys.\n'
+                'Child at position old:0 has explicit key ${aNode.key}\n'
+                'Child at position new:$i has implicit key\n'
+                'Old children: $a\n'
+                'New children: $b';
+              }
+            }
+            return true;
+          }());
+
           while (i < b.length) {
             final VNode bNode = b[i++];
             if (aNode.key == bNode.key) {
@@ -502,6 +564,21 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
         bool updated = false;
 
         if (bNode.key == null) {
+          assert(() {
+            for (var i = 0; i < a.length; i++) {
+              if (a[i].key != null) {
+                throw
+                'All children inside of the Virtual DOM Node should have '
+                'either explicit, or implicit keys.\n'
+                'Child at position old:$i has explicit key ${a[i].key}\n'
+                'Child at position new:0 has implicit key\n'
+                'Old children: $a\n'
+                'New children: $b';
+              }
+            }
+            return true;
+          }());
+
           while (i < a.length) {
             final VNode aNode = a[i++];
             if (aNode._sameType(bNode)) {
@@ -512,6 +589,21 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
             parent._removeChild(aNode, context);
           }
         } else {
+          assert(() {
+            for (var i = 0; i < a.length; i++) {
+              if (a[i].key == null) {
+                throw
+                'All children inside of the Virtual DOM Node should have '
+                'either explicit, or implicit keys.\n'
+                'Child at position old:$i has implicit key\n'
+                'Child at position new:0 has explicit key ${bNode.key}\n'
+                'Old children: $a\n'
+                'New children: $b';
+              }
+            }
+            return true;
+          }());
+
           while (i < a.length) {
             final VNode aNode = a[i++];
             if (aNode.key == bNode.key) {
@@ -533,6 +625,23 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
         // both [a] and [b] have more then 1 child, so we should handle
         // more complex situations with inserting/removing and repositioning
         // children.
+        assert(() {
+          final aKey = a[0].key;
+          for (var i = 0; i < b.length; i++) {
+            if ((aKey == null && b[i].key != null) ||
+            (aKey != null && b[i].key == null)) {
+              throw
+              'All children inside of the Virtual DOM Node should have '
+              'either explicit, or implicit keys.\n'
+              'Child at position old:0 has key $aKey\n'
+              'Child at position new:$i has key ${b[i].key}\n'
+              'Old children: $a\n'
+              'New children: $b';
+            }
+          }
+          return true;
+        }());
+
         if (a.first.key == null) {
           _updateImplicitChildren(parent, a, b, context, attached);
         } else {
@@ -902,68 +1011,72 @@ List<int> _lis(List<int> a) {
 }
 
 /// Find changes between maps [a] and [b] and apply this changes to CssStyleDeclaration [n].
-void updateStyle(Map a, Map b, html.CssStyleDeclaration n) {
+void updateStyle(Map a, Map b, html.CssStyleDeclaration style) {
+  assert(style != null);
+
   if (a != null && a.length > 0) {
     if (b == null || b.length == 0) {
       // all keys removed
       for (final i in a.keys) {
-        n.removeProperty(i);
+        style.removeProperty(i);
       }
     } else {
       // find all modified and removed
       a.forEach((key, value) {
         final bValue = b[key];
         if (bValue == null) {
-          n.removeProperty(key);
+          style.removeProperty(key);
         } else if (value != bValue) {
-          n.setProperty(key, bValue);
+          style.setProperty(key, bValue);
         }
       });
 
       // find all inserted
       b.forEach((key, value) {
         if (!a.containsKey(key)) {
-          n.setProperty(key, value);
+          style.setProperty(key, value);
         }
       });
     }
   } else if (b != null && b.length > 0) {
     // all keys inserted
     b.forEach((key, value) {
-      n.setProperty(key, value);
+      style.setProperty(key, value);
     });
   }
 }
 
 /// Find changes between maps [a] and [b] and apply this changes to map [n].
-void updateAttrs(Map a, Map b, Map n) {
+void updateAttrs(Map a, Map b, Map attrs) {
+  assert(attrs != null);
+
   if (a != null && a.length > 0) {
     if (b == null || b.length == 0) {
       // all keys removed
       for (final k in a.keys) {
-        n.remove(k);
+        attrs.remove(k);
       }
     } else {
       // find all modified and removed
       a.forEach((key, value) {
         final bValue = b[key];
         if (bValue == null) {
-          n.remove(key);
+          attrs.remove(key);
         } else if (value != bValue) {
-          n[key] = bValue;
+          attrs[key] = bValue;
         }
       });
 
       // find all inserted
       b.forEach((key, value) {
         if (!a.containsKey(key)) {
-          n[key] = value;
+          attrs[key] = value;
         }
       });
     }
   } else if (b != null && b.length > 0) {
     // all keys inserted
-    n.addAll(b);
+    attrs.addAll(b);
   }
 }
 
@@ -971,6 +1084,8 @@ void updateAttrs(Map a, Map b, Map n) {
 // TODO: https://code.google.com/p/dart/issues/detail?id=23012
 //void updateClasses(List<String> a, List<String> b, html.DomTokenList classList) {
 void updateClasses(List<String> a, List<String> b, html.CssClassSet classList) {
+  assert(classList != null);
+
   if (a != null && a.length != 0) {
     if (b == null || b.length == 0) {
       for (int i = 0; i < a.length; i++) {
