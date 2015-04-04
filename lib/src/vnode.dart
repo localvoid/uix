@@ -122,7 +122,7 @@ class VNode {
   /// Check if [VNode]s have the same type.
   ///
   /// [VNode]s can be updated only when they have the same type.
-  bool _sameType(VNode other) => (flags == other.flags && tag == other.tag);
+  bool _sameType(VNode other) => (flags == other.flags && tag == other.tag && type == other.type);
 
   /// Create root level element of the [VNode] object, or [Component] for
   /// component nodes.

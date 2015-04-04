@@ -10,3 +10,4 @@
   in all `vComponent` calls.
 - `resetTransientSubscriptions`, `resetSubscriptions` renamed to
   `cancelTransientSubscriptions` and `cancelSubscriptions`.
+- Added `type` property check when looking for similar virtual nodes.
