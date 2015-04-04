@@ -525,21 +525,21 @@ void main() {
       });
 
       test('Same child', () {
-        final a = ei(gen([0]));
-        final b = ei(gen([0]));
+        final a = ei(gen([0], false));
+        final b = ei(gen([0], false));
         checkInnerHtmlEquals(a, b);
       });
 
       test('Same children', () {
-        final a = ei(gen([0, 1, 2]));
-        final b = ei(gen([0, 1, 2]));
+        final a = ei(gen([0, 1, 2], false));
+        final b = ei(gen([0, 1, 2], false));
         checkInnerHtmlEquals(a, b);
       });
     });
 
     group('Basic inserts', () {
       group('Into empty list', () {
-        final a = ei([]);
+        final a = ee(0, []);
 
         final tests = [
           {'name': 'One item', 'b': [1]},
@@ -552,7 +552,7 @@ void main() {
           final name = t['name'] == null ? '[] => ${t['b']}' : t['name'];
 
           testFn(name, () {
-            final b = ee(0, gen(t['b']));
+            final b = ee(0, gen(t['b'], false));
             checkInnerHtmlEquals(a, b);
           });
         }
@@ -579,7 +579,7 @@ void main() {
           final name = t['name'] == null ? '[999] => ${t['b']}' : t['name'];
 
           testFn(name, () {
-            final b = ee(0, gen(t['b']));
+            final b = ee(0, gen(t['b'], false));
 
             checkInnerHtmlEquals(a, b);
           });
@@ -616,7 +616,7 @@ void main() {
               t['name'] == null ? '[998, 999] => ${t['b']}' : t['name'];
 
           testFn(name, () {
-            final b = ee(0, gen(t['b']));
+            final b = ee(0, gen(t['b'], false));
             checkInnerHtmlEquals(a, b);
           });
         }
@@ -642,8 +642,8 @@ void main() {
           final name = t['name'] == null ? '${t['a']} => ${t['b']}' : t['name'];
 
           testFn(name, () {
-            final a = ee(0, gen(t['a']));
-            final b = ee(0, gen(t['b']));
+            final a = ee(0, gen(t['a'], false));
+            final b = ee(0, gen(t['b'], false));
             checkInnerHtmlEquals(a, b);
           });
         }
@@ -672,8 +672,8 @@ void main() {
           final name = t['name'] == null ? '${t['a']} => ${t['b']}' : t['name'];
 
           testFn(name, () {
-            final a = ee(0, gen(t['a']));
-            final b = ee(0, gen(t['b']));
+            final a = ee(0, gen(t['a'], false));
+            final b = ee(0, gen(t['b'], false));
             checkInnerHtmlEquals(a, b);
           });
         }
@@ -713,8 +713,8 @@ void main() {
         final testFn = t['solo'] == true ? solo_test : test;
 
         testFn(name, () {
-          final a = ee(0, gen(a0));
-          final b = ee(0, gen(b0));
+          final a = ee(0, gen(a0, false));
+          final b = ee(0, gen(b0, false));
           checkInnerHtmlEquals(a, b);
         });
       }
@@ -740,8 +740,8 @@ void main() {
         final testFn = t['solo'] == true ? solo_test : test;
 
         testFn(name, () {
-          final a = ee(0, gen(a0));
-          final b = ee(0, gen(b0));
+          final a = ee(0, gen(a0, false));
+          final b = ee(0, gen(b0, false));
           checkInnerHtmlEquals(a, b);
         });
       }
@@ -766,8 +766,8 @@ void main() {
         final testFn = t['solo'] == true ? solo_test : test;
 
         testFn(name, () {
-          final a = ee(0, gen(a0));
-          final b = ee(0, gen(b0));
+          final a = ee(0, gen(a0, false));
+          final b = ee(0, gen(b0, false));
           checkInnerHtmlEquals(a, b);
         });
       }
@@ -795,8 +795,8 @@ void main() {
         final testFn = t['solo'] == true ? solo_test : test;
 
         testFn(name, () {
-          final a = ee(0, gen(a0));
-          final b = ee(0, gen(b0));
+          final a = ee(0, gen(a0, false));
+          final b = ee(0, gen(b0, false));
           checkInnerHtmlEquals(a, b);
         });
       }
@@ -821,8 +821,8 @@ void main() {
         final testFn = t['solo'] == true ? solo_test : test;
 
         testFn(name, () {
-          final a = ee(0, gen(a0));
-          final b = ee(0, gen(b0));
+          final a = ee(0, gen(a0, false));
+          final b = ee(0, gen(b0, false));
           checkInnerHtmlEquals(a, b);
         });
       }
@@ -856,8 +856,8 @@ void main() {
         final testFn = t['solo'] == true ? solo_test : test;
 
         testFn(name, () {
-          final a = ee(0, gen(a0));
-          final b = ee(0, gen(b0));
+          final a = ee(0, gen(a0, false));
+          final b = ee(0, gen(b0, false));
           checkInnerHtmlEquals(a, b);
         });
       }
@@ -866,24 +866,24 @@ void main() {
     group('Null children', () {
       test('Add item', () {
         final a = ee(0, null);
-        final b = ee(0, gen([1]));
+        final b = ee(0, gen([1], false));
         checkInnerHtmlEquals(a, b);
       });
 
       test('Add two items', () {
         final a = ee(0, null);
-        final b = ee(0, gen([1, 2]));
+        final b = ee(0, gen([1, 2], false));
         checkInnerHtmlEquals(a, b);
       });
 
       test('Remove item', () {
-        final a = ee(0, gen([1]));
+        final a = ee(0, gen([1], false));
         final b = ee(0, null);
         checkInnerHtmlEquals(a, b);
       });
 
       test('Remove two items', () {
-        final a = ee(0, gen([1, 2]));
+        final a = ee(0, gen([1, 2], false));
         final b = ee(0, null);
         checkInnerHtmlEquals(a, b);
       });
