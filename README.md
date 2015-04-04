@@ -110,7 +110,7 @@ class Main extends Component<String> {
     updateRoot(vRoot()([
       vElement('span')('Hello '),
       vElement('span')(data)
-    ]);
+    ]));
   }
 }
 
