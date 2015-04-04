@@ -3,17 +3,72 @@
 Library to build Web User Interfaces in [Dart](https://dartlang.org)
 inspired by [React](http://facebook.github.io/react/).
 
-- **Virtual DOM** Virtual DOM simplifies the way to manage DOM
-  mutations, just describe how your Component should look at any point
-  in time. uix library has a highly optimized virtual dom
-  implementation, see benchmarks below.
-- **Scheduler** Proper read/write DOM batching, revisioned nodes for
-  fast "dirty checking" using mutable data structures.
-- **Sideways Data Dependencies** Automatic management of data
-  dependencies using Dart
-  [streams](https://www.dartlang.org/docs/tutorials/streams/):
-  `addSubscription(StreamSubscription s)`,
-  `addTransientSubscription(StreamSubscription s)`.
+### Virtual DOM
+
+Virtual DOM simplifies the way to manage DOM mutations, just describe
+how your Component should look at any point in time.
+
+uix library has a highly optimized virtual dom implementation,
+[see benchmarks below](#benchmarks).
+
+### Scheduler
+
+- read/write DOM
+  batching. [Example](https://github.com/localvoid/uix/tree/master/example/read_write_batching)
+
+### Misc
+
+- Automatic management of Dart
+[streams](https://www.dartlang.org/docs/tutorials/streams/) with
+`addSubscription(StreamSubscription s)`,
+`addTransientSubscription(StreamSubscription s)` methods. Transient
+subscriptions simplifies the way to manage subscriptions the same way
+virtual dom simplifies DOM mutations, just describe which dependencies
+should be active at any point in time.
+
+```dart
+// Code from TodoMVC[Observable] example
+
+@ComponentMeta()
+class Entry extends Component<int> {
+  updateState() {
+    _entry = entryStore.get(data);
+
+    // each time Component is invalidated, old subscription will be
+    // automatically canceled, so we just register a new one when
+    // something is changed (input data or internal state).
+    addTransientSubscription(_entry.onChange.listen(invalidate));
+
+    return true;
+  }
+  ...
+}
+```
+
+- revisioned nodes for fast "dirty checking" of mutable data
+structures. Just update revision when data is changed and check if
+view has an older revision, for example:
+
+```dart
+class LineView extends Component<RichLine> {
+  List<VNode> _fragments;
+
+  set data(RichLine newData) {
+    if (identical(data, newData)) {
+      if (data.isNewer(this)) {
+        invalidate();
+      }
+    } else {
+      data_ = newData;
+      invalidate();
+    }
+  }
+  ...
+}
+```
+
+- Control lifecycle of children virtual nodes to implement complex
+  animations. [CssTransitionContainer](https://github.com/localvoid/uix/blob/master/lib/src/misc/css_transition_container.dart)
 
 ## Quick Start
 
@@ -143,6 +198,7 @@ main() {
 - [Dual N-Back Game](https://github.com/localvoid/dual_nback/)
 
 ## VDom Benchmark
+<a name="benchmarks"></a>
 
 - [Run](http://vdom-benchmark.github.io/vdom-benchmark/?cfg=http://localvoid.github.io/vdom-benchmark-uix/config.js)
 
