@@ -31,7 +31,7 @@ List<VNode> gen(List items, [bool keys = true]) {
   final result = [];
   for (var i in items) {
     if (i is List) {
-      result.add(keys ? ee(i[0], gen(i[1])) : ei(gen(i[1])));
+      result.add(keys ? ee(i[0], gen(i[1], keys)) : ei(gen(i[1], keys)));
     } else {
       result.add(keys ? ee('text_$i', i.toString()) : ei(i.toString()));
     }
@@ -559,7 +559,7 @@ void main() {
       });
 
       group('Into one element list', () {
-        final a = ee(0, gen([999]));
+        final a = ee(0, gen([999], false));
 
         final tests = [
           {'b': [1]},
@@ -587,7 +587,7 @@ void main() {
       });
 
       group('Into two elements list', () {
-        final a = ee(0, gen([998, 999]));
+        final a = ee(0, gen([998, 999], false));
 
         final tests = [
           {'b': [1, 998, 999]},
