@@ -48,7 +48,9 @@ class VNode {
   /// className string that was built from [type] and [classes] properties.
   dynamic data;
 
-  /// Type represents an immutable class name.
+  /// Type represents an immutable class name. It is also used as an
+  /// additional rule for finding similar nodes when all children
+  /// have implicit keys.
   String type;
 
   /// Attributes.
