@@ -8,9 +8,6 @@ import 'dart:async';
 import 'dart:html' as html;
 import 'package:uix/uix.dart';
 
-part 'main.g.dart';
-
-@ComponentMeta()
 class Main extends Component<int> {
   final tag = 'p';
 

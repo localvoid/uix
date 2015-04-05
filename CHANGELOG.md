@@ -1,3 +1,10 @@
+# 0.5.0
+
+- Fixed wrong sort order for `Scheduler` write tasks.
+- Fixed bug with clearing wrong flag for nextTick tasks.
+- Removed build step: `ComponentGenerator` and `source_gen`
+  dependency.
+
 # 0.4.0
 
 - `createClassName` and `vClassName` auto-generated functions removed.

@@ -8,16 +8,13 @@ import 'dart:async';
 import 'dart:html' as html;
 import 'package:uix/uix.dart';
 
-part 'main.g.dart';
-
-@ComponentMeta()
+$Collapsable() => new Collapsable();
 class Collapsable extends Component<bool> {
   updateView() {
     updateRoot(vRoot(type: 'Collapsable', classes: data ? const ['close'] : const ['open'])(children));
   }
 }
 
-@ComponentMeta()
 class Main extends Component {
   bool closed = false;
   int start = new DateTime.now().millisecondsSinceEpoch;

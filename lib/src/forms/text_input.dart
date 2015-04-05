@@ -7,9 +7,7 @@ library uix.src.forms.input;
 import 'dart:html' as html;
 import '../../uix.dart';
 
-part 'text_input.g.dart';
-
-@ComponentMeta()
+$TextInput() => new TextInput();
 class TextInput extends Component<String> {
   final String tag = 'input';
 

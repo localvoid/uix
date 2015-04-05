@@ -8,9 +8,7 @@ import 'dart:async';
 import 'dart:html' as html;
 import 'package:uix/uix.dart';
 
-part 'main.g.dart';
-
-@ComponentMeta()
+$Collapsable() => new Collapsable();
 class Collapsable extends Component<bool> {
   updateView() {
     if (isMounting) {
@@ -22,7 +20,6 @@ class Collapsable extends Component<bool> {
   _build(c) => vRoot(type: 'Collapsable', classes: data ? const ['close'] : const ['open'])(c);
 }
 
-@ComponentMeta()
 class Main extends Component {
   bool closed = false;
   int start = new DateTime.now().millisecondsSinceEpoch;

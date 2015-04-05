@@ -7,8 +7,6 @@ library uix.example.inheritance.main;
 import 'dart:html' as html;
 import 'package:uix/uix.dart';
 
-part 'main.g.dart';
-
 class ButtonBaseData {
   final bool disabled;
 
@@ -37,7 +35,7 @@ abstract class ButtonBase<T extends ButtonBaseData> extends Component<T> {
   }
 }
 
-@ComponentMeta()
+$Button() => new Button();
 class Button extends ButtonBase<ButtonData>{
   final String tag = 'button';
 
@@ -50,7 +48,6 @@ class Button extends ButtonBase<ButtonData>{
   }
 }
 
-@ComponentMeta()
 class App extends Component {
   updateView() {
     updateRoot(vRoot()(vComponent($Button, data: new ButtonData(color: 'red'))('button')));

@@ -9,14 +9,11 @@ import 'dart:html' as html;
 import 'package:uix/uix.dart';
 import 'package:uix/misc.dart';
 
-part 'main.g.dart';
-
-@ComponentMeta()
+$Box() => new Box();
 class Box extends Component<int> {
   updateView() { updateRoot(vRoot(type: 'Box')(data.toString())); }
 }
 
-@ComponentMeta()
 class Main extends Component<List<int>> with CssTransitionContainer {
   init() {
     initTransitionListeners();

@@ -7,9 +7,6 @@ library uix.example.hello.main;
 import 'dart:html' as html;
 import 'package:uix/uix.dart';
 
-part 'main.g.dart';
-
-@ComponentMeta()
 class Main extends Component<String> {
   updateView() { updateRoot(vRoot()('Hello ${data}')); }
 }

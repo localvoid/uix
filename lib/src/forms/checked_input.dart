@@ -7,9 +7,7 @@ library uix.src.forms.check_box;
 import 'dart:html' as html;
 import '../../uix.dart';
 
-part 'checked_input.g.dart';
-
-@ComponentMeta()
+$CheckedInput() => new CheckedInput();
 class CheckedInput extends Component<bool> {
   final String tag = 'input';
 

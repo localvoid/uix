@@ -7,23 +7,21 @@ library uix.example.read_write_batching.main;
 import 'dart:html' as html;
 import 'package:uix/uix.dart';
 
-part 'main.g.dart';
-
-@ComponentMeta()
+$OuterBox() => new OuterBox();
 class OuterBox extends Component {
   updateView() {
     updateRoot(vRoot(type: 'OuterBox')(vComponent($Box)));
   }
 }
 
-@ComponentMeta()
+$InnerBox() => new InnerBox();
 class InnerBox extends Component {
   updateView() {
     updateRoot(vRoot(type: 'InnerBox')('x'));
   }
 }
 
-@ComponentMeta()
+$Box() => new Box();
 class Box extends Component {
   int _outerWidth = 0;
   int _innerWidth = 0;
@@ -51,7 +49,6 @@ class Box extends Component {
   ]);
 }
 
-@ComponentMeta()
 class App extends Component {
   updateView() {
     updateRoot(vRoot()([

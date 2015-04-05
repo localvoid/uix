@@ -8,8 +8,6 @@ import 'dart:async';
 import 'dart:html' as html;
 import 'package:uix/uix.dart';
 
-part 'main.g.dart';
-
 class Counter {
   StreamController _sc = new StreamController.broadcast();
   Stream get onChange => _sc.stream;
@@ -34,7 +32,6 @@ class CounterStore {
 
 CounterStore store;
 
-@ComponentMeta()
 class CounterView extends Component {
   int _counter;
 

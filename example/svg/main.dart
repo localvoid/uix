@@ -7,9 +7,7 @@ library uix.example.hello.main;
 import 'dart:html' as html;
 import 'package:uix/uix.dart';
 
-part 'main.g.dart';
-
-@ComponentMeta()
+$SvgIcon() => new SvgIcon();
 class SvgIcon extends SvgComponent {
   updateView() {
     updateRoot(vRoot(attrs: const {'width': '24', 'height': '24', 'viewBox': '0 0 24 24'})(
@@ -18,7 +16,6 @@ class SvgIcon extends SvgComponent {
   }
 }
 
-@ComponentMeta()
 class Main extends Component {
   updateView() {
     updateRoot(vRoot()([

@@ -8,8 +8,6 @@ import 'dart:async';
 import 'dart:html' as html;
 import 'package:uix/uix.dart';
 
-part 'main.g.dart';
-
 class CounterProps extends Object {
   final int value;
 
@@ -18,7 +16,7 @@ class CounterProps extends Object {
   bool operator==(CounterProps other) => value == other.value;
 }
 
-@ComponentMeta()
+$Counter() => new Counter();
 class Counter extends Component<CounterProps> {
   final tag = 'p';
 
@@ -27,7 +25,6 @@ class Counter extends Component<CounterProps> {
   }
 }
 
-@ComponentMeta()
 class Main extends Component {
   int _value = 0;
 

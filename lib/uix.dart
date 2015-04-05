@@ -14,5 +14,4 @@ export 'src/vcontext.dart';
 export 'src/vnode.dart';
 export 'src/container.dart';
 export 'src/component.dart';
-export 'src/annotations.dart';
 export 'src/utils.dart';
