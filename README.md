@@ -35,14 +35,14 @@ should be active at any point in time.
 ```dart
 // Code from TodoMVC[Observable] example
 
-@ComponentMeta()
+$Entry() => new Entry();
 class Entry extends Component<int> {
   updateState() {
     _entry = entryStore.get(data);
 
     // each time Component is invalidated, old subscription will be
     // automatically canceled, so we just register a new one when
-    // something is changed (input data or internal state).
+    // something is changed.
     addTransientSubscription(_entry.onChange.listen(invalidate));
 
     return true;
@@ -154,7 +154,8 @@ class Box extends Component<String> {
     // vRoot node is used to represent root element.
     //
     // Call operator is overloaded for all virtual nodes and is used
-    // to assign children, it accepts Lists, Iterables and Strings.
+    // to assign children, it accepts Lists, Iterables, VNodes and
+    // Strings.
     updateRoot(vRoot()(
       vElement('span')(data)
     ));
