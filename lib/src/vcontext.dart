@@ -4,8 +4,6 @@
 
 library uix.src.vcontext;
 
-import 'vnode.dart';
-
 class VContext {
   final bool _isAttached;
   final int _depth = 0;
