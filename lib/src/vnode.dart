@@ -13,30 +13,30 @@ import 'component.dart';
 
 /// Virtual DOM Node.
 class VNode {
-  /// Flag indicating that [VNode] is [html.Text].
+  /// Flag indicating that VNode is [html.Text].
   static const int textFlag = 1;
-  /// Flag indicating that [VNode] is [html.Element].
+  /// Flag indicating that VNode is [html.Element].
   static const int elementFlag = 1 << 1;
-  /// Flag indicating that [VNode] is [Component].
+  /// Flag indicating that VNode is [Component].
   static const int componentFlag = 1 << 2;
-  /// Flag indicating that [VNode] is root element of the [Component].
+  /// Flag indicating that VNode is a root element of the [Component].
   static const int rootFlag = 1 << 3;
-  /// Flag indicating that [VNode] represents node that is in svg namespace.
+  /// Flag indicating that VNode represents node that is in svg namespace.
   static const int svgFlag = 1 << 4;
-  /// Flag indicating that children lifecycle is controlled by owner [Context].
+  /// Flag indicating that children lifecycle is controlled by [Container].
   static const int contentFlag = 1 << 5;
 
   /// Flags.
   final int flags;
 
-  /// Key that should be unique among its siblings. If the key is [:null:],
+  /// Key that should be unique among its siblings. If the key is `null`,
   /// it means that the key is implicit.
-  /// When [key] is implicit, all siblings should also have implicit keys,
+  /// When key is implicit, all siblings should also have implicit keys,
   /// otherwise it will result in undefined behaviour in "production" mode,
   /// or runtime error in "development" mode.
   final Object key;
 
-  /// Tag should contain tag name if [VNode] represents an element, or
+  /// Tag should contain tag name if VNode represents an element, or
   /// reference to the [componentConstructor] if it represents a
   /// [Component].
   final dynamic/*<String | componentConstructor>*/ tag;
@@ -44,7 +44,7 @@ class VNode {
   /// Data that should be passed to [Component]s. Data is transferred to the
   /// [Component] using `set data(P data)` setter.
   ///
-  /// When [VNode] represents an element, [data] is used as a cache for
+  /// When VNode represents an element, [data] is used as a cache for
   /// className string that was built from [type] and [classes] properties.
   dynamic data;
 
@@ -62,17 +62,17 @@ class VNode {
   /// Classes.
   List<String> classes;
 
-  /// List of children nodes. When [VNode] represents a [Component], children
+  /// List of children nodes. When VNode represents a [Component], children
   /// nodes are transferred to the [Component] using
   /// `set children(List<VNode> children)` setter.
   List<VNode> children;
 
-  /// Reference to the [html.Node]. It will be available after [VNode] is
-  /// [create]d or [update]d. Each time [VNode] is updated, reference to the
+  /// Reference to the [html.Node]. It will be available after VNode is
+  /// [create]d or [update]d. Each time VNode is updated, reference to the
   /// [html.Node] is passed from the previous node to the new one.
   html.Node ref;
 
-  /// Reference to the [Component]. It will be available after [VNode] is
+  /// Reference to the [Component]. It will be available after VNode is
   /// [create]d or [update]d. Each time [VNode] is updated, reference to the
   /// [Component] is passed from the previous node to the new one.
   Component cref;
@@ -121,12 +121,12 @@ class VNode {
     return this;
   }
 
-  /// Check if [VNode]s have the same type.
+  /// Check if VNodes have the same type.
   ///
-  /// [VNode]s can be updated only when they have the same type.
+  /// VNode can be updated only when it have the same type as [other] VNode.
   bool _sameType(VNode other) => (flags == other.flags && tag == other.tag && type == other.type);
 
-  /// Create root level element of the [VNode] object, or [Component] for
+  /// Create root level element of the VNode object, or [Component] for
   /// component nodes.
   void create(VContext context) {
     if ((flags & textFlag) != 0) {
@@ -148,7 +148,7 @@ class VNode {
     }
   }
 
-  /// Mount [VNode] on top of existing [node].
+  /// Mount VNode on top of the existing html [node].
   void mount(html.Node node, VContext context) {
     assert(invariant(node != null, 'Cannot mount on top of null Node'));
 
@@ -186,7 +186,7 @@ class VNode {
     }
   }
 
-  /// Render internal representation of the [VNode].
+  /// Render internal representation of the VNode.
   void render(VContext context) {
     if ((flags & (elementFlag | componentFlag | rootFlag)) != 0) {
       final html.Element r = ref;
@@ -267,7 +267,7 @@ class VNode {
     }
   }
 
-  /// Perform a diff and patch between this [VNode] and [other].
+  /// Perform a diff and patch between `this` VNode and [other].
   void update(VNode other, VContext context) {
     assert(invariant(_sameType(other), 'VNode objects with different types cannot be updated.'));
     assert(invariant(other.ref == null || identical(ref, other.ref), 'VNode objects cannot be reused.'));
@@ -1082,7 +1082,8 @@ void updateAttrs(Map a, Map b, Map attrs) {
   }
 }
 
-/// Find changes between Lists [a] and [b] and apply this changes to Set [classList].
+/// Find changes between Lists [a] and [b] and apply this changes to
+/// [classList].
 // TODO: https://code.google.com/p/dart/issues/detail?id=23012
 //void updateClasses(List<String> a, List<String> b, html.DomTokenList classList) {
 void updateClasses(List<String> a, List<String> b, html.CssClassSet classList) {

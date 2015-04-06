@@ -50,7 +50,7 @@ class Frame {
   Completer _readCompleter;
   Completer _afterCompleter;
 
-  /// Returns `Future` that will be completed when [DOMScheduler] starts
+  /// Returns `Future` that will be completed when [Scheduler] starts
   /// executing write tasks with this priority.
   Future write([int priority = lowestPriority]) {
     if (priority == lowestPriority) {
@@ -77,7 +77,7 @@ class Frame {
     return g._completer.future;
   }
 
-  /// Returns `Future` that will be completed when [DOMScheduler] starts
+  /// Returns `Future` that will be completed when [Scheduler] starts
   /// executing read tasks.
   Future read() {
     if (_readCompleter == null) {
@@ -86,7 +86,7 @@ class Frame {
     return _readCompleter.future;
   }
 
-  /// Returns `Future` that will be completed when [DOMScheduler] finishes
+  /// Returns `Future` that will be completed when [Scheduler] finishes
   /// executing all write and read tasks.
   Future after() {
     if (_afterCompleter == null) {
@@ -96,7 +96,7 @@ class Frame {
   }
 }
 
-/// [Scheduler].
+/// Scheduler.
 class Scheduler {
   static const int tickRunningFlag = 1;
   static const int frameRunningFlag = 1 << 1;
@@ -242,14 +242,14 @@ class Scheduler {
     });
   }
 
-  /// Force [Scheduler] to run tasks for the [nextFrame].
+  /// Force Scheduler to run tasks for the [nextFrame].
   void forceNextFrame() {
     if ((flags & framePendingFlag) != 0) {
       _handleAnimationFrame(html.window.performance.now());
     }
   }
 
-  /// Force [Scheduler] to run tasks for the next tick.
+  /// Force Scheduler to run tasks for the next tick.
   void forceNextTick() {
     if ((flags & tickPendingFlag) != 0) {
       _handleNextTick();
