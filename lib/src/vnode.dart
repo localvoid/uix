@@ -11,6 +11,297 @@ import 'vcontext.dart';
 import 'container.dart';
 import 'component.dart';
 
+class VNodeCache {
+  final int flags;
+  final Object key;
+  final dynamic/*<String | componentConstructor>*/ tag;
+  dynamic data;
+  String type;
+  Map<String, String> attrs;
+  Map<String, String> style;
+  List<String> classes;
+  List<VNode> children;
+
+  /// Reference to the [html.Node]. It will be available after VNode is
+  /// [create]d or [update]d. Each time VNode is updated, reference to the
+  /// [html.Node] is passed from the previous node to the new one.
+  html.Node ref;
+
+  /// Reference to the [Component]. It will be available after VNode is
+  /// [create]d or [update]d. Each time [VNode] is updated, reference to the
+  /// [Component] is passed from the previous node to the new one.
+  Component cref;
+
+  List<VNodeCache> childrenCache;
+
+  VNodeCache(this.flags, this.key, this.tag, this.data, this.type, this.attrs,
+             this.style, this.classes, this.children, this.ref, this.cref);
+
+  factory VNodeCache.mount(VNode node, html.Node ref, Component cref) {
+    return new VNodeCache(node.flags, node.key, node.tag, node.data, node.type, node.attrs,
+      node.style, node.classes, node.children, ref, cref);
+  }
+
+  factory VNodeCache.create(VNode node, VContext context) {
+    html.Node ref;
+    Component cref;
+
+    if ((node.flags & VNode.textFlag) != 0) {
+      ref = new html.Text(node.data);
+    } else if ((node.flags & VNode.elementFlag) != 0) {
+      if ((node.flags & VNode.svgFlag) == 0) {
+        ref = html.document.createElement(node.tag);
+      } else {
+        ref = html.document.createElementNS('http://www.w3.org/2000/svg', node.tag);
+      }
+    } else if ((node.flags & VNode.componentFlag) != 0) {
+      cref = (node.tag as componentConstructor)();
+      cref.parent = context;
+      if (node.data != null) {
+        cref.data = node.data;
+      }
+      if (node.children != null) {
+        cref.children = node.children;
+      }
+      cref.create();
+      cref.init();
+      ref = cref.element;
+    }
+
+    return new VNodeCache(node.flags, node.key, node.tag, node.data, node.type, node.attrs,
+                          node.style, node.classes, node.children, ref, cref);
+  }
+
+  /// Check if VNodes have the same type.
+  ///
+  /// VNode can be updated only when it have the same type as [other] VNode.
+  bool _sameType(VNode other) => (flags == other.flags && tag == other.tag && type == other.type);
+
+  /// Render internal representation of the VNode.
+  void render(VContext context) {
+    if ((flags & (VNode.elementFlag | VNode.componentFlag | VNode.rootFlag)) != 0) {
+      final html.Element r = ref;
+
+      if (attrs != null) {
+        attrs.forEach((k, v) {
+          r.attributes[k] = v;
+        });
+      }
+
+      if (style != null) {
+        style.forEach((k, v) {
+          r.style.setProperty(k, v);
+        });
+      }
+
+      if ((flags & (VNode.elementFlag | VNode.componentFlag)) != 0) {
+        String className = type;
+        if (classes != null) {
+          final classesString = classes.join(' ');
+          className = className == null ? classesString : className + ' ' + classesString;
+        }
+        if (className != null) {
+          if ((flags & VNode.elementFlag) != 0) {
+            data = className;
+          }
+          r.className = className;
+        }
+      } else {
+        html.DomTokenList classList;
+//        html.CssClassSet classList;
+
+        if (type != null) {
+          classList = r.classList;
+//          classList = r.classes;
+          classList.add(type);
+        }
+
+        if (classes != null) {
+          if (classList == null) {
+            classList = r.classList;
+//            classList = r.classes;
+          }
+          for (var i = 0; i < classes.length; i++) {
+            classList.add(classes[i]);
+          }
+        }
+      }
+
+      if ((flags & VNode.componentFlag) != 0) {
+        cref.update();
+      } else {
+        if (children != null) {
+          assert(() {
+            if (children.isNotEmpty) {
+              final key = children[0].key;
+              for (var i = 1; i < children.length; i++) {
+                if ((key == null && children[i].key != null) ||
+                (key != null && children[i].key == null)) {
+                  throw
+                  'All children inside of the Virtual DOM Node should have '
+                  'either explicit, or implicit keys.\n'
+                  'Child at position 0 has key $key\n'
+                  'Child at position $i has key ${children[i].key}\n'
+                  'Children: $children';
+                }
+              }
+            }
+            return true;
+          }());
+
+          final bool attached = context.isAttached;
+          childrenCache = new List<VNodeCache>(children.length);
+          for (var i = 0; i < children.length; i++) {
+            final c = new VNodeCache.create(children[i], context);
+            childrenCache[i] = c;
+            _insertChild(c, null, context, attached);
+          }
+        }
+      }
+    }
+  }
+
+  /// Perform a diff and patch between `this` VNode and [other].
+  void update(VNode other, VContext context) {
+    assert(invariant(_sameType(other), 'VNode objects with different types cannot be updated.'));
+    assert(invariant(key == other.key, 'VNode objects with different keys cannot be updated.'));
+
+    if ((flags & VNode.textFlag) != 0) {
+      if (data != other.data) {
+        ref.text = other.data;
+        data = other.data;
+      }
+    } else if ((flags & (VNode.elementFlag | VNode.componentFlag | VNode.rootFlag)) != 0) {
+      final html.Element r = ref;
+
+      if (!identical(attrs, other.attrs)) {
+        updateAttrs(attrs, other.attrs, r.attributes);
+        attrs = other.attrs;
+      }
+
+      if (!identical(style, other.style)) {
+        updateStyle(style, other.style, r.style);
+        style = other.style;
+      }
+
+      if ((flags & VNode.elementFlag) != 0) {
+        if (!identical(classes, other.classes)) {
+          String className = other.type;
+          if (other.classes != null) {
+            final classesString = other.classes.join(' ');
+            className = className == null ? classesString : className + ' ' + classesString;
+          }
+          if ((data as String) != className) {
+            if (className == null) {
+              r.className = '';
+            } else {
+              r.className = className;
+            }
+            data = className;
+          }
+          classes = other.classes;
+        }
+      } else if (!identical(classes, other.classes)) {
+        updateClasses(classes, other.classes, r.classList);
+//        updateClasses(classes, other.classes, r.classes);
+        classes = other.classes;
+      }
+
+      if ((flags & VNode.componentFlag) != 0) {
+        cref.data = other.data;
+        data = other.data;
+        cref.children = other.children;
+        children = other.children;
+        cref.update();
+      } else {
+        if (!identical(children, other.children)) {
+          updateChildren(this, childrenCache, other.children, context);
+          children = other.children;
+        }
+      }
+    }
+  }
+
+  void _insertChild(VNodeCache node, VNodeCache next, VContext context, bool attached) {
+    if ((flags & VNode.contentFlag) == 0) {
+      final nextRef = next == null ? null : next.ref;
+      ref.insertBefore(node.ref, nextRef);
+      if (attached) {
+        node.attached();
+      }
+      node.render(context);
+    } else {
+      (context as Container).insertChild(this, node, next);
+    }
+  }
+
+  void _moveChild(VNodeCache node, VNodeCache next, VContext context) {
+    if ((flags & VNode.contentFlag) == 0) {
+      final nextRef = next == null ? null : next.ref;
+      ref.insertBefore(node.ref, nextRef);
+    } else {
+      (context as Container).moveChild(this, node, next);
+    }
+  }
+
+  void _removeChild(VNodeCache node, VContext context) {
+    if ((flags & VNode.contentFlag) == 0) {
+      node.ref.remove();
+      node.dispose();
+    } else {
+      (context as Container).removeChild(this, node);
+    }
+  }
+
+  void _updateChild(VNodeCache aNode, VNode bNode, VContext context) {
+    if ((flags & VNode.contentFlag) == 0) {
+      aNode.update(bNode, context);
+    } else {
+      (context as Container).updateChild(this, aNode, bNode);
+    }
+  }
+
+  void dispose() {
+    if ((flags & VNode.componentFlag) != 0) {
+      cref.dispose();
+    } else if (childrenCache != null) {
+      for (var i = 0; i < childrenCache.length; i++) {
+        childrenCache[i].dispose();
+      }
+    }
+  }
+
+  void attach() {
+    attached();
+    if (((flags & VNode.componentFlag) == 0) && (childrenCache != null)) {
+      for (var i = 0; i < childrenCache.length; i++) {
+        childrenCache[i].attach();
+      }
+    }
+  }
+
+  void detach() {
+    if (((flags & VNode.componentFlag) == 0) && (childrenCache != null)) {
+      for (var i = 0; i < childrenCache.length; i++) {
+        childrenCache[i].detach();
+      }
+    }
+    detached();
+  }
+
+  void attached() {
+    if ((flags & VNode.componentFlag) != 0) {
+      cref.attach();
+    }
+  }
+
+  void detached() {
+    if ((flags & VNode.componentFlag) != 0) {
+      cref.detach();
+    }
+  }
+}
+
 /// Virtual DOM Node.
 class VNode {
   /// Flag indicating that VNode is [html.Text].
@@ -67,16 +358,6 @@ class VNode {
   /// `set children(List<VNode> children)` setter.
   List<VNode> children;
 
-  /// Reference to the [html.Node]. It will be available after VNode is
-  /// [create]d or [update]d. Each time VNode is updated, reference to the
-  /// [html.Node] is passed from the previous node to the new one.
-  html.Node ref;
-
-  /// Reference to the [Component]. It will be available after VNode is
-  /// [create]d or [update]d. Each time [VNode] is updated, reference to the
-  /// [Component] is passed from the previous node to the new one.
-  Component cref;
-
   VNode(this.flags, {this.key, this.tag, this.data, this.type, this.attrs, this.style,
         this.classes, this.children});
 
@@ -121,33 +402,7 @@ class VNode {
     return this;
   }
 
-  /// Check if VNodes have the same type.
-  ///
-  /// VNode can be updated only when it have the same type as [other] VNode.
-  bool _sameType(VNode other) => (flags == other.flags && tag == other.tag && type == other.type);
-
-  /// Create root level element of the VNode object, or [Component] for
-  /// component nodes.
-  void create(VContext context) {
-    if ((flags & textFlag) != 0) {
-      ref = new html.Text(data);
-    } else if ((flags & elementFlag) != 0) {
-      if ((flags & svgFlag) == 0) {
-        ref = html.document.createElement(tag);
-      } else {
-        ref = html.document.createElementNS('http://www.w3.org/2000/svg', tag);
-      }
-    } else if ((flags & componentFlag) != 0) {
-      cref = (tag as componentConstructor)();
-      cref.parent = context;
-      cref.data = data;
-      cref.children = children;
-      cref.create();
-      cref.init();
-      ref = cref.element;
-    }
-  }
-
+  /*
   /// Mount VNode on top of the existing html [node].
   void mount(html.Node node, VContext context) {
     assert(invariant(node != null, 'Cannot mount on top of null Node'));
@@ -183,227 +438,6 @@ class VNode {
           child = child.nextNode;
         }
       }
-    }
-  }
-
-  /// Render internal representation of the VNode.
-  void render(VContext context) {
-    if ((flags & (elementFlag | componentFlag | rootFlag)) != 0) {
-      final html.Element r = ref;
-
-      if (attrs != null) {
-        attrs.forEach((k, v) {
-          r.attributes[k] = v;
-        });
-      }
-
-      if (style != null) {
-        style.forEach((k, v) {
-          r.style.setProperty(k, v);
-        });
-      }
-
-      if ((flags & (elementFlag | componentFlag)) != 0) {
-        String className = type;
-        if (classes != null) {
-          final classesString = classes.join(' ');
-          className = className == null ? classesString : className + ' ' + classesString;
-        }
-        if (className != null) {
-          if ((flags & elementFlag) != 0) {
-            data = className;
-          }
-          r.className = className;
-        }
-      } else {
-//        html.DomTokenList classList;
-        html.CssClassSet classList;
-
-        if (type != null) {
-//          classList = r.classList;
-          classList = r.classes;
-          classList.add(type);
-        }
-
-        if (classes != null) {
-          if (classList == null) {
-//            classList = r.classList;
-            classList = r.classes;
-          }
-          for (var i = 0; i < classes.length; i++) {
-            classList.add(classes[i]);
-          }
-        }
-      }
-
-      if ((flags & componentFlag) != 0) {
-        cref.update();
-      } else {
-        if (children != null) {
-          assert(() {
-            if (children.isNotEmpty) {
-              final key = children[0].key;
-              for (var i = 1; i < children.length; i++) {
-                if ((key == null && children[i].key != null) ||
-                (key != null && children[i].key == null)) {
-                  throw
-                  'All children inside of the Virtual DOM Node should have '
-                  'either explicit, or implicit keys.\n'
-                  'Child at position 0 has key $key\n'
-                  'Child at position $i has key ${children[i].key}\n'
-                  'Children: $children';
-                }
-              }
-            }
-            return true;
-          }());
-
-          final bool attached = context.isAttached;
-          for (var i = 0; i < children.length; i++) {
-            _insertChild(children[i], null, context, attached);
-          }
-        }
-      }
-    }
-  }
-
-  /// Perform a diff and patch between `this` VNode and [other].
-  void update(VNode other, VContext context) {
-    assert(invariant(_sameType(other), 'VNode objects with different types cannot be updated.'));
-    assert(invariant(other.ref == null || identical(ref, other.ref), 'VNode objects cannot be reused.'));
-    assert(invariant(key == other.key, 'VNode objects with different keys cannot be updated.'));
-
-    other.ref = ref;
-    if ((flags & textFlag) != 0) {
-      if (data != other.data) {
-        ref.text = other.data;
-      }
-    } else if ((flags & (elementFlag | componentFlag | rootFlag)) != 0) {
-      final html.Element r = ref;
-
-      if (!identical(attrs, other.attrs)) {
-        updateAttrs(attrs, other.attrs, r.attributes);
-      }
-
-      if (!identical(style, other.style)) {
-        updateStyle(style, other.style, r.style);
-      }
-
-      if ((flags & elementFlag) != 0) {
-        if (!identical(classes, other.classes)) {
-          if (other.data == null) {
-            String className = other.type;
-            if (other.classes != null) {
-              final classesString = other.classes.join(' ');
-              className = className == null ? classesString : className + ' ' + classesString;
-            }
-            other.data = className;
-          }
-          if ((data as String) != (other.data as String)) {
-            if (other.data == null) {
-              r.className = '';
-            } else {
-              r.className = (other.data as String);
-            }
-          }
-        } else {
-          other.data = data;
-        }
-      } else if (!identical(classes, other.classes)) {
-//        updateClasses(classes, other.classes, r.classList);
-        updateClasses(classes, other.classes, r.classes);
-      }
-
-      if ((flags & componentFlag) != 0) {
-        other.cref = cref;
-        cref.data = other.data;
-        cref.children = other.children;
-        cref.update();
-      } else {
-        if (!identical(children, other.children)) {
-          updateChildren(this, children, other.children, context);
-        }
-      }
-    }
-  }
-
-  void _insertChild(VNode node, VNode next, VContext context, bool attached) {
-    if ((flags & contentFlag) == 0) {
-      final nextRef = next == null ? null : next.ref;
-      node.create(context);
-      ref.insertBefore(node.ref, nextRef);
-      if (attached) {
-        node.attached();
-      }
-      node.render(context);
-    } else {
-      (context as Container).insertChild(this, node, next);
-    }
-  }
-
-  void _moveChild(VNode node, VNode next, VContext context) {
-    if ((flags & contentFlag) == 0) {
-      final nextRef = next == null ? null : next.ref;
-      ref.insertBefore(node.ref, nextRef);
-    } else {
-      (context as Container).moveChild(this, node, next);
-    }
-  }
-
-  void _removeChild(VNode node, VContext context) {
-    if ((flags & contentFlag) == 0) {
-      node.ref.remove();
-      node.dispose();
-    } else {
-      (context as Container).removeChild(this, node);
-    }
-  }
-
-  void _updateChild(VNode aNode, VNode bNode, VContext context) {
-    if ((flags & contentFlag) == 0) {
-      aNode.update(bNode, context);
-    } else {
-      (context as Container).updateChild(this, aNode, bNode);
-    }
-  }
-
-  void dispose() {
-    if ((flags & componentFlag) != 0) {
-      cref.dispose();
-    } else if (children != null) {
-      for (var i = 0; i < children.length; i++) {
-        children[i].dispose();
-      }
-    }
-  }
-
-  void attach() {
-    attached();
-    if (((flags & componentFlag) == 0) && (children != null)) {
-      for (var i = 0; i < children.length; i++) {
-        children[i].attach();
-      }
-    }
-  }
-
-  void detach() {
-    if (((flags & componentFlag) == 0) && (children != null)) {
-      for (var i = 0; i < children.length; i++) {
-        children[i].detach();
-      }
-    }
-    detached();
-  }
-
-  void attached() {
-    if ((flags & componentFlag) != 0) {
-      cref.attach();
-    }
-  }
-
-  void detached() {
-    if ((flags & componentFlag) != 0) {
-      cref.detach();
     }
   }
 
@@ -450,13 +484,14 @@ class VNode {
       return cref.writeHtmlString(b, this);
     }
   }
+  */
 }
 
 /// Perform a diff/patch on children [a] and [b].
 ///
 /// Mixing children with explicit and implicit keys will result in undefined
 /// behaviour in "production" mode, and runtime error in "development" mode.
-void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context) {
+void updateChildren(VNodeCache parent, List<VNodeCache> a, List<VNode> b, VContext context) {
   final bool attached = context.isAttached;
   if (a != null && a.isNotEmpty) {
     if (b == null || b.isEmpty) {
@@ -465,6 +500,7 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
       for (int i = 0; i < a.length; i++) {
         parent._removeChild(a[i], context);
       }
+      parent.childrenCache = null;
     } else {
       if (a.length == 1 && b.length == 1) {
         // fast path when [a] and [b] have just 1 child
@@ -472,7 +508,7 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
         // if both lists have child with the same key, then just diff them,
         // otherwise return patch with [a] child removed and [b] child
         // inserted
-        final VNode aNode = a.first;
+        final VNodeCache aNode = a.first;
         final VNode bNode = b.first;
 
         assert(invariant(
@@ -490,18 +526,21 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
           parent._updateChild(aNode, bNode, context);
         } else {
           parent._removeChild(aNode, context);
-          parent._insertChild(bNode, null, context, attached);
+
+          final n = new VNodeCache.create(bNode, context);
+          parent.childrenCache[0] = n;
+          parent._insertChild(n, null, context, attached);
         }
       } else if (a.length == 1) {
         // fast path when [a] have 1 child
         final aNode = a.first;
-
-        int i = 0;
         bool updated = false;
+        List<VNodeCache> newChildrenCache = new List<VNodeCache>(b.length);
+        int i = 0;
 
         if (aNode.key == null) {
           assert(() {
-            for (var i = 0; i < b.length; i++) {
+            for (int i = 0; i < b.length; i++) {
               if (b[i].key != null) {
                 throw
                 'All children inside of the Virtual DOM Node should have '
@@ -515,18 +554,21 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
             return true;
           }());
 
-          while (i < b.length) {
-            final VNode bNode = b[i++];
+          for (; i < b.length; i++) {
+            final VNode bNode = b[i];
             if (aNode._sameType(bNode)) {
+              newChildrenCache[i++] = aNode;
               parent._updateChild(aNode, bNode, context);
               updated = true;
               break;
             }
-            parent._insertChild(bNode, aNode, context, attached);
+            final VNodeCache n = new VNodeCache.create(bNode, context);
+            newChildrenCache[i] = n;
+            parent._insertChild(n, aNode, context, attached);
           }
         } else {
           assert(() {
-            for (var i = 0; i < b.length; i++) {
+            for (int i = 0; i < b.length; i++) {
               if (b[i].key == null) {
                 throw
                 'All children inside of the Virtual DOM Node should have '
@@ -540,24 +582,30 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
             return true;
           }());
 
-          while (i < b.length) {
-            final VNode bNode = b[i++];
+          for (; i < b.length; i++) {
+            final VNode bNode = b[i];
             if (aNode.key == bNode.key) {
+              newChildrenCache[i++] = aNode;
               parent._updateChild(aNode, bNode, context);
               updated = true;
               break;
             }
-            parent._insertChild(bNode, aNode, context, attached);
+            final VNodeCache n = new VNodeCache.create(bNode, context);
+            newChildrenCache[i] = n;
+            parent._insertChild(n, aNode, context, attached);
           }
         }
 
         if (updated) {
-          while (i < b.length) {
-            parent._insertChild(b[i++], null, context, attached);
+          for (; i < b.length; i++) {
+            final VNodeCache n = new VNodeCache.create(b[i], context);
+            newChildrenCache[i] = n;
+            parent._insertChild(n, null, context, attached);
           }
         } else {
           parent._removeChild(aNode, context);
         }
+        parent.childrenCache = newChildrenCache;
       } else if (b.length == 1) {
         // fast path when [b] have 1 child
         final bNode = b.first;
@@ -582,8 +630,9 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
           }());
 
           while (i < a.length) {
-            final VNode aNode = a[i++];
+            final VNodeCache aNode = a[i++];
             if (aNode._sameType(bNode)) {
+              parent.childrenCache = [aNode];
               parent._updateChild(aNode, bNode, context);
               updated = true;
               break;
@@ -607,8 +656,9 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
           }());
 
           while (i < a.length) {
-            final VNode aNode = a[i++];
+            final VNodeCache aNode = a[i++];
             if (aNode.key == bNode.key) {
+              parent.childrenCache = [aNode];
               parent._updateChild(aNode, bNode, context);
               updated = true;
               break;
@@ -621,7 +671,9 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
             parent._removeChild(a[i++], context);
           }
         } else {
-          parent._insertChild(bNode, null, context, attached);
+          final VNodeCache n = new VNodeCache.create(bNode, context);
+          parent.childrenCache = [n];
+          parent._insertChild(n, null, context, attached);
         }
       } else {
         // both [a] and [b] have more then 1 child, so we should handle
@@ -653,9 +705,13 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
     }
   } else if (b != null && b.length > 0) {
     // all children from list [b] were inserted
+    final newChildrenCache = new List<VNodeCache>(b.length);
     for (int i = 0; i < b.length; i++) {
-      parent._insertChild(b[i], null, context, attached);
+      final VNodeCache n = new VNodeCache.create(b[i], context);
+      newChildrenCache[i] = n;
+      parent._insertChild(n, null, context, attached);
     }
+    parent.childrenCache = newChildrenCache;
   }
 }
 
@@ -664,11 +720,12 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
 /// Any heuristics that is used in this algorithm is an undefined behaviour,
 /// external code should not rely on the knowledge of this algorithm, because
 /// it can be changed in any time.
-void _updateImplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context, bool attached) {
+void _updateImplicitChildren(VNodeCache parent, List<VNodeCache> a, List<VNode> b, VContext context, bool attached) {
   int aStart = 0;
   int bStart = 0;
   int aEnd = a.length - 1;
   int bEnd = b.length - 1;
+  final List<VNodeCache> newChildrenCache = new List<VNodeCache>(b.length);
 
   // Update nodes with the same type at the beginning.
   while (aStart <= aEnd && bStart <= bEnd) {
@@ -678,6 +735,8 @@ void _updateImplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
     if (!aNode._sameType(bNode)) {
       break;
     }
+
+    newChildrenCache[bStart] = aNode;
 
     aStart++;
     bStart++;
@@ -694,6 +753,8 @@ void _updateImplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
       break;
     }
 
+    newChildrenCache[bEnd] = aNode;
+
     aEnd--;
     bEnd--;
 
@@ -704,14 +765,19 @@ void _updateImplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
   // type, then update, otherwise just remove the old node and insert
   // the new one.
   while (aStart <= aEnd && bStart <= bEnd) {
-    final aNode = a[aStart++];
-    final bNode = b[bStart++];
+    final aNode = a[aStart];
+    final bNode = b[bStart];
     if (aNode._sameType(bNode)) {
+      newChildrenCache[bStart] = aNode;
       parent._updateChild(aNode, bNode, context);
     } else {
-      parent._insertChild(bNode, aNode, context, attached);
+      final VNodeCache n = new VNodeCache.create(bNode, context);
+      newChildrenCache[bStart] = n;
+      parent._insertChild(n, aNode, context, attached);
       parent._removeChild(aNode, context);
     }
+    aStart++;
+    bStart++;
   }
 
   // All nodes from [a] are updated, insert the rest from [b].
@@ -720,25 +786,32 @@ void _updateImplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
   }
 
   final nextPos = bEnd + 1;
-  final next = nextPos < b.length ? b[nextPos].ref : null;
+  final next = nextPos < newChildrenCache.length ? newChildrenCache[nextPos].ref : null;
 
   // All nodes from [b] are updated, remove the rest from [a].
   while (bStart <= bEnd) {
-    parent._insertChild(b[bStart++], next, context, attached);
+    final VNodeCache n = new VNodeCache.create(b[bStart], context);
+    newChildrenCache[bStart] = n;
+    parent._insertChild(n, next, context, attached);
+    bStart++;
   }
+
+  parent.childrenCache = newChildrenCache;
 }
 
 /// Update children with explicit keys.
-void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context, bool attached) {
+void _updateExplicitChildren(VNodeCache parent, List<VNodeCache> a, List<VNode> b, VContext context, bool attached) {
   int aStart = 0;
   int bStart = 0;
   int aEnd = a.length - 1;
   int bEnd = b.length - 1;
 
-  var aStartNode = a[aStart];
-  var bStartNode = b[bStart];
-  var aEndNode = a[aEnd];
-  var bEndNode = b[bEnd];
+  VNodeCache aStartNode = a[aStart];
+  VNode bStartNode = b[bStart];
+  VNodeCache aEndNode = a[aEnd];
+  VNode bEndNode = b[bEnd];
+
+  final List<VNodeCache> newChildrenCache = new List<VNodeCache>(b.length);
 
   bool stop = false;
 
@@ -755,6 +828,7 @@ void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
 
     // Update nodes with the same key at the beginning.
     while (aStartNode.key == bStartNode.key) {
+      newChildrenCache[bStart] = aStartNode;
       parent._updateChild(aStartNode, bStartNode, context);
 
       aStart++;
@@ -771,6 +845,7 @@ void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
 
     // Update nodes with the same key at the end.
     while (aEndNode.key == bEndNode.key) {
+      newChildrenCache[bEnd] = aEndNode;
       parent._updateChild(aEndNode, bEndNode, context);
 
       aEnd--;
@@ -787,11 +862,12 @@ void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
 
     // Move nodes from left to right.
     while (aStartNode.key == bEndNode.key) {
+      newChildrenCache[bEnd] = aStartNode;
       parent._updateChild(aStartNode, bEndNode, context);
 
       final nextPos = bEnd + 1;
-      final next = nextPos < b.length ? b[nextPos] : null;
-      parent._moveChild(bEndNode, next, context);
+      final next = nextPos < newChildrenCache.length ? newChildrenCache[nextPos] : null;
+      parent._moveChild(aStartNode, next, context);
 
       aStart++;
       bEnd--;
@@ -808,6 +884,7 @@ void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
 
     // Move nodes from right to left.
     while (aEndNode.key == bStartNode.key) {
+      newChildrenCache[bStart] = aEndNode;
       parent._updateChild(aEndNode, bStartNode, context);
 
       parent._moveChild(aEndNode, a[aStart], context);
@@ -828,9 +905,12 @@ void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
   if (aStart > aEnd) {
     // All nodes from [a] are updated, insert the rest from [b].
     final nextPos = bEnd + 1;
-    final next = nextPos < b.length ? b[nextPos] : null;
+    final next = nextPos < newChildrenCache.length ? newChildrenCache[nextPos] : null;
     while (bStart <= bEnd) {
-      parent._insertChild(b[bStart++], next, context, attached);
+      final VNodeCache n = new VNodeCache.create(b[bStart], context);
+      newChildrenCache[bStart] = n;
+      parent._insertChild(n, next, context, attached);
+      bStart++;
     }
   } else if (bStart > bEnd) {
     // All nodes from [b] are updated, remove the rest from [a].
@@ -877,6 +957,7 @@ void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
               lastTarget = j;
             }
 
+            newChildrenCache[j] = aNode;
             parent._updateChild(aNode, bNode, context);
 
             removed = false;
@@ -911,6 +992,7 @@ void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
             lastTarget = j;
           }
 
+          newChildrenCache[j] = aNode;
           parent._updateChild(aNode, bNode, context);
         } else {
           parent._removeChild(aNode, context);
@@ -932,15 +1014,18 @@ void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
           final pos = i + bStart;
           final node = b[pos];
           final nextPos = pos + 1;
-          final next = nextPos < b.length ? b[nextPos] : null;
-          parent._insertChild(node, next, context, attached);
+          final next = nextPos < newChildrenCache.length ? newChildrenCache[nextPos] : null;
+          final VNodeCache n = new VNodeCache.create(node, context);
+          newChildrenCache[pos] = n;
+          parent._insertChild(n, next, context, attached);
         } else {
           if (j < 0 || i != seq[j]) {
             final pos = i + bStart;
-            final node = a[sources[i]];
+            //final node = a[sources[i]];
             final nextPos = pos + 1;
-            final next = nextPos < b.length ? b[nextPos] : null;
-            parent._moveChild(node, next, context);
+            final next = nextPos < newChildrenCache.length ? newChildrenCache[nextPos] : null;
+            final VNodeCache n = newChildrenCache[pos];
+            parent._moveChild(n, next, context);
           } else {
             j--;
           }
@@ -952,12 +1037,15 @@ void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
           final pos = i + bStart;
           final node = b[pos];
           final nextPos = pos + 1;
-          final next = nextPos < b.length ? b[nextPos] : null;
-          parent._insertChild(node, next, context, attached);
+          final next = nextPos < newChildrenCache.length ? newChildrenCache[nextPos] : null;
+          final VNodeCache n = new VNodeCache.create(node, context);
+          newChildrenCache[pos] = n;
+          parent._insertChild(n, next, context, attached);
         }
       }
     }
   }
+  parent.childrenCache = newChildrenCache;
 }
 
 /// Algorithm that finds longest increasing subsequence. With one little
@@ -1085,8 +1173,8 @@ void updateAttrs(Map a, Map b, Map attrs) {
 /// Find changes between Lists [a] and [b] and apply this changes to
 /// [classList].
 // TODO: https://code.google.com/p/dart/issues/detail?id=23012
-//void updateClasses(List<String> a, List<String> b, html.DomTokenList classList) {
-void updateClasses(List<String> a, List<String> b, html.CssClassSet classList) {
+void updateClasses(List<String> a, List<String> b, html.DomTokenList classList) {
+//void updateClasses(List<String> a, List<String> b, html.CssClassSet classList) {
   assert(classList != null);
 
   if (a != null && a.length != 0) {

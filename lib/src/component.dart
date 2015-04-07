@@ -60,7 +60,7 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
   List<VNode> children_;
 
   Component _parent;
-  VNode _root;
+  VNodeCache _root;
 
   /// Parent Component.
   Component get parent => _parent;
@@ -88,7 +88,7 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
   }
 
   /// Reference to the root virtual dom node.
-  VNode get root => _root;
+  VNodeCache get root => _root;
 
   /// Component is dirty and should be updated.
   bool get isDirty => (flags & dirtyFlag) != 0;
@@ -179,18 +179,16 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
   void updateRoot(VNode n) {
     assert(n != null);
     if (_root == null) {
-      n.cref = this;
+      _root = new VNodeCache.mount(n, element, this);
       if ((flags & mountingFlag) != 0) {
-        n.mount(element, this);
+        //n.mount(element, this);
         flags &= ~mountingFlag;
       } else {
-        n.ref = element;
-        n.render(this);
+        _root.render(this);
       }
     } else {
       _root.update(n, this);
     }
-    _root = n;
   }
 
   /// Invalidate Component.
@@ -298,7 +296,7 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
     flags &= ~attachedFlag;
     detached();
   }
-
+/*
   /// Serialize Component as a html string, ignoring any internal state.
   String toHtmlString() {
     final b = new StringBuffer();
@@ -366,6 +364,7 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
     }
     b.write('</$tag>');
   }
+  */
 }
 
 /// Base class for Components with a root element in Svg namespace.

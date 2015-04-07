@@ -1,3 +1,5 @@
+# EXPERIMENTAL branch (immutable virtual nodes)
+
 # uix
 
 Library to build Web User Interfaces in [Dart](https://dartlang.org)

@@ -10,9 +10,8 @@ import 'vnode.dart';
 abstract class Container {
   bool get isAttached;
 
-  void insertChild(VNode container, VNode node, VNode next) {
+  void insertChild(VNodeCache container, VNodeCache node, VNodeCache next) {
     final nextRef = next == null ? null : next.ref;
-    node.create((this as VContext));
     container.ref.insertBefore(node.ref, nextRef);
     if (isAttached) {
       node.attached();
@@ -20,17 +19,17 @@ abstract class Container {
     node.render((this as VContext));
   }
 
-  void moveChild(VNode container, VNode node, VNode next) {
+  void moveChild(VNodeCache container, VNodeCache node, VNodeCache next) {
     final nextRef = next == null ? null : next.ref;
     container.ref.insertBefore(node.ref, nextRef);
   }
 
-  void removeChild(VNode container, VNode node) {
+  void removeChild(VNodeCache container, VNodeCache node) {
     node.ref.remove();
     node.dispose();
   }
 
-  void updateChild(VNode container, VNode aNode, VNode bNode) {
+  void updateChild(VNodeCache container, VNodeCache aNode, VNode bNode) {
     aNode.update(bNode, (this as VContext));
   }
 }
