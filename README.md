@@ -192,6 +192,7 @@ main() {
 - [Read/Write DOM Batching](https://github.com/localvoid/uix/tree/master/example/read_write_batching)
 - [Component Inheritance](https://github.com/localvoid/uix/tree/master/example/inheritance)
 - [SVG](https://github.com/localvoid/uix/tree/master/example/svg)
+- [Canvas](https://github.com/localvoid/uix/tree/master/example/canvas)
 - [Css Transition Group](https://github.com/localvoid/uix/tree/master/example/animation)
 - [TodoMVC (observable)](https://github.com/localvoid/uix_todomvc/)
 - [TodoMVC (persistent)](https://github.com/localvoid/uix_todomvc_persistent/)
