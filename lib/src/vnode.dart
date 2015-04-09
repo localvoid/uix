@@ -318,7 +318,6 @@ class VNode {
         other.cref = cref;
         cref.data = other.data;
         cref.children = other.children;
-        cref.update();
       } else {
         if (!identical(children, other.children)) {
           updateChildren(this, children, other.children, context);

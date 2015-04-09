@@ -121,6 +121,9 @@ class Scheduler {
   Frame _currentFrame = new Frame();
   Frame _nextFrame = new Frame();
 
+  StreamController _onNextFrameController;
+  Stream get onNextFrame => _onNextFrameController.stream;
+
   Completer _nextTickCompleter;
 
   /// [Frame] that contains tasks for the current animation frame.
@@ -147,6 +150,12 @@ class Scheduler {
   Scheduler() {
     _zoneSpec = new ZoneSpecification(scheduleMicrotask: _scheduleMicrotask);
     _zone = Zone.current.fork(specification: _zoneSpec);
+
+    _onNextFrameController = new StreamController.broadcast(onListen: _handleNextFrameListen);
+  }
+
+  void _handleNextFrameListen() {
+    _requestAnimationFrame();
   }
 
   void _scheduleMicrotask(Zone self, ZoneDelegate parent, Zone zone, void f()) {
@@ -185,6 +194,12 @@ class Scheduler {
     _zone.run(() {
       flags &= ~framePendingFlag;
       flags |= frameRunningFlag;
+
+      _onNextFrameController.add(null);
+      _runTasks();
+      if (_onNextFrameController.hasListener) {
+        _requestAnimationFrame();
+      }
 
       final tmp = _currentFrame;
       _currentFrame = _nextFrame;

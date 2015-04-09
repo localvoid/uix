@@ -1,3 +1,13 @@
+# 0.5.1
+
+- When Virtual Nodes for Components are performing updates they
+  doesn't call `Component.update()` anymore, they're only passing new
+  `data` and `children`.
+- If `Component.invalidate()` method is called when Scheduler is running
+  tasks for the currentFrame, Component is registered to the `currentFrame`
+  write task queue, otherwise to the `nextFrame`.
+- Added new stream `onNextFrame` to the Scheduler.
+
 # 0.5.0
 
 - Fixed wrong sort order for `Scheduler` write tasks.
