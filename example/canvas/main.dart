@@ -24,7 +24,7 @@ class Canvas extends Component {
   }
 
   void _handleMove(html.MouseEvent e) {
-    p = e.client - element.offset.topLeft;
+    p = e.offset;
     invalidate();
   }
 
@@ -39,9 +39,9 @@ class Canvas extends Component {
       await scheduler.currentFrame.read();
       width = element.client.width;
       height = element.client.height;
+      await scheduler.currentFrame.write();
       element.setAttribute('width', width.toString());
       element.setAttribute('height', height.toString());
-      await scheduler.currentFrame.write();
     }
     ctx.globalCompositeOperation = 'source-over';
     ctx.fillStyle = 'rgba(0, 0, 0, 1)';
