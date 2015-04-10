@@ -59,6 +59,7 @@ void main() {
       final f = new html.DocumentFragment();
       final c = new TestComponent()..data = 1;
       await injectComponent(c, f);
+      await scheduler.currentFrame.after();
       expect(c.checkInit, equals(0));
       expect(c.checkAttached, equals(1));
       expect(c.checkUpdateState, equals(2));

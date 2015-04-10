@@ -200,7 +200,10 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
   void invalidate([_]) {
     if ((flags & dirtyFlag) == 0) {
       flags |= dirtyFlag;
-
+      cancelTransientSubscriptions();
+      invalidated();
+    }
+    if ((flags & shouldUpdateViewFlags) == shouldUpdateViewFlags) {
       if (scheduler.isFrameRunning) {
         scheduler.currentFrame.write(depth).then(update);
       } else {
@@ -212,9 +215,6 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
           });
         }
       }
-
-      cancelTransientSubscriptions();
-      invalidated();
     }
   }
 
@@ -278,6 +278,7 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
   void attach() {
     assert(!isAttached);
     flags |= attachedFlag;
+    invalidate();
     attached();
     if (_root != null) {
       _root.attach();

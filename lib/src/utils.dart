@@ -34,7 +34,6 @@ Future injectComponent(Component component, html.Node container) {
     component.init();
     container.append(component.element);
     component.attach();
-    component.update();
   };
 
   if (identical(Zone.current, scheduler.zone)) {
@@ -50,7 +49,6 @@ Future mountComponent(Component component, html.Node node) {
     component.mount(node);
     component.init();
     component.attach();
-    component.update();
   };
 
   if (identical(Zone.current, scheduler.zone)) {

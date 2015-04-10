@@ -1,11 +1,17 @@
 # 0.5.1
 
-- When Virtual Nodes for Components are performing updates they
-  doesn't call `Component.update()` anymore, they're only passing new
-  `data` and `children`.
-- If `Component.invalidate()` method is called when Scheduler is running
-  tasks for the currentFrame, Component is registered to the `currentFrame`
-  write task queue, otherwise to the `nextFrame`.
+- Virtual Nodes for Components are no longer responsible for calling
+  `Component.update()` method, and now they're just creating
+  components and passing new data.
+- `inject*` helper methods are no longer calling `Component.update()`
+  method.
+- If `Component.invalidate()` method is called when Scheduler is
+  running tasks for the currentFrame, Component is registered to the
+  `currentFrame` write task queue, otherwise to the `nextFrame`.
+- `Component.invalidate()` will register Component in the Scheduler
+  only when it has `shouldUpdateViewFlags`.
+- When Component is attached to the document, component will be
+  invalidated.
 - Added new stream `onNextFrame` to the Scheduler.
 
 # 0.5.0

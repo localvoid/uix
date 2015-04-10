@@ -164,7 +164,6 @@ class VNode {
       if (context.isAttached) {
         attached();
       }
-      cref.update();
     } else {
       if ((flags & elementFlag) != 0) {
         String className = type;
@@ -236,32 +235,28 @@ class VNode {
         }
       }
 
-      if ((flags & componentFlag) != 0) {
-        cref.update();
-      } else {
-        if (children != null) {
-          assert(() {
-            if (children.isNotEmpty) {
-              final key = children[0].key;
-              for (var i = 1; i < children.length; i++) {
-                if ((key == null && children[i].key != null) ||
-                (key != null && children[i].key == null)) {
-                  throw
-                  'All children inside of the Virtual DOM Node should have '
-                  'either explicit, or implicit keys.\n'
-                  'Child at position 0 has key $key\n'
-                  'Child at position $i has key ${children[i].key}\n'
-                  'Children: $children';
-                }
+      if (((flags & componentFlag) == 0) && (children != null)) {
+        assert(() {
+          if (children.isNotEmpty) {
+            final key = children[0].key;
+            for (var i = 1; i < children.length; i++) {
+              if ((key == null && children[i].key != null) ||
+              (key != null && children[i].key == null)) {
+                throw
+                'All children inside of the Virtual DOM Node should have '
+                'either explicit, or implicit keys.\n'
+                'Child at position 0 has key $key\n'
+                'Child at position $i has key ${children[i].key}\n'
+                'Children: $children';
               }
             }
-            return true;
-          }());
-
-          final bool attached = context.isAttached;
-          for (var i = 0; i < children.length; i++) {
-            _insertChild(children[i], null, context, attached);
           }
+          return true;
+        }());
+
+        final bool attached = context.isAttached;
+        for (int i = 0; i < children.length; i++) {
+          _insertChild(children[i], null, context, attached);
         }
       }
     }
