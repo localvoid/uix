@@ -1098,38 +1098,40 @@ void updateClasses(List<String> a, List<String> b, html.CssClassSet classList) {
         }
       } else if (a.length == 1) {
         final String aItem = a[0];
-        int unchangedPosition = -1;
-        for (int i = 0; i < b.length; i++) {
-          final String bItem = b[i];
+        bool found = false;
+        int i = 0;
+        while (i < b.length) {
+          final String bItem = b[i++];
           if (aItem == bItem) {
-            unchangedPosition = i;
+            found = true;
             break;
           } else {
             classList.add(bItem);
           }
         }
-        if (unchangedPosition != -1) {
-          for (int i = unchangedPosition + 1; i < b.length; i++) {
-            classList.add(b[i]);
+        if (found) {
+          while (i < b.length) {
+            classList.add(b[i++]);
           }
         } else {
           classList.remove(aItem);
         }
       } else if (b.length == 1) {
         final String bItem = b[0];
-        int unchangedPosition = -1;
-        for (int i = 0; i < a.length; i++) {
-          final String aItem = a[i];
+        bool found = false;
+        int i = 0;
+        while (i < a.length) {
+          final String aItem = a[i++];
           if (aItem == bItem) {
-            unchangedPosition = i;
+            found = true;
             break;
           } else {
             classList.remove(aItem);
           }
         }
-        if (unchangedPosition != -1) {
-          for (int i = unchangedPosition + 1; i < a.length; i++) {
-            classList.remove(a[i]);
+        if (found) {
+          while (i < a.length) {
+            classList.remove(a[i++]);
           }
         } else {
           classList.add(bItem);
