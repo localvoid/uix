@@ -45,7 +45,7 @@ class Frame {
   _WriteGroup _writeGroup;
 
   HeapPriorityQueue<_WriteGroup> _writeQueue =
-      new HeapPriorityQueue<_WriteGroup>();
+  new HeapPriorityQueue<_WriteGroup>();
 
   Completer _readCompleter;
   Completer _afterCompleter;
@@ -105,7 +105,13 @@ class Scheduler {
   static const int runningFlags = tickRunningFlag | frameRunningFlag;
 
   int flags = 0;
+
+  /// Monotonically increasing internal clock.
   int clock = 1;
+
+  /// High Resolution timestamp measured in milliseconds, accurate to one
+  /// thousandth of a millisecond.
+  num time = -1;
 
   bool get isRunning => ((flags & runningFlags) != 0);
   bool get isFrameRunning => ((flags & frameRunningFlag) != 0);
@@ -190,6 +196,7 @@ class Scheduler {
     if ((flags & framePendingFlag) == 0) {
       return;
     }
+    time = t;
 
     _zone.run(() {
       flags &= ~framePendingFlag;
@@ -244,6 +251,8 @@ class Scheduler {
       return;
     }
 
+    time = html.window.performance.now();
+
     _zone.run(() {
       flags &= ~tickPendingFlag;
       flags |= tickRunningFlag;
@@ -272,6 +281,8 @@ class Scheduler {
   }
 
   void run(fn) {
+    time = html.window.performance.now();
+
     _zone.run(() {
       flags |= tickRunningFlag;
 
