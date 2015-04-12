@@ -1,5 +1,7 @@
 # uix
 
+[![Join the chat at https://gitter.im/localvoid/uix](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/localvoid/uix?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 Library to build Web User Interfaces in [Dart](https://dartlang.org)
 inspired by [React](http://facebook.github.io/react/).
 
