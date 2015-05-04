@@ -54,7 +54,7 @@ class VNode {
   String type;
 
   /// Attributes.
-  Map<String, String> attrs;
+  Map<String, dynamic> attrs;
 
   /// Styles.
   Map<String, String> style;
@@ -192,6 +192,14 @@ class VNode {
 
       if (attrs != null) {
         attrs.forEach((k, v) {
+          if (v is num) {
+            v = v.toString();
+          } else if (v is bool) {
+            if (!v) {
+              return;
+            }
+            v = '';
+          }
           r.attributes[k] = v;
         });
       }

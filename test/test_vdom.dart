@@ -89,6 +89,25 @@ void main() {
         expect(frag.innerHtml,
             equals('<div id="test-id" data-test="test-data"></div>'));
       });
+
+      test('Create textarea with numeric attributes', () {
+        final frag = new html.DocumentFragment();
+        final n = ve('textarea', attrs: {'rows': 2, 'cols': 20});
+        injectVNodeSync(n, frag);
+        expect(frag.innerHtml, equals('<textarea rows="2" cols="20"></textarea>'));
+      });
+
+      test('Create checkbox with boolean attribute', () {
+        final frag = new html.DocumentFragment();
+        final n = ve('input', attrs: {'type': 'checkbox', 'checked': true});
+        injectVNodeSync(n, frag);
+        expect(frag.innerHtml, equals('<input type="checkbox" checked="">'));
+
+        final frag2 = new html.DocumentFragment();
+        final n2 = ve('input', attrs: {'type': 'checkbox', 'checked': false});
+        injectVNodeSync(n2, frag2);
+        expect(frag2.innerHtml, equals('<input type="checkbox">'));
+      });
     });
 
     group('Styles', () {
