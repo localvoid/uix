@@ -1,11 +1,10 @@
+@TestOn('browser')
+
 import 'dart:async';
-import 'package:unittest/unittest.dart';
-import 'package:unittest/html_enhanced_config.dart';
+import 'package:test/test.dart';
 import 'package:uix/uix.dart';
 
 void main() {
-  useHtmlEnhancedConfiguration();
-
   group('Clock', () {
     test('initial', () {
       final s = new Scheduler();

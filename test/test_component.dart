@@ -1,6 +1,7 @@
+@TestOn('browser')
+
 import 'dart:html' as html;
-import 'package:unittest/unittest.dart';
-import 'package:unittest/html_enhanced_config.dart';
+import 'package:test/test.dart';
 import 'package:uix/uix.dart';
 
 class TestComponent extends Component<int> {
@@ -52,7 +53,6 @@ class TestComponent extends Component<int> {
 
 void main() {
   initUix();
-  useHtmlEnhancedConfiguration();
 
   group('Lifecycle', () {
     test('Inject', () async {

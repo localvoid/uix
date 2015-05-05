@@ -1,6 +1,7 @@
+@TestOn('browser')
+
 import 'dart:html' as html;
-import 'package:unittest/unittest.dart';
-import 'package:unittest/html_enhanced_config.dart';
+import 'package:test/test.dart';
 import 'package:uix/uix.dart';
 
 void injectVNodeSync(VNode node, html.Node container) {
@@ -56,8 +57,6 @@ void checkInnerHtmlEquals(VNode a, VNode b) {
 }
 
 void main() {
-  useHtmlEnhancedConfiguration();
-
   group('Render', () {
     group('Basic', () {
       test('Create empty div', () {
@@ -174,10 +173,9 @@ void main() {
         ];
 
         for (var t in tests) {
-          final testFn = t['solo'] == true ? solo_test : test;
           final name = t['name'] == null ? '[] => ${t['b']}' : t['name'];
 
-          testFn(name, () {
+          test(name, () {
             final b = ee(0, gen(t['b']));
             checkInnerHtmlEquals(a, b);
           });
@@ -201,10 +199,9 @@ void main() {
         ];
 
         for (var t in tests) {
-          final testFn = t['solo'] == true ? solo_test : test;
           final name = t['name'] == null ? '[999] => ${t['b']}' : t['name'];
 
-          testFn(name, () {
+          test(name, () {
             final b = ee(0, gen(t['b']));
 
             checkInnerHtmlEquals(a, b);
@@ -237,11 +234,9 @@ void main() {
         ];
 
         for (var t in tests) {
-          final testFn = t['solo'] == true ? solo_test : test;
-          final name =
-              t['name'] == null ? '[998, 999] => ${t['b']}' : t['name'];
+          final name = t['name'] == null ? '[998, 999] => ${t['b']}' : t['name'];
 
-          testFn(name, () {
+          test(name, () {
             final b = ee(0, gen(t['b']));
             checkInnerHtmlEquals(a, b);
           });
@@ -264,10 +259,9 @@ void main() {
         ];
 
         for (var t in tests) {
-          final testFn = t['solo'] == true ? solo_test : test;
           final name = t['name'] == null ? '${t['a']} => ${t['b']}' : t['name'];
 
-          testFn(name, () {
+          test(name, () {
             final a = ee(0, gen(t['a']));
             final b = ee(0, gen(t['b']));
             checkInnerHtmlEquals(a, b);
@@ -294,10 +288,9 @@ void main() {
         ];
 
         for (var t in tests) {
-          final testFn = t['solo'] == true ? solo_test : test;
           final name = t['name'] == null ? '${t['a']} => ${t['b']}' : t['name'];
 
-          testFn(name, () {
+          test(name, () {
             final a = ee(0, gen(t['a']));
             final b = ee(0, gen(t['b']));
             checkInnerHtmlEquals(a, b);
@@ -336,9 +329,7 @@ void main() {
         final b0 = t['b'];
         final name = t['name'] == null ? '$a0 => $b0' : t['name'];
 
-        final testFn = t['solo'] == true ? solo_test : test;
-
-        testFn(name, () {
+        test(name, () {
           final a = ee(0, gen(a0));
           final b = ee(0, gen(b0));
           checkInnerHtmlEquals(a, b);
@@ -363,9 +354,7 @@ void main() {
         final b0 = t['b'];
         final name = t['name'] == null ? '$a0 => $b0' : t['name'];
 
-        final testFn = t['solo'] == true ? solo_test : test;
-
-        testFn(name, () {
+        test(name, () {
           final a = ee(0, gen(a0));
           final b = ee(0, gen(b0));
           checkInnerHtmlEquals(a, b);
@@ -389,9 +378,7 @@ void main() {
         final b0 = t['b'];
         final name = t['name'] == null ? '$a0 => $b0' : t['name'];
 
-        final testFn = t['solo'] == true ? solo_test : test;
-
-        testFn(name, () {
+        test(name, () {
           final a = ee(0, gen(a0));
           final b = ee(0, gen(b0));
           checkInnerHtmlEquals(a, b);
@@ -418,9 +405,7 @@ void main() {
         final b0 = t['b'];
         final name = t['name'] == null ? '$a0 => $b0' : t['name'];
 
-        final testFn = t['solo'] == true ? solo_test : test;
-
-        testFn(name, () {
+        test(name, () {
           final a = ee(0, gen(a0));
           final b = ee(0, gen(b0));
           checkInnerHtmlEquals(a, b);
@@ -444,9 +429,7 @@ void main() {
         final b0 = t['b'];
         final name = t['name'] == null ? '$a0 => $b0' : t['name'];
 
-        final testFn = t['solo'] == true ? solo_test : test;
-
-        testFn(name, () {
+        test(name, () {
           final a = ee(0, gen(a0));
           final b = ee(0, gen(b0));
           checkInnerHtmlEquals(a, b);
@@ -479,9 +462,7 @@ void main() {
         final b0 = t['b'];
         final name = t['name'] == null ? '$a0 => $b0' : t['name'];
 
-        final testFn = t['solo'] == true ? solo_test : test;
-
-        testFn(name, () {
+        test(name, () {
           final a = ee(0, gen(a0));
           final b = ee(0, gen(b0));
           checkInnerHtmlEquals(a, b);
@@ -548,10 +529,9 @@ void main() {
         ];
 
         for (var t in tests) {
-          final testFn = t['solo'] == true ? solo_test : test;
           final name = t['name'] == null ? '[] => ${t['b']}' : t['name'];
 
-          testFn(name, () {
+          test(name, () {
             final b = ee(0, gen(t['b'], false));
             checkInnerHtmlEquals(a, b);
           });
@@ -575,10 +555,9 @@ void main() {
         ];
 
         for (var t in tests) {
-          final testFn = t['solo'] == true ? solo_test : test;
           final name = t['name'] == null ? '[999] => ${t['b']}' : t['name'];
 
-          testFn(name, () {
+          test(name, () {
             final b = ee(0, gen(t['b'], false));
 
             checkInnerHtmlEquals(a, b);
@@ -611,11 +590,9 @@ void main() {
         ];
 
         for (var t in tests) {
-          final testFn = t['solo'] == true ? solo_test : test;
-          final name =
-              t['name'] == null ? '[998, 999] => ${t['b']}' : t['name'];
+          final name = t['name'] == null ? '[998, 999] => ${t['b']}' : t['name'];
 
-          testFn(name, () {
+          test(name, () {
             final b = ee(0, gen(t['b'], false));
             checkInnerHtmlEquals(a, b);
           });
@@ -638,10 +615,9 @@ void main() {
         ];
 
         for (var t in tests) {
-          final testFn = t['solo'] == true ? solo_test : test;
           final name = t['name'] == null ? '${t['a']} => ${t['b']}' : t['name'];
 
-          testFn(name, () {
+          test(name, () {
             final a = ee(0, gen(t['a'], false));
             final b = ee(0, gen(t['b'], false));
             checkInnerHtmlEquals(a, b);
@@ -668,10 +644,9 @@ void main() {
         ];
 
         for (var t in tests) {
-          final testFn = t['solo'] == true ? solo_test : test;
           final name = t['name'] == null ? '${t['a']} => ${t['b']}' : t['name'];
 
-          testFn(name, () {
+          test(name, () {
             final a = ee(0, gen(t['a'], false));
             final b = ee(0, gen(t['b'], false));
             checkInnerHtmlEquals(a, b);
@@ -710,9 +685,7 @@ void main() {
         final b0 = t['b'];
         final name = t['name'] == null ? '$a0 => $b0' : t['name'];
 
-        final testFn = t['solo'] == true ? solo_test : test;
-
-        testFn(name, () {
+        test(name, () {
           final a = ee(0, gen(a0, false));
           final b = ee(0, gen(b0, false));
           checkInnerHtmlEquals(a, b);
@@ -737,9 +710,7 @@ void main() {
         final b0 = t['b'];
         final name = t['name'] == null ? '$a0 => $b0' : t['name'];
 
-        final testFn = t['solo'] == true ? solo_test : test;
-
-        testFn(name, () {
+        test(name, () {
           final a = ee(0, gen(a0, false));
           final b = ee(0, gen(b0, false));
           checkInnerHtmlEquals(a, b);
@@ -763,9 +734,7 @@ void main() {
         final b0 = t['b'];
         final name = t['name'] == null ? '$a0 => $b0' : t['name'];
 
-        final testFn = t['solo'] == true ? solo_test : test;
-
-        testFn(name, () {
+        test(name, () {
           final a = ee(0, gen(a0, false));
           final b = ee(0, gen(b0, false));
           checkInnerHtmlEquals(a, b);
@@ -792,9 +761,7 @@ void main() {
         final b0 = t['b'];
         final name = t['name'] == null ? '$a0 => $b0' : t['name'];
 
-        final testFn = t['solo'] == true ? solo_test : test;
-
-        testFn(name, () {
+        test(name, () {
           final a = ee(0, gen(a0, false));
           final b = ee(0, gen(b0, false));
           checkInnerHtmlEquals(a, b);
@@ -818,9 +785,7 @@ void main() {
         final b0 = t['b'];
         final name = t['name'] == null ? '$a0 => $b0' : t['name'];
 
-        final testFn = t['solo'] == true ? solo_test : test;
-
-        testFn(name, () {
+        test(name, () {
           final a = ee(0, gen(a0, false));
           final b = ee(0, gen(b0, false));
           checkInnerHtmlEquals(a, b);
@@ -853,9 +818,7 @@ void main() {
         final b0 = t['b'];
         final name = t['name'] == null ? '$a0 => $b0' : t['name'];
 
-        final testFn = t['solo'] == true ? solo_test : test;
-
-        testFn(name, () {
+        test(name, () {
           final a = ee(0, gen(a0, false));
           final b = ee(0, gen(b0, false));
           checkInnerHtmlEquals(a, b);
