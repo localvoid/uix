@@ -1,3 +1,12 @@
+# 0.5.2
+
+- Attributes in VNodes can accept `num` and `bool` types for values
+  and will be automatically converted to `Strings`. `bool` type will
+  work as html
+  [boolean attribute](https://html.spec.whatwg.org/multipage/infrastructure.html#boolean-attributes).
+- Attributes and styles in VNodes can accept `null` values. Attributes
+  and styles with `null` value will be removed from the dom element.
+
 # 0.5.1
 
 - Virtual Nodes for Components are no longer responsible for calling
