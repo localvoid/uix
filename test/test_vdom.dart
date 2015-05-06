@@ -88,6 +88,25 @@ void main() {
         expect(frag.innerHtml,
             equals('<div id="test-id" data-test="test-data"></div>'));
       });
+
+      test('Create textarea with numeric attributes', () {
+        final frag = new html.DocumentFragment();
+        final n = ve('textarea', attrs: {'rows': 2, 'cols': 20});
+        injectVNodeSync(n, frag);
+        expect(frag.innerHtml, equals('<textarea rows="2" cols="20"></textarea>'));
+      });
+
+      test('Create checkbox with boolean attribute', () {
+        final frag = new html.DocumentFragment();
+        final n = ve('input', attrs: {'type': 'checkbox', 'checked': true});
+        injectVNodeSync(n, frag);
+        expect(frag.innerHtml, equals('<input type="checkbox" checked="">'));
+
+        final frag2 = new html.DocumentFragment();
+        final n2 = ve('input', attrs: {'type': 'checkbox', 'checked': false});
+        injectVNodeSync(n2, frag2);
+        expect(frag2.innerHtml, equals('<input type="checkbox">'));
+      });
     });
 
     group('Styles', () {
@@ -999,6 +1018,28 @@ void main() {
       expect((f.firstChild as html.Element).attributes['c'], equals('3'));
     });
 
+    test('{} => {a: true, b: false}', () {
+      final f = new html.DocumentFragment();
+      final a = ve('div', attrs: {});
+      final b = ve('div', attrs: {'a': true, 'b': false});
+      injectVNodeSync(a, f);
+      a.update(b, const VContext(true));
+      expect((f.firstChild as html.Element).attributes.isNotEmpty, isTrue);
+      expect((f.firstChild as html.Element).attributes.length, 1);
+      expect((f.firstChild as html.Element).attributes['a'], equals(''));
+    });
+
+    test('{} => {a: num 1}', () {
+      final f = new html.DocumentFragment();
+      final a = ve('div', attrs: {});
+      final b = ve('div', attrs: {'a': 1});
+      injectVNodeSync(a, f);
+      a.update(b, const VContext(true));
+      expect((f.firstChild as html.Element).attributes.isNotEmpty, isTrue);
+      expect((f.firstChild as html.Element).attributes.length, 1);
+      expect((f.firstChild as html.Element).attributes['a'], equals('1'));
+    });
+
     test('{a: 1} => null', () {
       final f = new html.DocumentFragment();
       final a = ve('div', attrs: {'a': '1'});
@@ -1070,6 +1111,92 @@ void main() {
       expect((f.firstChild as html.Element).attributes.length, 2);
       expect((f.firstChild as html.Element).attributes['a'], equals('10'));
       expect((f.firstChild as html.Element).attributes['b'], equals('20'));
+    });
+
+    test('{a: false} => {a: true}', () {
+      final f = new html.DocumentFragment();
+      final a = ve('div', attrs: {'a': false});
+      final b = ve('div', attrs: {'a': true});
+      injectVNodeSync(a, f);
+      a.update(b, const VContext(true));
+      expect((f.firstChild as html.Element).attributes.isNotEmpty, isTrue);
+      expect((f.firstChild as html.Element).attributes.length, 1);
+      expect((f.firstChild as html.Element).attributes['a'], equals(''));
+    });
+
+    test('{a: true} => {a: false}', () {
+      final f = new html.DocumentFragment();
+      final a = ve('div', attrs: {'a': true});
+      final b = ve('div', attrs: {'a': false});
+      injectVNodeSync(a, f);
+      a.update(b, const VContext(true));
+      expect((f.firstChild as html.Element).attributes.isNotEmpty, isFalse);
+      expect((f.firstChild as html.Element).attributes.length, 0);
+    });
+
+    test('{a: num 1} => {a: num 10}', () {
+      final f = new html.DocumentFragment();
+      final a = ve('div', attrs: {'a': 1});
+      final b = ve('div', attrs: {'a': 10});
+      injectVNodeSync(a, f);
+      a.update(b, const VContext(true));
+      expect((f.firstChild as html.Element).attributes.isNotEmpty, isTrue);
+      expect((f.firstChild as html.Element).attributes.length, 1);
+      expect((f.firstChild as html.Element).attributes['a'], equals('10'));
+    });
+
+    test('{a: num 1} => {a: false}', () {
+      final f = new html.DocumentFragment();
+      final a = ve('div', attrs: {'a': 1});
+      final b = ve('div', attrs: {'a': false});
+      injectVNodeSync(a, f);
+      a.update(b, const VContext(true));
+      expect((f.firstChild as html.Element).attributes.isNotEmpty, isFalse);
+      expect((f.firstChild as html.Element).attributes.length, 0);
+    });
+
+    test('{a: num 1} => {a: true}', () {
+      final f = new html.DocumentFragment();
+      final a = ve('div', attrs: {'a': 1});
+      final b = ve('div', attrs: {'a': true});
+      injectVNodeSync(a, f);
+      a.update(b, const VContext(true));
+      expect((f.firstChild as html.Element).attributes.isNotEmpty, isTrue);
+      expect((f.firstChild as html.Element).attributes.length, 1);
+      expect((f.firstChild as html.Element).attributes['a'], equals(''));
+    });
+
+    test('{a: false} => {a: 1}', () {
+      final f = new html.DocumentFragment();
+      final a = ve('div', attrs: {'a': false});
+      final b = ve('div', attrs: {'a': '1'});
+      injectVNodeSync(a, f);
+      a.update(b, const VContext(true));
+      expect((f.firstChild as html.Element).attributes.isNotEmpty, isTrue);
+      expect((f.firstChild as html.Element).attributes.length, 1);
+      expect((f.firstChild as html.Element).attributes['a'], equals('1'));
+    });
+
+    test('{a: false} => {a: num 1}', () {
+      final f = new html.DocumentFragment();
+      final a = ve('div', attrs: {'a': false});
+      final b = ve('div', attrs: {'a': 1});
+      injectVNodeSync(a, f);
+      a.update(b, const VContext(true));
+      expect((f.firstChild as html.Element).attributes.isNotEmpty, isTrue);
+      expect((f.firstChild as html.Element).attributes.length, 1);
+      expect((f.firstChild as html.Element).attributes['a'], equals('1'));
+    });
+
+    test('{a: true} => {a: 1}', () {
+      final f = new html.DocumentFragment();
+      final a = ve('div', attrs: {'a': true});
+      final b = ve('div', attrs: {'a': '1'});
+      injectVNodeSync(a, f);
+      a.update(b, const VContext(true));
+      expect((f.firstChild as html.Element).attributes.isNotEmpty, isTrue);
+      expect((f.firstChild as html.Element).attributes.length, 1);
+      expect((f.firstChild as html.Element).attributes['a'], equals('1'));
     });
   });
 

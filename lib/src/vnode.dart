@@ -54,7 +54,7 @@ class VNode {
   String type;
 
   /// Attributes.
-  Map<String, String> attrs;
+  Map<String, dynamic> attrs;
 
   /// Styles.
   Map<String, String> style;
@@ -192,7 +192,7 @@ class VNode {
 
       if (attrs != null) {
         attrs.forEach((k, v) {
-          r.attributes[k] = v;
+          _setAttr(r.attributes, k, v);
         });
       }
 
@@ -1006,6 +1006,22 @@ List<int> _lis(List<int> a) {
   return result;
 }
 
+/// Set the attribute [key] to attribute map [attrs].
+///
+/// [value] can be of type String, num or bool. In case of bool it will treated as an
+/// boolean HTML attribute and will be set to an empty value on true or dismissed on false.
+_setAttr(Map<String, String> attrs, String key, value) {
+  if (value is num) {
+    value = value.toString();
+  } else if (value is bool) {
+    if (!value) {
+      return;
+    }
+    value = '';
+  }
+  attrs[key] = value;
+}
+
 /// Find changes between maps [a] and [b] and apply this changes to CssStyleDeclaration [n].
 void updateStyle(Map a, Map b, html.CssStyleDeclaration style) {
   assert(style != null);
@@ -1056,23 +1072,25 @@ void updateAttrs(Map a, Map b, Map attrs) {
       // find all modified and removed
       a.forEach((key, value) {
         final bValue = b[key];
-        if (bValue == null) {
+        if (bValue == null || bValue == false) {
           attrs.remove(key);
         } else if (value != bValue) {
-          attrs[key] = bValue;
+          _setAttr(attrs, key, bValue);
         }
       });
 
       // find all inserted
       b.forEach((key, value) {
         if (!a.containsKey(key)) {
-          attrs[key] = value;
+          _setAttr(attrs, key, value);
         }
       });
     }
   } else if (b != null && b.length > 0) {
     // all keys inserted
-    attrs.addAll(b);
+    b.forEach((key, value) {
+      _setAttr(attrs, key, value);
+    });
   }
 }
 
