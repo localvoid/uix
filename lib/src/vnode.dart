@@ -191,14 +191,21 @@ class VNode {
       final html.Element r = ref;
 
       if (attrs != null) {
+        final Map refAttributes = r.attributes;
         attrs.forEach((k, v) {
-          _setAttr(r.attributes, k, v);
+          final String sval = _attrToString(v);
+          if (sval != null) {
+            refAttributes[k] = sval;
+          }
         });
       }
 
       if (style != null) {
+        final html.CssStyleDeclaration refStyle = r.style;
         style.forEach((k, v) {
-          r.style.setProperty(k, v);
+          if (v != null) {
+            refStyle.setProperty(k, v);
+          }
         });
       }
 
@@ -1006,20 +1013,27 @@ List<int> _lis(List<int> a) {
   return result;
 }
 
-/// Set the attribute [key] to attribute map [attrs].
+/// Converts attribute [v] to String.
 ///
-/// [value] can be of type String, num or bool. In case of bool it will treated as an
-/// boolean HTML attribute and will be set to an empty value on true or dismissed on false.
-_setAttr(Map<String, String> attrs, String key, value) {
-  if (value is num) {
-    value = value.toString();
-  } else if (value is bool) {
-    if (!value) {
-      return;
-    }
-    value = '';
+/// [v] attribute can be of type `String`, `num` or `bool`. In case of `bool` it will
+/// be treated as a boolean HTML attribute and will be set to an empty value on `true`
+/// or dismissed on `false`.
+String _attrToString(v) {
+  assert(invariant(v == null || v is num || v is bool || v is String,
+                   'Invalid attribute value type: ${v.runtimeType}'));
+  if (v == null) {
+    return null;
   }
-  attrs[key] = value;
+  if (v is num) {
+    return v.toString();
+  }
+  if (v is bool) {
+    if (v) {
+      return '';
+    }
+    return null;
+  }
+  return v;
 }
 
 /// Find changes between maps [a] and [b] and apply this changes to CssStyleDeclaration [n].
@@ -1036,10 +1050,12 @@ void updateStyle(Map a, Map b, html.CssStyleDeclaration style) {
       // find all modified and removed
       a.forEach((key, value) {
         final bValue = b[key];
-        if (bValue == null) {
-          style.removeProperty(key);
-        } else if (value != bValue) {
-          style.setProperty(key, bValue);
+        if (value != bValue) {
+          if (bValue == null) {
+            style.removeProperty(key);
+          } else {
+            style.setProperty(key, bValue);
+          }
         }
       });
 
@@ -1058,8 +1074,8 @@ void updateStyle(Map a, Map b, html.CssStyleDeclaration style) {
   }
 }
 
-/// Find changes between maps [a] and [b] and apply this changes to map [n].
-void updateAttrs(Map a, Map b, Map attrs) {
+/// Find changes between maps [a] and [b] and apply this changes to [attrs].
+void updateAttrs(Map<String, dynamic> a, Map<String, dynamic> b, Map attrs) {
   assert(attrs != null);
 
   if (a != null && a.length > 0) {
@@ -1072,24 +1088,33 @@ void updateAttrs(Map a, Map b, Map attrs) {
       // find all modified and removed
       a.forEach((key, value) {
         final bValue = b[key];
-        if (bValue == null || bValue == false) {
-          attrs.remove(key);
-        } else if (value != bValue) {
-          _setAttr(attrs, key, bValue);
+        if (value != bValue) {
+          final String sval = _attrToString(bValue);
+          if (sval == null) {
+            attrs.remove(key);
+          } else {
+            attrs[key] = sval;
+          }
         }
       });
 
       // find all inserted
       b.forEach((key, value) {
         if (!a.containsKey(key)) {
-          _setAttr(attrs, key, value);
+          final String sval = _attrToString(value);
+          if (sval != null) {
+            attrs[key] = sval;
+          }
         }
       });
     }
   } else if (b != null && b.length > 0) {
     // all keys inserted
     b.forEach((key, value) {
-      _setAttr(attrs, key, value);
+      final String sval = _attrToString(value);
+      if (sval != null) {
+        attrs[key] = sval;
+      }
     });
   }
 }

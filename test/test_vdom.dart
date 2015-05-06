@@ -89,6 +89,13 @@ void main() {
             equals('<div id="test-id" data-test="test-data"></div>'));
       });
 
+      test('Create div with null attribute', () {
+        final frag = new html.DocumentFragment();
+        final n = ve('div', attrs: {'id': null});
+        injectVNodeSync(n, frag);
+        expect(frag.innerHtml, equals('<div></div>'));
+      });
+
       test('Create textarea with numeric attributes', () {
         final frag = new html.DocumentFragment();
         final n = ve('textarea', attrs: {'rows': 2, 'cols': 20});
@@ -993,6 +1000,44 @@ void main() {
       expect((f.firstChild as html.Element).attributes['a'], equals('1'));
     });
 
+    test('{} => {a: null}', () {
+      final f = new html.DocumentFragment();
+      final a = ve('div', attrs: {});
+      final b = ve('div', attrs: {'a': null});
+      injectVNodeSync(a, f);
+      a.update(b, const VContext(true));
+      expect((f.firstChild as html.Element).attributes.isEmpty, isTrue);
+    });
+
+    test('{a: 1} => {a: null}', () {
+      final f = new html.DocumentFragment();
+      final a = ve('div', attrs: {'a': '1'});
+      final b = ve('div', attrs: {'a': null});
+      injectVNodeSync(a, f);
+      a.update(b, const VContext(true));
+      expect((f.firstChild as html.Element).attributes.isEmpty, isTrue);
+    });
+
+    test('{a: null} => {a: null}', () {
+      final f = new html.DocumentFragment();
+      final a = ve('div', attrs: {'a': null});
+      final b = ve('div', attrs: {'a': null});
+      injectVNodeSync(a, f);
+      a.update(b, const VContext(true));
+      expect((f.firstChild as html.Element).attributes.isEmpty, isTrue);
+    });
+
+    test('{a: null} => {a: 1}', () {
+      final f = new html.DocumentFragment();
+      final a = ve('div', attrs: {'a': null});
+      final b = ve('div', attrs: {'a': '1'});
+      injectVNodeSync(a, f);
+      a.update(b, const VContext(true));
+      expect((f.firstChild as html.Element).attributes.isNotEmpty, isTrue);
+      expect((f.firstChild as html.Element).attributes.length, 1);
+      expect((f.firstChild as html.Element).attributes['a'], equals('1'));
+    });
+
     test('{} => {a: 1, b: 2}', () {
       final f = new html.DocumentFragment();
       final a = ve('div', attrs: {});
@@ -1331,6 +1376,42 @@ void main() {
       injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.top, equals('100px'));
+    });
+
+    test('{} => {top: null}', () {
+      final f = new html.DocumentFragment();
+      final a = ve('div', style: {});
+      final b = ve('div', style: {'top': null});
+      injectVNodeSync(a, f);
+      a.update(b, const VContext(true));
+      expect((f.firstChild as html.Element).style.top, equals(''));
+    });
+
+    test('{top: 10px} => {top: null}', () {
+      final f = new html.DocumentFragment();
+      final a = ve('div', style: {'top': '10px'});
+      final b = ve('div', style: {'top': null});
+      injectVNodeSync(a, f);
+      a.update(b, const VContext(true));
+      expect((f.firstChild as html.Element).style.top, equals(''));
+    });
+
+    test('{top: null} => {top: null}', () {
+      final f = new html.DocumentFragment();
+      final a = ve('div', style: {'top': null});
+      final b = ve('div', style: {'top': null});
+      injectVNodeSync(a, f);
+      a.update(b, const VContext(true));
+      expect((f.firstChild as html.Element).style.top, equals(''));
+    });
+
+    test('{top: null} => {top: 10px}', () {
+      final f = new html.DocumentFragment();
+      final a = ve('div', style: {'top': null});
+      final b = ve('div', style: {'top': '10px'});
+      injectVNodeSync(a, f);
+      a.update(b, const VContext(true));
+      expect((f.firstChild as html.Element).style.top, equals('10px'));
     });
   });
 
