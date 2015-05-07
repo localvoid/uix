@@ -78,7 +78,7 @@ class LineView extends Component<RichLine> {
 
 - Lifecycle control of children virtual nodes to implement complex
   animations. For example:
-  [CssTransitionContainer](https://github.com/localvoid/uix/blob/master/lib/src/misc/css_transition_container.dart)
+  [CssTransitionContainer](https://github.com/localvoid/uix_css_transition_container)
 
 - Mount on top of existing html
   document. [Mount example](https://github.com/localvoid/uix/tree/master/example/mount)
@@ -196,7 +196,7 @@ main() {
 - [Component Inheritance](https://github.com/localvoid/uix/tree/master/example/inheritance)
 - [SVG](https://github.com/localvoid/uix/tree/master/example/svg)
 - [Canvas](https://github.com/localvoid/uix/tree/master/example/canvas)
-- [Css Transition Group](https://github.com/localvoid/uix/tree/master/example/animation)
+- [Css Transition Container](https://github.com/localvoid/uix_css_transition_container/tree/master/example)
 - [TodoMVC (observable)](https://github.com/localvoid/uix_todomvc/)
 - [TodoMVC (persistent)](https://github.com/localvoid/uix_todomvc_persistent/)
 - [MineSweeper Game](https://github.com/localvoid/uix_minesweeper/)

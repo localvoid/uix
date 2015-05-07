@@ -2,6 +2,9 @@
 
 - Basic form components moved to
   [uix_forms](https://github.com/localvoid/uix_forms) package.
+- CSS Transition Container moved to
+  [uix_css_transition_container](https://github.com/localvoid/uix_css_transition_container)
+  package.
 
 # 0.5.2
 
