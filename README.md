@@ -190,7 +190,7 @@ main() {
 - [Hello](https://github.com/localvoid/uix/tree/master/example/hello)
 - [Timer](https://github.com/localvoid/uix/tree/master/example/timer)
 - [Collapsable](https://github.com/localvoid/uix/tree/master/example/collapsable)
-- [Form](https://github.com/localvoid/uix/tree/master/example/form)
+- [Form](https://github.com/localvoid/uix_forms/tree/master/example)
 - [State Diff](https://github.com/localvoid/uix/tree/master/example/state_diff)
 - [Read/Write DOM Batching](https://github.com/localvoid/uix/tree/master/example/read_write_batching)
 - [Component Inheritance](https://github.com/localvoid/uix/tree/master/example/inheritance)

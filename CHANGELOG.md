@@ -1,3 +1,8 @@
+# 0.6.0
+
+- Basic form components moved to
+  [uix_forms](https://github.com/localvoid/uix_forms) package.
+
 # 0.5.2
 
 - Attributes in VNodes can accept `num` and `bool` types for values
