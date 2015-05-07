@@ -1,5 +1,6 @@
 # uix
 
+[![Build Status](https://travis-ci.org/localvoid/uix.svg?branch=master)](https://travis-ci.org/localvoid/uix)
 [![Join the chat at https://gitter.im/localvoid/uix](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/localvoid/uix?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 Library to build Web User Interfaces in [Dart](https://dartlang.org)
