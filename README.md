@@ -16,14 +16,9 @@ uix library has a highly optimized virtual dom implementation,
 
 ### Scheduler
 
-Each time component is invalidated, it registers itself in the
-Scheduler, and Scheduler is responsible for updating Components.
-
-Scheduler is running tasks that updates visual representation when the
-new frame is rendered.
-
-It also provides different queues for read/write DOM batching with
-priorities. [Example](https://github.com/localvoid/uix/tree/master/example/read_write_batching)
+Scheduler is responsible for running tasks that update visual
+representation of the Components, and business logic of web app
+services.
 
 ### Misc
 
@@ -206,7 +201,7 @@ main() {
 ## VDom Benchmark
 <a name="benchmarks"></a>
 
-- [Run](http://vdom-benchmark.github.io/vdom-benchmark/?cfg=http://localvoid.github.io/vdom-benchmark-uix/config.js)
+- [Run](http://vdom-benchmark.github.io/vdom-benchmark/)
 
 ## DBMonster Benchmark
 
