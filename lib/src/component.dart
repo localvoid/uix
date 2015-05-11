@@ -316,8 +316,14 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
       if (p != null && p.attrs != null) {
         writeAttrsToHtmlString(b, p.attrs);
       }
+      if (p != null && p.customAttrs != null) {
+        writeCustomAttrsToHtmlString(b, p.customAttrs);
+      }
       if (root != null && root.attrs != null) {
         writeAttrsToHtmlString(b, root.attrs);
+      }
+      if (root != null && root.customAttrs != null) {
+        writeCustomAttrsToHtmlString(b, root.customAttrs);
       }
     }
     if ((p != null && (p.type != null || (p.classes != null && p.classes.isNotEmpty)))

@@ -10,6 +10,8 @@ import 'assert.dart';
 import 'vcontext.dart';
 import 'container.dart';
 import 'component.dart';
+import 'vdom/attrs.dart';
+import 'vdom/namespace.dart';
 
 /// Virtual DOM Node.
 class VNode {
@@ -54,7 +56,10 @@ class VNode {
   String type;
 
   /// Attributes.
-  Map<String, dynamic> attrs;
+  Map<int, dynamic> attrs;
+
+  /// Custom Attributes.
+  Map<String, String> customAttrs;
 
   /// Styles.
   Map<String, String> style;
@@ -77,28 +82,29 @@ class VNode {
   /// [Component] is passed from the previous node to the new one.
   Component cref;
 
-  VNode(this.flags, {this.key, this.tag, this.data, this.type, this.attrs, this.style,
-        this.classes, this.children});
+  VNode(this.flags, {this.key, this.tag, this.data, this.type, this.attrs, this.customAttrs,
+        this.style, this.classes, this.children});
 
   VNode.text(this.data, {this.key})
       : flags = textFlag,
         tag = null;
 
-  VNode.element(this.tag, {this.key, this.type, this.attrs, this.style,
-      this.classes, this.children, bool content: false})
+  VNode.element(this.tag, {this.key, this.type, this.attrs, this.customAttrs,
+      this.style, this.classes, this.children, bool content: false})
       : flags = content ? elementFlag | contentFlag
                         : elementFlag;
 
-  VNode.svgElement(this.tag, {this.key, this.type, this.attrs, this.style,
-      this.classes, this.children, bool content: false})
+  VNode.svgElement(this.tag, {this.key, this.type, this.attrs, this.customAttrs,
+      this.style, this.classes, this.children, bool content: false})
       : flags = content ? elementFlag | svgFlag | contentFlag
                         : elementFlag | svgFlag;
 
   VNode.component(this.tag, {this.flags: componentFlag, this.key, this.data,
-      this.type, this.attrs, this.style, this.classes, this.children});
+      this.type, this.attrs, this.customAttrs, this.style, this.classes,
+      this.children});
 
-  VNode.root({this.type, this.attrs, this.style, this.classes, this.children,
-              bool content: false})
+  VNode.root({this.type, this.attrs, this.customAttrs, this.style, this.classes,
+      this.children, bool content: false})
       : flags = content ? rootFlag | contentFlag
                         : rootFlag,
         key = null, tag = null;
@@ -135,7 +141,7 @@ class VNode {
       if ((flags & svgFlag) == 0) {
         ref = html.document.createElement(tag);
       } else {
-        ref = html.document.createElementNS('http://www.w3.org/2000/svg', tag);
+        ref = html.document.createElementNS(svgNamespace, tag);
       }
     } else if ((flags & componentFlag) != 0) {
       cref = (tag as componentConstructor)();
@@ -191,11 +197,17 @@ class VNode {
       final html.Element r = ref;
 
       if (attrs != null) {
-        final Map refAttributes = r.attributes;
-        attrs.forEach((k, v) {
-          final String sval = _attrToString(v);
-          if (sval != null) {
-            refAttributes[k] = sval;
+        attrs.forEach((int k, v) {
+          if (v != null) {
+            _setAttr(k, v);
+          }
+        });
+      }
+
+      if (customAttrs != null) {
+        customAttrs.forEach((String k, String v) {
+          if (v != null) {
+            r.setAttribute(k, v);
           }
         });
       }
@@ -284,7 +296,11 @@ class VNode {
       final html.Element r = ref;
 
       if (!identical(attrs, other.attrs)) {
-        updateAttrs(attrs, other.attrs, r.attributes);
+        updateAttrs(attrs, other.attrs, this);
+      }
+
+      if (!identical(customAttrs, other.customAttrs)) {
+        updateCustomAttrs(customAttrs, other.customAttrs, this);
       }
 
       if (!identical(style, other.style)) {
@@ -422,6 +438,9 @@ class VNode {
       if (attrs != null) {
         writeAttrsToHtmlString(b, attrs);
       }
+      if (customAttrs != null) {
+        writeCustomAttrsToHtmlString(b, customAttrs);
+      }
       if (type != null || (classes != null && classes.isNotEmpty)) {
         b.write(' class="');
         if (type != null) {
@@ -449,6 +468,28 @@ class VNode {
       b.write('</$tag>');
     } else if ((flags & componentFlag) != 0) {
       return cref.writeHtmlString(b, this);
+    }
+  }
+
+  void _setAttr(int k, v) {
+    final html.Element r = ref;
+    final AttrInfo a = AttrInfo.fromId[k];
+    String sval;
+    if ((a.flags & AttrInfo.boolValueFlag) != 0) {
+      if (v) {
+        sval = '';
+      }
+    } else if ((a.flags & AttrInfo.numValueFlag != 0)) {
+      sval = v.toString();
+    } else {
+      sval = v;
+    }
+    if (sval != null) {
+      if ((a.flags & AttrInfo.namespaceFlag) == 0) {
+        r.setAttribute(a.name, sval);
+      } else {
+        r.setAttributeNS(a.namespace, a.name, sval);
+      }
     }
   }
 }
@@ -1013,29 +1054,6 @@ List<int> _lis(List<int> a) {
   return result;
 }
 
-/// Converts attribute [v] to String.
-///
-/// [v] attribute can be of type `String`, `num` or `bool`. In case of `bool` it will
-/// be treated as a boolean HTML attribute and will be set to an empty value on `true`
-/// or dismissed on `false`.
-String _attrToString(v) {
-  assert(invariant(v == null || v is num || v is bool || v is String,
-                   'Invalid attribute value type: ${v.runtimeType}'));
-  if (v == null) {
-    return null;
-  }
-  if (v is num) {
-    return v.toString();
-  }
-  if (v is bool) {
-    if (v) {
-      return '';
-    }
-    return null;
-  }
-  return v;
-}
-
 /// Find changes between maps [a] and [b] and apply this changes to CssStyleDeclaration [n].
 void updateStyle(Map a, Map b, html.CssStyleDeclaration style) {
   assert(style != null);
@@ -1074,9 +1092,74 @@ void updateStyle(Map a, Map b, html.CssStyleDeclaration style) {
   }
 }
 
-/// Find changes between maps [a] and [b] and apply this changes to [attrs].
-void updateAttrs(Map<String, dynamic> a, Map<String, dynamic> b, Map attrs) {
-  assert(attrs != null);
+/// Find changes between maps [a] and [b] and apply this changes to [n].
+void updateAttrs(Map<int, dynamic> a, Map<int, dynamic> b, VNode n) {
+  assert(n != null);
+  final html.Element r = n.ref;
+  final Map attrs = r.attributes;
+
+  if (a != null && a.length > 0) {
+    if (b == null || b.length == 0) {
+      // all keys removed
+      for (final k in a.keys) {
+        attrs.remove(AttrInfo.fromId[k].name);
+      }
+    } else {
+      // find all modified and removed
+      a.forEach((int key, value) {
+        final bValue = b[key];
+        if (value != bValue) {
+          final AttrInfo a = AttrInfo.fromId[key];
+          if (bValue == null) {
+            attrs.remove(a.name);
+          } else {
+            String sval;
+            if ((a.flags & AttrInfo.boolValueFlag) != 0) {
+              if (bValue) {
+                sval = '';
+              }
+            } else if ((a.flags & AttrInfo.numValueFlag != 0)) {
+              sval = bValue.toString();
+            } else {
+              sval = bValue;
+            }
+            if (sval == null) {
+              attrs.remove(a.name);
+            } else {
+              if ((a.flags & AttrInfo.namespaceFlag) == 0) {
+                r.setAttribute(a.name, sval);
+              } else {
+                r.setAttributeNS(a.namespace, a.name, sval);
+              }
+            }
+          }
+        }
+      });
+
+      // find all inserted
+      b.forEach((key, value) {
+        if (!a.containsKey(key)) {
+          if (value != null) {
+            n._setAttr(key, value);
+          }
+        }
+      });
+    }
+  } else if (b != null && b.length > 0) {
+    // all keys inserted
+    b.forEach((key, value) {
+      if (value != null) {
+        n._setAttr(key, value);
+      }
+    });
+  }
+}
+
+/// Find changes between maps [a] and [b] and apply this changes to [n].
+void updateCustomAttrs(Map<String, String> a, Map<String, String> b, VNode n) {
+  assert(n != null);
+  final html.Element r = n.ref;
+  final Map attrs = r.attributes;
 
   if (a != null && a.length > 0) {
     if (b == null || b.length == 0) {
@@ -1086,14 +1169,13 @@ void updateAttrs(Map<String, dynamic> a, Map<String, dynamic> b, Map attrs) {
       }
     } else {
       // find all modified and removed
-      a.forEach((key, value) {
+      a.forEach((String key, String value) {
         final bValue = b[key];
         if (value != bValue) {
-          final String sval = _attrToString(bValue);
-          if (sval == null) {
+          if (bValue == null) {
             attrs.remove(key);
           } else {
-            attrs[key] = sval;
+            r.setAttribute(key, bValue);
           }
         }
       });
@@ -1101,9 +1183,8 @@ void updateAttrs(Map<String, dynamic> a, Map<String, dynamic> b, Map attrs) {
       // find all inserted
       b.forEach((key, value) {
         if (!a.containsKey(key)) {
-          final String sval = _attrToString(value);
-          if (sval != null) {
-            attrs[key] = sval;
+          if (value != null) {
+            r.setAttribute(key, value);
           }
         }
       });
@@ -1111,9 +1192,8 @@ void updateAttrs(Map<String, dynamic> a, Map<String, dynamic> b, Map attrs) {
   } else if (b != null && b.length > 0) {
     // all keys inserted
     b.forEach((key, value) {
-      final String sval = _attrToString(value);
-      if (sval != null) {
-        attrs[key] = sval;
+      if (value != null) {
+        r.setAttribute(key, value);
       }
     });
   }
@@ -1260,8 +1340,15 @@ void updateClasses(List<String> a, List<String> b, html.CssClassSet classList) {
   }
 }
 
-void writeAttrsToHtmlString(StringBuffer b, Map<String, String> attrs) {
-  attrs.forEach((k, v) {
+void writeAttrsToHtmlString(StringBuffer b, Map<int, dynamic> attrs) {
+  attrs.forEach((int k, v) {
+    final String key = AttrInfo.fromId[k].name;
+    b.write(' $key="$v"');
+  });
+}
+
+void writeCustomAttrsToHtmlString(StringBuffer b, Map<String, String> attrs) {
+  attrs.forEach((String k, String v) {
     b.write(' $k="$v"');
   });
 }

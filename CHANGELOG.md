@@ -1,3 +1,12 @@
+# 0.7.0
+
+- Added support for namespaced attributes.
+- Changed interface to specify attributes for virtual
+  nodes. `vElement('div', attrs: {Attr.id: 'myId'})`. `Attr` class
+  contains all attributes.
+- Added `customAttrs` property to virtual nodes to specify custom
+  attributes like `data-myattr`.
+
 # 0.6.0
 
 - Basic form components moved to

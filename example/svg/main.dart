@@ -10,8 +10,8 @@ import 'package:uix/uix.dart';
 $SvgIcon() => new SvgIcon();
 class SvgIcon extends SvgComponent {
   updateView() {
-    updateRoot(vRoot(attrs: const {'width': '24', 'height': '24', 'viewBox': '0 0 24 24'})(
-      vSvgElement('path', attrs: const {'d': 'M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z'})
+    updateRoot(vRoot(attrs: const {Attr.width: '24', Attr.height: '24', Attr.viewBox: '0 0 24 24'})(
+      vSvgElement('path', attrs: const {Attr.d: 'M20 8.69V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69zM12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6 6 2.69 6 6-2.69 6-6 6zm0-10c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4z'})
     ));
   }
 }
@@ -19,10 +19,13 @@ class SvgIcon extends SvgComponent {
 class Main extends Component {
   updateView() {
     updateRoot(vRoot()([
-      vSvgElement('svg', attrs: const {'width': '24', 'height': '24', 'viewBox': '0 0 24 24'})(
-        vSvgElement('path', attrs: const {'d': 'M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z'})
+      vSvgElement('svg', attrs: const {Attr.width: '24', Attr.height: '24', Attr.viewBox: '0 0 24 24'})(
+        vSvgElement('path', attrs: const {Attr.d: 'M14.4 6L14 4H5v17h2v-7h5.6l.4 2h7V6z'})
       ),
-      vComponent($SvgIcon)
+      vComponent($SvgIcon),
+      vSvgElement('svg', attrs: const {Attr.width: '24', Attr.height: '24', Attr.viewBox: '0 0 24 24'})(
+        vSvgElement('image', attrs: const {Attr.width: '24', Attr.height: '24', Attr.xlinkHref: 'http://placehold.it/24x24&text=NS'})
+      ),
     ]));
   }
 }
