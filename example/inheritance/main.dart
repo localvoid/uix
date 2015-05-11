@@ -40,7 +40,7 @@ class Button extends ButtonBase<ButtonData>{
   final String tag = 'button';
 
   updateView() {
-    updateRoot(vRoot(type: 'Button', classes: data.disabled ? const ['disabled'] : null, style: {'color': data.color})([
+    updateRoot(vRoot(type: 'Button', classes: data.disabled ? const ['disabled'] : null, style: {Style.color: data.color})([
       vElement('span')(clickCounter.toString()),
       vText(' '),
       vElement('span', children: children)

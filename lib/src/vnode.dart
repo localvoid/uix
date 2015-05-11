@@ -10,8 +10,9 @@ import 'assert.dart';
 import 'vcontext.dart';
 import 'container.dart';
 import 'component.dart';
-import 'vdom/attrs.dart';
 import 'vdom/namespace.dart';
+import 'vdom/attrs.dart';
+import 'vdom/style.dart';
 
 /// Virtual DOM Node.
 class VNode {
@@ -62,7 +63,7 @@ class VNode {
   Map<String, String> customAttrs;
 
   /// Styles.
-  Map<String, String> style;
+  Map<int, String> style;
 
   /// Classes.
   List<String> classes;
@@ -214,9 +215,9 @@ class VNode {
 
       if (style != null) {
         final html.CssStyleDeclaration refStyle = r.style;
-        style.forEach((k, v) {
+        style.forEach((int k, String v) {
           if (v != null) {
-            refStyle.setProperty(k, v);
+            refStyle.setProperty(StyleInfo.fromId[k].name, v);
           }
         });
       }
@@ -1055,39 +1056,40 @@ List<int> _lis(List<int> a) {
 }
 
 /// Find changes between maps [a] and [b] and apply this changes to CssStyleDeclaration [n].
-void updateStyle(Map a, Map b, html.CssStyleDeclaration style) {
+void updateStyle(Map<int, String> a, Map<int, String> b, html.CssStyleDeclaration style) {
   assert(style != null);
 
   if (a != null && a.length > 0) {
     if (b == null || b.length == 0) {
       // all keys removed
-      for (final i in a.keys) {
-        style.removeProperty(i);
+      for (final int i in a.keys) {
+        style.removeProperty(StyleInfo.fromId[i].name);
       }
     } else {
       // find all modified and removed
-      a.forEach((key, value) {
+      a.forEach((int key, String value) {
         final bValue = b[key];
         if (value != bValue) {
+          final String styleName = StyleInfo.fromId[key].name;
           if (bValue == null) {
-            style.removeProperty(key);
+            style.removeProperty(styleName);
           } else {
-            style.setProperty(key, bValue);
+            style.setProperty(styleName, bValue);
           }
         }
       });
 
       // find all inserted
-      b.forEach((key, value) {
+      b.forEach((int key, String value) {
         if (!a.containsKey(key)) {
-          style.setProperty(key, value);
+          style.setProperty(StyleInfo.fromId[key].name, value);
         }
       });
     }
   } else if (b != null && b.length > 0) {
     // all keys inserted
-    b.forEach((key, value) {
-      style.setProperty(key, value);
+    b.forEach((int key, String value) {
+      style.setProperty(StyleInfo.fromId[key].name, value);
     });
   }
 }
@@ -1353,9 +1355,9 @@ void writeCustomAttrsToHtmlString(StringBuffer b, Map<String, String> attrs) {
   });
 }
 
-void writeStyleToHtmlString(StringBuffer b, Map<String, String> attrs) {
-  attrs.forEach((k, v) {
-    b.write('$k: $v;');
+void writeStyleToHtmlString(StringBuffer b, Map<int, String> attrs) {
+  attrs.forEach((int k, String v) {
+    b.write('${StyleInfo.fromId[k].name}: $v;');
   });
 }
 

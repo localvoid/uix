@@ -6,6 +6,9 @@
   contains all attributes.
 - Added `customAttrs` property to virtual nodes to specify custom
   attributes like `data-myattr`.
+- Changed interface to specify styles for virtual
+  nodes. `vElement('div', style: {Style.top: '10px'})`. `Style` class
+  contains all styles.
 
 # 0.6.0
 

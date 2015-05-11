@@ -12,6 +12,7 @@ export 'src/env.dart';
 export 'src/data/node.dart';
 export 'src/vcontext.dart';
 export 'src/vdom/attrs.dart';
+export 'src/vdom/style.dart';
 export 'src/vnode.dart';
 export 'src/container.dart';
 export 'src/component.dart';

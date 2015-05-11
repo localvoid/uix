@@ -13,8 +13,8 @@ void injectVNodeSync(VNode node, html.Node container) {
 
 VNode deepCopy(VNode n) {
   final children = n.children == null ? null : n.children.map((c) => deepCopy(c)).toList();
-  return new VNode(n.flags, key: n.key, tag: n.tag, data: n.data, type: n.type, attrs: n.attrs, style: n.style,
-      classes: n.classes, children: children);
+  return new VNode(n.flags, key: n.key, tag: n.tag, data: n.data, type: n.type, attrs: n.attrs,
+      customAttrs: n.customAttrs, style: n.style, classes: n.classes, children: children);
 }
 
 VNode ee(Object key, [Object c = null]) =>
@@ -142,14 +142,14 @@ void main() {
     group('Styles', () {
       test('Create div with 1 style', () {
         final frag = new html.DocumentFragment();
-        final n = ve('div', style: {'top': '10px'});
+        final n = ve('div', style: {Style.top: '10px'});
         injectVNodeSync(n, frag);
         expect(frag.innerHtml, equals('<div style="top: 10px;"></div>'));
       });
 
       test('Create div with 2 styles', () {
         final frag = new html.DocumentFragment();
-        final n = ve('div', style: {'top': '10px', 'left': '20px'});
+        final n = ve('div', style: {Style.top: '10px', Style.left: '20px'});
         injectVNodeSync(n, frag);
         expect(frag.innerHtml,
             equals('<div style="top: 10px; left: 20px;"></div>'));
@@ -1440,7 +1440,7 @@ void main() {
     test('null => {top: 10px}', () {
       final f = new html.DocumentFragment();
       final a = ve('div');
-      final b = ve('div', style: {'top': '10px'});
+      final b = ve('div', style: {Style.top: '10px'});
       injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.top, equals('10px'));
@@ -1449,7 +1449,7 @@ void main() {
     test('{} => {top: 10px}', () {
       final f = new html.DocumentFragment();
       final a = ve('div', style: {});
-      final b = ve('div', style: {'top': '10px'});
+      final b = ve('div', style: {Style.top: '10px'});
       injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.top, equals('10px'));
@@ -1458,7 +1458,7 @@ void main() {
     test('{} => {top: 10px, left: 20px}', () {
       final f = new html.DocumentFragment();
       final a = ve('div', style: {});
-      final b = ve('div', style: {'top': '10px', 'left': '20px'});
+      final b = ve('div', style: {Style.top: '10px', Style.left: '20px'});
       injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.top, equals('10px'));
@@ -1467,7 +1467,7 @@ void main() {
 
     test('{top: 10px} => null', () {
       final f = new html.DocumentFragment();
-      final a = ve('div', style: {'top': '10px'});
+      final a = ve('div', style: {Style.top: '10px'});
       final b = ve('div');
       injectVNodeSync(a, f);
       a.update(b, const VContext(true));
@@ -1476,7 +1476,7 @@ void main() {
 
     test('{top: 10px} => {}', () {
       final f = new html.DocumentFragment();
-      final a = ve('div', style: {'top': '10px'});
+      final a = ve('div', style: {Style.top: '10px'});
       final b = ve('div', style: {});
       injectVNodeSync(a, f);
       a.update(b, const VContext(true));
@@ -1485,7 +1485,7 @@ void main() {
 
     test('{top: 10px, left: 20px} => {}', () {
       final f = new html.DocumentFragment();
-      final a = ve('div', style: {'top': '10px', 'left': '20px'});
+      final a = ve('div', style: {Style.top: '10px', Style.left: '20px'});
       final b = ve('div', style: {});
       injectVNodeSync(a, f);
       a.update(b, const VContext(true));
@@ -1495,8 +1495,8 @@ void main() {
 
     test('{top: 10px} => {left: 20px}', () {
       final f = new html.DocumentFragment();
-      final a = ve('div', style: {'top': '10px'});
-      final b = ve('div', style: {'left': '20px'});
+      final a = ve('div', style: {Style.top: '10px'});
+      final b = ve('div', style: {Style.left: '20px'});
       injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.top, equals(''));
@@ -1505,8 +1505,8 @@ void main() {
 
     test('{top: 10px, left: 20px} => {right: 30px, bottom: 40px}', () {
       final f = new html.DocumentFragment();
-      final a = ve('div', style: {'top': '10px', 'left': '20px'});
-      final b = ve('div', style: {'right': '30px', 'bottom': '40px'});
+      final a = ve('div', style: {Style.top: '10px', Style.left: '20px'});
+      final b = ve('div', style: {Style.right: '30px', Style.bottom: '40px'});
       injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.top, equals(''));
@@ -1517,8 +1517,8 @@ void main() {
 
     test('{top: 10px} => {top: 100px}', () {
       final f = new html.DocumentFragment();
-      final a = ve('div', style: {'top': '10px'});
-      final b = ve('div', style: {'top': '100px'});
+      final a = ve('div', style: {Style.top: '10px'});
+      final b = ve('div', style: {Style.top: '100px'});
       injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.top, equals('100px'));
@@ -1526,8 +1526,8 @@ void main() {
 
     test('{top: 10px, left: 20px} => {top: 100px, left: 200px}', () {
       final f = new html.DocumentFragment();
-      final a = ve('div', style: {'top': '10px', 'left': '20px'});
-      final b = ve('div', style: {'top': '100px', 'left': '200px'});
+      final a = ve('div', style: {Style.top: '10px', Style.left: '20px'});
+      final b = ve('div', style: {Style.top: '100px', Style.left: '200px'});
       injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.top, equals('100px'));
@@ -1536,7 +1536,7 @@ void main() {
     test('{} => {top: null}', () {
       final f = new html.DocumentFragment();
       final a = ve('div', style: {});
-      final b = ve('div', style: {'top': null});
+      final b = ve('div', style: {Style.top: null});
       injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.top, equals(''));
@@ -1544,8 +1544,8 @@ void main() {
 
     test('{top: 10px} => {top: null}', () {
       final f = new html.DocumentFragment();
-      final a = ve('div', style: {'top': '10px'});
-      final b = ve('div', style: {'top': null});
+      final a = ve('div', style: {Style.top: '10px'});
+      final b = ve('div', style: {Style.top: null});
       injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.top, equals(''));
@@ -1553,8 +1553,8 @@ void main() {
 
     test('{top: null} => {top: null}', () {
       final f = new html.DocumentFragment();
-      final a = ve('div', style: {'top': null});
-      final b = ve('div', style: {'top': null});
+      final a = ve('div', style: {Style.top: null});
+      final b = ve('div', style: {Style.top: null});
       injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.top, equals(''));
@@ -1562,8 +1562,8 @@ void main() {
 
     test('{top: null} => {top: 10px}', () {
       final f = new html.DocumentFragment();
-      final a = ve('div', style: {'top': null});
-      final b = ve('div', style: {'top': '10px'});
+      final a = ve('div', style: {Style.top: null});
+      final b = ve('div', style: {Style.top: '10px'});
       injectVNodeSync(a, f);
       a.update(b, const VContext(true));
       expect((f.firstChild as html.Element).style.top, equals('10px'));
@@ -1811,13 +1811,13 @@ void main() {
 
       test('{top: 10px}', () {
         final b = new StringBuffer();
-        ve('div', style: {'top': '10px'}).writeHtmlString(b);
+        ve('div', style: {Style.top: '10px'}).writeHtmlString(b);
         expect(b.toString(), equals('<div style="top: 10px;"></div>'));
       });
 
       test('{top: 10px, left: 20px, right: 30px}', () {
         final b = new StringBuffer();
-        ve('div', style: {'top': '10px', 'left': '20px', 'right': '30px'}).writeHtmlString(b);
+        ve('div', style: {Style.top: '10px', Style.left: '20px', Style.right: '30px'}).writeHtmlString(b);
         expect(b.toString(), equals('<div style="top: 10px;left: 20px;right: 30px;"></div>'));
       });
     });

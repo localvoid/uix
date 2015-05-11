@@ -61,24 +61,24 @@ Future mountComponent(Component component, html.Node node) {
 VNode vText(String data, {Object key}) => new VNode.text(data, key: key);
 
 VNode vElement(String tag, {Object key, String type, Map<int, dynamic> attrs, Map<String, String> customAttrs,
-  Map<String, String> style, List<String> classes, List<VNode> children,
+  Map<int, String> style, List<String> classes, List<VNode> children,
   bool content: false}) =>
       new VNode.element(tag, key: key, type: type, attrs: attrs, customAttrs: customAttrs, style: style,
           classes: classes, children: children, content: content);
 
 VNode vSvgElement(String tag, {Object key, String type, Map<int, dynamic> attrs, Map<String, String> customAttrs,
-  Map<String, String> style, List<String> classes, List<VNode> children,
+  Map<int, String> style, List<String> classes, List<VNode> children,
   bool content: false}) =>
       new VNode.svgElement(tag, key: key, type: type, attrs: attrs, customAttrs: customAttrs, style: style,
           classes: classes, children: children, content: content);
 
-VNode vRoot({String type, Map<int, dynamic> attrs, Map<String, String> customAttrs, Map<String, String> style,
+VNode vRoot({String type, Map<int, dynamic> attrs, Map<String, String> customAttrs, Map<int, String> style,
   List<String> classes, List<VNode> children, bool content: false}) =>
       new VNode.root(type: type, attrs: attrs, customAttrs: customAttrs, style: style,
           classes: classes, children: children, content: content);
 
 VNode vComponent(componentConstructor componentType, {Object key, dynamic data,
-  String type, Map<int, dynamic> attrs, Map<String, String> customAttrs, Map<String, String> style,
+  String type, Map<int, dynamic> attrs, Map<String, String> customAttrs, Map<int, String> style,
   List<String> classes, List<VNode> children}) =>
       new VNode.component(componentType, key: key, data: data, type: type,
           attrs: attrs, customAttrs: customAttrs, style: style, classes: classes, children: children);
