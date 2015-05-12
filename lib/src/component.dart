@@ -65,8 +65,11 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
   /// Parent Component.
   Component get parent => _parent;
   set parent(Component newParent) {
-    _parent = newParent;
-    depth = newParent == null ? 0 : newParent.depth + 1;
+    if (!identical(_parent, newParent)) {
+      _parent = newParent;
+      depth = newParent == null ? 0 : newParent.depth + 1;
+      invalidate();
+    }
   }
 
   /// Data input.

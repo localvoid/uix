@@ -9,6 +9,8 @@
 - Changed interface to specify styles for virtual
   nodes. `vElement('div', style: {Style.top: '10px'})`. `Style` class
   contains all styles.
+- **EXPERIMENTAL** support for moving html nodes and Components
+  between different parents with `Anchor` objects.
 
 # 0.6.0
 

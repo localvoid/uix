@@ -7,6 +7,7 @@ library uix.src.vdom.vnode;
 import 'dart:collection';
 import 'dart:html' as html;
 import 'vcontext.dart';
+import 'anchor.dart';
 import 'namespace.dart';
 import 'attr.dart';
 import 'style.dart';
@@ -73,6 +74,8 @@ class VNode {
   /// `set children(List<VNode> children)` setter.
   List<VNode> children;
 
+  Anchor anchor;
+
   /// Reference to the [html.Node]. It will be available after VNode is
   /// [create]d or [update]d. Each time VNode is updated, reference to the
   /// [html.Node] is passed from the previous node to the new one.
@@ -84,25 +87,25 @@ class VNode {
   Component cref;
 
   VNode(this.flags, {this.key, this.tag, this.data, this.type, this.attrs, this.customAttrs,
-        this.style, this.classes, this.children});
+        this.style, this.classes, this.children, this.anchor});
 
   VNode.text(this.data, {this.key})
       : flags = textFlag,
         tag = null;
 
   VNode.element(this.tag, {this.key, this.type, this.attrs, this.customAttrs,
-      this.style, this.classes, this.children, bool content: false})
+      this.style, this.classes, this.children, this.anchor, bool content: false})
       : flags = content ? elementFlag | contentFlag
                         : elementFlag;
 
   VNode.svgElement(this.tag, {this.key, this.type, this.attrs, this.customAttrs,
-      this.style, this.classes, this.children, bool content: false})
+      this.style, this.classes, this.children, this.anchor, bool content: false})
       : flags = content ? elementFlag | svgFlag | contentFlag
                         : elementFlag | svgFlag;
 
   VNode.component(this.tag, {this.flags: componentFlag, this.key, this.data,
       this.type, this.attrs, this.customAttrs, this.style, this.classes,
-      this.children});
+      this.children, this.anchor});
 
   VNode.root({this.type, this.attrs, this.customAttrs, this.style, this.classes,
       this.children, bool content: false})
@@ -136,6 +139,8 @@ class VNode {
   /// Create root level element of the VNode object, or [Component] for
   /// component nodes.
   void create(VContext context) {
+    assert(anchor == null || anchor.isEmpty);
+
     if ((flags & textFlag) != 0) {
       ref = new html.Text(data);
     } else if ((flags & elementFlag) != 0) {
@@ -159,6 +164,7 @@ class VNode {
   void mount(html.Node node, VContext context) {
     assert(invariant(node != null, 'Cannot mount on top of null Node'));
 
+    // TODO: add anchor support
     ref = node;
 
     if ((flags & componentFlag) != 0) {
@@ -348,12 +354,24 @@ class VNode {
   void _insertChild(VNode node, VNode next, VContext context, bool attached) {
     if ((flags & contentFlag) == 0) {
       final nextRef = next == null ? null : next.ref;
-      node.create(context);
-      ref.insertBefore(node.ref, nextRef);
-      if (attached) {
-        node.attached();
+      if (node.anchor == null || node.anchor.isEmpty) {
+        node.create(context);
+        ref.insertBefore(node.ref, nextRef);
+        if (attached) {
+          node.attached();
+        }
+        node.render(context);
+        if (node.anchor != null) {
+          node.anchor.node = node;
+        }
+      } else {
+        ref.insertBefore(node.anchor.node.ref, nextRef);
+        node.anchor.node.update(node, context);
+        if (!node.anchor.attached) {
+          node.attach();
+        }
+        node.anchor.node = node;
       }
-      node.render(context);
     } else {
       (context as Container).insertChild(this, node, next);
     }
@@ -370,8 +388,14 @@ class VNode {
 
   void _removeChild(VNode node, VContext context) {
     if ((flags & contentFlag) == 0) {
-      node.ref.remove();
-      node.dispose();
+      if (node.anchor == null) {
+        node.ref.remove();
+        node.dispose();
+      } else if (identical(node.anchor.node, node)) {
+        node.ref.remove();
+        node.detach();
+        node.anchor.attached = false;
+      }
     } else {
       (context as Container).removeChild(this, node);
     }
@@ -414,12 +438,18 @@ class VNode {
   }
 
   void attached() {
+    if (anchor != null) {
+      anchor.attached = true;
+    }
     if ((flags & componentFlag) != 0) {
       cref.attach();
     }
   }
 
   void detached() {
+    if (anchor != null) {
+      anchor.attached = false;
+    }
     if ((flags & componentFlag) != 0) {
       cref.detach();
     }

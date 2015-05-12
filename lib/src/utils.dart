@@ -8,6 +8,7 @@ import 'dart:async';
 import 'dart:html' as html;
 import 'vdom/vnode.dart';
 import 'vdom/vcontext.dart';
+import 'vdom/anchor.dart';
 import 'component.dart';
 import 'env.dart';
 
@@ -61,16 +62,16 @@ Future mountComponent(Component component, html.Node node) {
 VNode vText(String data, {Object key}) => new VNode.text(data, key: key);
 
 VNode vElement(String tag, {Object key, String type, Map<int, dynamic> attrs, Map<String, String> customAttrs,
-  Map<int, String> style, List<String> classes, List<VNode> children,
+  Map<int, String> style, List<String> classes, List<VNode> children, Anchor anchor,
   bool content: false}) =>
       new VNode.element(tag, key: key, type: type, attrs: attrs, customAttrs: customAttrs, style: style,
-          classes: classes, children: children, content: content);
+          classes: classes, children: children, anchor: anchor, content: content);
 
 VNode vSvgElement(String tag, {Object key, String type, Map<int, dynamic> attrs, Map<String, String> customAttrs,
-  Map<int, String> style, List<String> classes, List<VNode> children,
+  Map<int, String> style, List<String> classes, List<VNode> children, Anchor anchor,
   bool content: false}) =>
       new VNode.svgElement(tag, key: key, type: type, attrs: attrs, customAttrs: customAttrs, style: style,
-          classes: classes, children: children, content: content);
+          classes: classes, children: children, anchor: anchor, content: content);
 
 VNode vRoot({String type, Map<int, dynamic> attrs, Map<String, String> customAttrs, Map<int, String> style,
   List<String> classes, List<VNode> children, bool content: false}) =>
@@ -79,6 +80,7 @@ VNode vRoot({String type, Map<int, dynamic> attrs, Map<String, String> customAtt
 
 VNode vComponent(componentConstructor componentType, {Object key, dynamic data,
   String type, Map<int, dynamic> attrs, Map<String, String> customAttrs, Map<int, String> style,
-  List<String> classes, List<VNode> children}) =>
+  List<String> classes, List<VNode> children, Anchor anchor}) =>
       new VNode.component(componentType, key: key, data: data, type: type,
-          attrs: attrs, customAttrs: customAttrs, style: style, classes: classes, children: children);
+          attrs: attrs, customAttrs: customAttrs, style: style, classes: classes, children: children,
+          anchor: anchor);
