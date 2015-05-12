@@ -15,9 +15,9 @@ class Attr {
   static const int allowTransparency = 5;
   static const int alt = 6;
   static const int async = 7;
-  static const int autoComplete = 8;
-  static const int autoFocus = 9;
-  static const int autoPlay = 10;
+  static const int autocomplete = 8;
+  static const int autofocus = 9;
+  static const int autoplay = 10;
   static const int cellPadding = 11;
   static const int cellSpacing = 12;
   static const int charSet = 13;
