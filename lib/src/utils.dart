@@ -6,8 +6,8 @@ library uix.src.utils;
 
 import 'dart:async';
 import 'dart:html' as html;
-import 'vnode.dart';
-import 'vcontext.dart';
+import 'vdom/vnode.dart';
+import 'vdom/vcontext.dart';
 import 'component.dart';
 import 'env.dart';
 

@@ -2,17 +2,17 @@
 // details. All rights reserved. Use of this source code is governed by a
 // BSD-style license that can be found in the LICENSE file.
 
-library uix.src.vnode;
+library uix.src.vdom.vnode;
 
 import 'dart:collection';
 import 'dart:html' as html;
-import 'assert.dart';
 import 'vcontext.dart';
-import 'container.dart';
-import 'component.dart';
-import 'vdom/namespace.dart';
-import 'vdom/attrs.dart';
-import 'vdom/style.dart';
+import 'namespace.dart';
+import 'attr.dart';
+import 'style.dart';
+import '../assert.dart';
+import '../container.dart';
+import '../component.dart';
 
 /// Virtual DOM Node.
 class VNode {

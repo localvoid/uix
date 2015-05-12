@@ -4,8 +4,8 @@
 
 library uix.src.container;
 
-import 'vcontext.dart';
-import 'vnode.dart';
+import 'vdom/vcontext.dart';
+import 'vdom/vnode.dart';
 
 abstract class Container {
   bool get isAttached;

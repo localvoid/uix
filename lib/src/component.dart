@@ -7,8 +7,8 @@ library uix.src.component;
 import 'dart:async';
 import 'dart:html' as html;
 import 'data/node.dart';
-import 'vcontext.dart';
-import 'vnode.dart';
+import 'vdom/vcontext.dart';
+import 'vdom/vnode.dart';
 import 'env.dart';
 
 /// Component is a basic block to build user interfaces.
