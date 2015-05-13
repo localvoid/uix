@@ -23,7 +23,10 @@ class StatefulCounter extends Component {
   }
 
   updateView() {
-    updateRoot(vRoot(type: 'Counter')(elapsedSeconds));
+    updateRoot(vRoot(type: 'Counter')([
+      vElement('div')(elapsedSeconds),
+      vElement('input', attrs: const {Attr.type: 'text'})
+    ]));
   }
 }
 
@@ -50,8 +53,7 @@ class Main extends Component {
   Anchor _anchor = new Anchor();
 
   init() {
-    element.onClick.matches('.MoveButton').listen((e) {
-      e.preventDefault();
+    new Timer.periodic(new Duration(seconds: 1), (t) {
       position = (position + 1) % 3;
       invalidate();
     });
@@ -59,7 +61,6 @@ class Main extends Component {
 
   updateView() {
     updateRoot(vRoot()([
-      vElement('button', type: 'MoveButton')('Move'),
       vComponent($Box, data: new BoxData(_anchor, position == 0)),
       vComponent($Box, data: new BoxData(_anchor, position == 1)),
       vComponent($Box, data: new BoxData(_anchor, position == 2))
