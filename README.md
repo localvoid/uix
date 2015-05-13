@@ -78,6 +78,10 @@ class LineView extends Component<RichLine> {
 - Mount on top of existing html
   document. [Mount example](https://github.com/localvoid/uix/tree/master/example/mount)
 
+- Moving html nodes and components between different parents and
+  preserving internal state with Virtual DOM api using `Anchor`
+  objects. [Anchor example](https://github.com/localvoid/uix/tree/master/example/anchor)
+
 ## Quick Start
 
 Requirements:
