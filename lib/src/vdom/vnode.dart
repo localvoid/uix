@@ -164,8 +164,10 @@ class VNode {
   void mount(html.Node node, VContext context) {
     assert(invariant(node != null, 'Cannot mount on top of null Node'));
 
-    // TODO: add anchor support
     ref = node;
+    if (anchor != null) {
+      anchor.node = this;
+    }
 
     if ((flags & componentFlag) != 0) {
       cref = (tag as componentConstructor)();
@@ -174,9 +176,6 @@ class VNode {
       cref.children = children;
       cref.mount(node);
       cref.init();
-      if (context.isAttached) {
-        attached();
-      }
     } else {
       if ((flags & elementFlag) != 0) {
         String className = type;
@@ -196,6 +195,7 @@ class VNode {
         }
       }
     }
+    attached();
   }
 
   /// Render internal representation of the VNode.
@@ -280,9 +280,8 @@ class VNode {
           return true;
         }());
 
-        final bool attached = context.isAttached;
         for (int i = 0; i < children.length; i++) {
-          _insertChild(children[i], null, context, attached);
+          _insertChild(children[i], null, context);
         }
       }
     }
@@ -295,6 +294,9 @@ class VNode {
     assert(invariant(key == other.key, 'VNode objects with different keys cannot be updated.'));
 
     other.ref = ref;
+    if (other.anchor != null) {
+      other.anchor.node = this;
+    }
     if ((flags & textFlag) != 0) {
       if (data != other.data) {
         ref.text = other.data;
@@ -351,15 +353,13 @@ class VNode {
     }
   }
 
-  void _insertChild(VNode node, VNode next, VContext context, bool attached) {
+  void _insertChild(VNode node, VNode next, VContext context) {
     if ((flags & contentFlag) == 0) {
       final nextRef = next == null ? null : next.ref;
       if (node.anchor == null || node.anchor.isEmpty) {
         node.create(context);
         ref.insertBefore(node.ref, nextRef);
-        if (attached) {
-          node.attached();
-        }
+        node.attached();
         node.render(context);
         if (node.anchor != null) {
           node.anchor.node = node;
@@ -370,7 +370,6 @@ class VNode {
         if (!node.anchor.attached) {
           node.attach();
         }
-        node.anchor.node = node;
       }
     } else {
       (context as Container).insertChild(this, node, next);
@@ -394,7 +393,6 @@ class VNode {
       } else if (identical(node.anchor.node, node)) {
         node.ref.remove();
         node.detach();
-        node.anchor.attached = false;
       }
     } else {
       (context as Container).removeChild(this, node);
@@ -530,7 +528,6 @@ class VNode {
 /// Mixing children with explicit and implicit keys will result in undefined
 /// behaviour in "production" mode, and runtime error in "development" mode.
 void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context) {
-  final bool attached = context.isAttached;
   if (a != null && a.isNotEmpty) {
     if (b == null || b.isEmpty) {
       // when [b] is empty, it means that all children from list [a] were
@@ -563,7 +560,7 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
           parent._updateChild(aNode, bNode, context);
         } else {
           parent._removeChild(aNode, context);
-          parent._insertChild(bNode, null, context, attached);
+          parent._insertChild(bNode, null, context);
         }
       } else if (a.length == 1) {
         // fast path when [a] have 1 child
@@ -595,7 +592,7 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
               updated = true;
               break;
             }
-            parent._insertChild(bNode, aNode, context, attached);
+            parent._insertChild(bNode, aNode, context);
           }
         } else {
           assert(() {
@@ -620,13 +617,13 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
               updated = true;
               break;
             }
-            parent._insertChild(bNode, aNode, context, attached);
+            parent._insertChild(bNode, aNode, context);
           }
         }
 
         if (updated) {
           while (i < b.length) {
-            parent._insertChild(b[i++], null, context, attached);
+            parent._insertChild(b[i++], null, context);
           }
         } else {
           parent._removeChild(aNode, context);
@@ -694,7 +691,7 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
             parent._removeChild(a[i++], context);
           }
         } else {
-          parent._insertChild(bNode, null, context, attached);
+          parent._insertChild(bNode, null, context);
         }
       } else {
         // both [a] and [b] have more then 1 child, so we should handle
@@ -718,16 +715,16 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
         }());
 
         if (a.first.key == null) {
-          _updateImplicitChildren(parent, a, b, context, attached);
+          _updateImplicitChildren(parent, a, b, context);
         } else {
-          _updateExplicitChildren(parent, a, b, context, attached);
+          _updateExplicitChildren(parent, a, b, context);
         }
       }
     }
   } else if (b != null && b.length > 0) {
     // all children from list [b] were inserted
     for (int i = 0; i < b.length; i++) {
-      parent._insertChild(b[i], null, context, attached);
+      parent._insertChild(b[i], null, context);
     }
   }
 }
@@ -737,7 +734,7 @@ void updateChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context
 /// Any heuristics that is used in this algorithm is an undefined behaviour,
 /// external code should not rely on the knowledge of this algorithm, because
 /// it can be changed in any time.
-void _updateImplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context, bool attached) {
+void _updateImplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context) {
   int aStart = 0;
   int bStart = 0;
   int aEnd = a.length - 1;
@@ -782,7 +779,7 @@ void _updateImplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
     if (aNode._sameType(bNode)) {
       parent._updateChild(aNode, bNode, context);
     } else {
-      parent._insertChild(bNode, aNode, context, attached);
+      parent._insertChild(bNode, aNode, context);
       parent._removeChild(aNode, context);
     }
   }
@@ -797,12 +794,12 @@ void _updateImplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
 
   // All nodes from [b] are updated, remove the rest from [a].
   while (bStart <= bEnd) {
-    parent._insertChild(b[bStart++], next, context, attached);
+    parent._insertChild(b[bStart++], next, context);
   }
 }
 
 /// Update children with explicit keys.
-void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context, bool attached) {
+void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContext context) {
   int aStart = 0;
   int bStart = 0;
   int aEnd = a.length - 1;
@@ -903,7 +900,7 @@ void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
     final nextPos = bEnd + 1;
     final next = nextPos < b.length ? b[nextPos] : null;
     while (bStart <= bEnd) {
-      parent._insertChild(b[bStart++], next, context, attached);
+      parent._insertChild(b[bStart++], next, context);
     }
   } else if (bStart > bEnd) {
     // All nodes from [b] are updated, remove the rest from [a].
@@ -1006,7 +1003,7 @@ void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
           final node = b[pos];
           final nextPos = pos + 1;
           final next = nextPos < b.length ? b[nextPos] : null;
-          parent._insertChild(node, next, context, attached);
+          parent._insertChild(node, next, context);
         } else {
           if (j < 0 || i != seq[j]) {
             final pos = i + bStart;
@@ -1026,7 +1023,7 @@ void _updateExplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
           final node = b[pos];
           final nextPos = pos + 1;
           final next = nextPos < b.length ? b[nextPos] : null;
-          parent._insertChild(node, next, context, attached);
+          parent._insertChild(node, next, context);
         }
       }
     }

@@ -180,6 +180,7 @@ abstract class Component<P> extends RevisionedNode with StreamListenerNode imple
   /// If this method is called during [isMounting] phase, then virtual dom
   /// will be mounted on top of the existing html tree.
   void updateRoot(VNode n) {
+    assert(isAttached);
     assert(n != null);
     if (_root == null) {
       n.cref = this;
