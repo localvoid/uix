@@ -18,9 +18,38 @@
 library uix.src.scheduler;
 
 import 'dart:async';
-import 'dart:collection';
 import 'dart:html' as html;
 import 'package:collection/priority_queue.dart';
+
+class _TaskEntry {
+  final Function fn;
+  _TaskEntry _next;
+
+  _TaskEntry(this.fn);
+}
+
+class _TaskQueue {
+  _TaskEntry _first;
+  _TaskEntry _last;
+
+  void add(Function fn) {
+    final e = new _TaskEntry(fn);
+    if (_last == null) {
+      _first = e;
+    } else {
+      _last._next = e;
+    }
+    _last = e;
+  }
+
+  void run() {
+    while (_first != null) {
+      _first.fn();
+      _first = _first._next;
+    }
+    _last = null;
+  }
+}
 
 /// Write groups sorted by priority.
 ///
@@ -116,7 +145,7 @@ class Scheduler {
   bool get isRunning => ((flags & runningFlags) != 0);
   bool get isFrameRunning => ((flags & frameRunningFlag) != 0);
 
-  Queue<Function> _currentTasks = new Queue<Function>();
+  final _TaskQueue _currentTasks = new _TaskQueue();
 
   ZoneSpecification _zoneSpec;
   Zone _zone;
@@ -172,12 +201,6 @@ class Scheduler {
     }
   }
 
-  void _runTasks() {
-    while (_currentTasks.isNotEmpty) {
-      _currentTasks.removeFirst()();
-    }
-  }
-
   void _requestAnimationFrame() {
     if ((flags & framePendingFlag) == 0) {
       html.window.requestAnimationFrame(_handleAnimationFrame);
@@ -203,7 +226,7 @@ class Scheduler {
       flags |= frameRunningFlag;
 
       _onNextFrameController.add(null);
-      _runTasks();
+      _currentTasks.run();
       if (_onNextFrameController.hasListener) {
         _requestAnimationFrame();
       }
@@ -219,26 +242,26 @@ class Scheduler {
             final writeGroup = wq.removeFirst();
             writeGroup._completer.complete();
             writeGroup._completer = null;
-            _runTasks();
+            _currentTasks.run();
           }
           while (_currentFrame._writeGroup != null) {
             _currentFrame._writeGroup._completer.complete();
             _currentFrame._writeGroup = null;
-            _runTasks();
+            _currentTasks.run();
           }
         } while (wq.isNotEmpty);
 
         while (_currentFrame._readCompleter != null) {
           _currentFrame._readCompleter.complete();
           _currentFrame._readCompleter = null;
-          _runTasks();
+          _currentTasks.run();
         }
       } while (wq.isNotEmpty || (_currentFrame._writeGroup != null));
 
       if (_currentFrame._afterCompleter != null) {
         _currentFrame._afterCompleter.complete();
         _currentFrame._afterCompleter = null;
-        _runTasks();
+        _currentTasks.run();
       }
 
       clock++;
@@ -259,7 +282,7 @@ class Scheduler {
 
       _nextTickCompleter.complete();
       _nextTickCompleter = null;
-      _runTasks();
+      _currentTasks.run();
 
       clock++;
       flags &= ~tickRunningFlag;
