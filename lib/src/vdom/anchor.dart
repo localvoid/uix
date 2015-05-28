@@ -4,7 +4,6 @@
 
 library uix.src.vdom.anchor;
 
-import 'dart:html' as html;
 import 'vnode.dart';
 
 class Anchor {

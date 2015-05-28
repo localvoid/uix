@@ -14,5 +14,7 @@ class Main extends Component<String> {
 main() {
   initUix();
 
-  injectComponent(new Main()..data = 'World', html.document.body);
+  scheduler.run(() {
+    injectComponent(new Main()..data = 'World', html.document.body);
+  });
 }

@@ -57,5 +57,7 @@ class App extends Component {
 main() {
   initUix();
 
-  injectComponent(new App(), html.document.body);
+  scheduler.run(() {
+    injectComponent(new App(), html.document.body);
+  });
 }

@@ -18,9 +18,39 @@
 library uix.src.scheduler;
 
 import 'dart:async';
-import 'dart:collection';
 import 'dart:html' as html;
 import 'package:collection/priority_queue.dart';
+import 'component.dart';
+
+class _TaskEntry {
+  final Function fn;
+  _TaskEntry _next;
+
+  _TaskEntry(this.fn);
+}
+
+class _TaskQueue {
+  _TaskEntry _first;
+  _TaskEntry _last;
+
+  void add(Function fn) {
+    final e = new _TaskEntry(fn);
+    if (_last == null) {
+      _first = e;
+    } else {
+      _last._next = e;
+    }
+    _last = e;
+  }
+
+  void run() {
+    while (_first != null) {
+      _first.fn();
+      _first = _first._next;
+    }
+    _last = null;
+  }
+}
 
 /// Write groups sorted by priority.
 ///
@@ -44,8 +74,7 @@ class Frame {
   List<_WriteGroup> _prioWriteGroups = [];
   _WriteGroup _writeGroup;
 
-  HeapPriorityQueue<_WriteGroup> _writeQueue =
-  new HeapPriorityQueue<_WriteGroup>();
+  final HeapPriorityQueue<_WriteGroup> _writeQueue = new HeapPriorityQueue<_WriteGroup>();
 
   Completer _readCompleter;
   Completer _afterCompleter;
@@ -116,33 +145,23 @@ class Scheduler {
   bool get isRunning => ((flags & runningFlags) != 0);
   bool get isFrameRunning => ((flags & frameRunningFlag) != 0);
 
-  Queue<Function> _currentTasks = new Queue<Function>();
+  final _TaskQueue _currentTasks = new _TaskQueue();
 
-  ZoneSpecification _zoneSpec;
-  Zone _zone;
+  final CNode rootCNode = new CNode(null);
 
-  /// Scheduler [Zone].
-  Zone get zone => _zone;
+  Zone _outerZone;
+  Zone _innerZone;
 
-  Frame _currentFrame = new Frame();
-  Frame _nextFrame = new Frame();
+  Zone get outerZone => _outerZone;
+  Zone get zone => _innerZone;
+
+  Completer _nextTickCompleter;
 
   StreamController _onNextFrameController;
   Stream get onNextFrame => _onNextFrameController.stream;
 
-  Completer _nextTickCompleter;
-
-  /// [Frame] that contains tasks for the current animation frame.
-  Frame get currentFrame {
-    assert(isRunning);
-    return _currentFrame;
-  }
-
-  /// [Frame] that contains tasks for the next animation frame.
-  Frame get nextFrame {
-    _requestAnimationFrame();
-    return _nextFrame;
-  }
+  Frame _currentFrame = new Frame();
+  Frame _nextFrame = new Frame();
 
   /// [Future] that will be completed on the next tick.
   Future get nextTick {
@@ -153,29 +172,59 @@ class Scheduler {
     return _nextTickCompleter.future;
   }
 
-  Scheduler() {
-    _zoneSpec = new ZoneSpecification(scheduleMicrotask: _scheduleMicrotask);
-    _zone = Zone.current.fork(specification: _zoneSpec);
-
-    _onNextFrameController = new StreamController.broadcast(onListen: _handleNextFrameListen);
+  /// [Frame] that contains tasks for the current animation frame.
+  Frame get currentFrame {
+    assert(isFrameRunning);
+    return _currentFrame;
   }
 
-  void _handleNextFrameListen() {
+  /// [Frame] that contains tasks for the next animation frame.
+  Frame get nextFrame {
     _requestAnimationFrame();
+    return _nextFrame;
   }
 
-  void _scheduleMicrotask(Zone self, ZoneDelegate parent, Zone zone, void f()) {
-    if (isRunning) {
-      _currentTasks.add(f);
-    } else {
-      parent.scheduleMicrotask(zone, f);
+  Scheduler() {
+    _onNextFrameController = new StreamController.broadcast(onListen: () {
+      _requestAnimationFrame();
+    });
+
+    _outerZone = Zone.current;
+    _innerZone = Zone.current.fork(
+        specification: new ZoneSpecification(
+            scheduleMicrotask: _scheduleMicrotask,
+            run: _run,
+            runUnary: _runUnary,
+            runBinary: _runBinary
+        )
+    );
+  }
+
+  /// Force Scheduler to run tasks for the [nextFrame].
+  void forceNextFrame() {
+    if ((flags & framePendingFlag) != 0) {
+      _handleAnimationFrame(html.window.performance.now());
     }
   }
 
-  void _runTasks() {
-    while (_currentTasks.isNotEmpty) {
-      _currentTasks.removeFirst()();
+  /// Force Scheduler to run tasks for the next tick.
+  void forceNextTick() {
+    if ((flags & tickPendingFlag) != 0) {
+      _handleNextTick();
     }
+  }
+
+  void run(fn) {
+    time = html.window.performance.now();
+
+    _innerZone.run(() {
+      flags |= tickRunningFlag;
+
+      fn();
+
+      clock++;
+      flags &= ~tickRunningFlag;
+    });
   }
 
   void _requestAnimationFrame() {
@@ -198,15 +247,17 @@ class Scheduler {
     }
     time = t;
 
-    _zone.run(() {
+    _innerZone.run(() {
       flags &= ~framePendingFlag;
       flags |= frameRunningFlag;
 
       _onNextFrameController.add(null);
-      _runTasks();
+      _currentTasks.run();
       if (_onNextFrameController.hasListener) {
         _requestAnimationFrame();
       }
+
+      rootCNode.update();
 
       final tmp = _currentFrame;
       _currentFrame = _nextFrame;
@@ -219,26 +270,26 @@ class Scheduler {
             final writeGroup = wq.removeFirst();
             writeGroup._completer.complete();
             writeGroup._completer = null;
-            _runTasks();
+            _currentTasks.run();
           }
           while (_currentFrame._writeGroup != null) {
             _currentFrame._writeGroup._completer.complete();
             _currentFrame._writeGroup = null;
-            _runTasks();
+            _currentTasks.run();
           }
         } while (wq.isNotEmpty);
 
         while (_currentFrame._readCompleter != null) {
           _currentFrame._readCompleter.complete();
           _currentFrame._readCompleter = null;
-          _runTasks();
+          _currentTasks.run();
         }
       } while (wq.isNotEmpty || (_currentFrame._writeGroup != null));
 
       if (_currentFrame._afterCompleter != null) {
         _currentFrame._afterCompleter.complete();
         _currentFrame._afterCompleter = null;
-        _runTasks();
+        _currentTasks.run();
       }
 
       clock++;
@@ -253,43 +304,37 @@ class Scheduler {
 
     time = html.window.performance.now();
 
-    _zone.run(() {
+    _innerZone.run(() {
       flags &= ~tickPendingFlag;
       flags |= tickRunningFlag;
 
       _nextTickCompleter.complete();
       _nextTickCompleter = null;
-      _runTasks();
+      _currentTasks.run();
 
       clock++;
       flags &= ~tickRunningFlag;
     });
   }
 
-  /// Force Scheduler to run tasks for the [nextFrame].
-  void forceNextFrame() {
-    if ((flags & framePendingFlag) != 0) {
-      _handleAnimationFrame(html.window.performance.now());
+  dynamic _run(Zone self, ZoneDelegate parent, Zone zone, fn()) {
+    if (!isFrameRunning) {
+      _requestAnimationFrame();
     }
+    return parent.run(zone, fn);
   }
 
-  /// Force Scheduler to run tasks for the next tick.
-  void forceNextTick() {
-    if ((flags & tickPendingFlag) != 0) {
-      _handleNextTick();
+  dynamic _runUnary(Zone self, ZoneDelegate parent, Zone zone, fn(arg), arg) =>
+    _run(self, parent, zone, () => fn(arg));
+
+  dynamic _runBinary(Zone self, ZoneDelegate parent, Zone zone, fn(arg1, arg2), arg1, arg2) =>
+    _run(self, parent, zone, () => fn(arg1, arg2));
+
+  void _scheduleMicrotask(Zone self, ZoneDelegate parent, Zone zone, fn) {
+    if (isRunning) {
+      _currentTasks.add(fn);
+    } else {
+      parent.scheduleMicrotask(zone, fn);
     }
-  }
-
-  void run(fn) {
-    time = html.window.performance.now();
-
-    _zone.run(() {
-      flags |= tickRunningFlag;
-
-      fn();
-
-      clock++;
-      flags &= ~tickRunningFlag;
-    });
   }
 }

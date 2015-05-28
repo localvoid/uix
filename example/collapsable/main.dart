@@ -46,5 +46,7 @@ class Main extends Component {
 main() {
   initUix();
 
-  injectComponent(new Main(), html.document.body);
+  scheduler.run(() {
+    injectComponent(new Main(), html.document.body);
+  });
 }

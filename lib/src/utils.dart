@@ -7,56 +7,27 @@ library uix.src.utils;
 import 'dart:async';
 import 'dart:html' as html;
 import 'vdom/vnode.dart';
-import 'vdom/vcontext.dart';
 import 'vdom/anchor.dart';
 import 'component.dart';
 import 'env.dart';
 
-Future injectVNode(VNode node, html.Node container) async {
-  final inject = () async {
-    await scheduler.nextFrame.write();
-    node.create(const VContext(false));
-    container.append(node.ref);
-    node.attached();
-    node.render(const VContext(true));
-  };
-
-  if (identical(Zone.current, scheduler.zone)) {
-    return inject();
-  } else {
-    return scheduler.zone.run(inject);
-  }
+Future injectComponent(Component component, html.Node container) async {
+  await scheduler.nextFrame.write();
+  component.descriptor.parent = scheduler.rootCNode;
+  component.create();
+  component.init();
+  container.append(component.element);
+  component.descriptor.attach();
+  component.descriptor.update();
 }
 
-Future injectComponent(Component component, html.Node container) {
-  final inject = () async {
-    await scheduler.nextFrame.write();
-    component.create();
-    component.init();
-    container.append(component.element);
-    component.attach();
-  };
-
-  if (identical(Zone.current, scheduler.zone)) {
-    return inject();
-  } else {
-    return scheduler.zone.run(inject);
-  }
-}
-
-Future mountComponent(Component component, html.Node node) {
-  final mount = () async {
-    await scheduler.nextFrame.write();
-    component.mount(node);
-    component.init();
-    component.attach();
-  };
-
-  if (identical(Zone.current, scheduler.zone)) {
-    return mount();
-  } else {
-    return scheduler.zone.run(mount);
-  }
+Future mountComponent(Component component, html.Node node) async {
+  await scheduler.nextFrame.write();
+  component.descriptor.parent = scheduler.rootCNode;
+  component.descriptor.mount(node);
+  component.init();
+  component.descriptor.attach();
+  component.descriptor.update();
 }
 
 VNode vText(String data, {Object key}) => new VNode.text(data, key: key);

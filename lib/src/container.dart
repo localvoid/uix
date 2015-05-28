@@ -4,20 +4,21 @@
 
 library uix.src.container;
 
-import 'vdom/vcontext.dart';
 import 'vdom/vnode.dart';
+import 'component.dart';
 
+// TODO: add anchor implementation
 abstract class Container {
   bool get isAttached;
 
   void insertChild(VNode container, VNode node, VNode next) {
     final nextRef = next == null ? null : next.ref;
-    node.create((this as VContext));
+    node.create((this as CNode));
     container.ref.insertBefore(node.ref, nextRef);
     if (isAttached) {
       node.attached();
     }
-    node.render((this as VContext));
+    node.render((this as CNode));
   }
 
   void moveChild(VNode container, VNode node, VNode next) {
@@ -31,6 +32,6 @@ abstract class Container {
   }
 
   void updateChild(VNode container, VNode aNode, VNode bNode) {
-    aNode.update(bNode, (this as VContext));
+    aNode.update(bNode, (this as CNode));
   }
 }

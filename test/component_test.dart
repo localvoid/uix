@@ -75,7 +75,7 @@ void main() {
       final c = new TestComponent()..data = 2;
       await injectComponent(c, f);
       await scheduler.currentFrame.after();
-      final child = c.root.children[0].cref;
+      final child = c.root.children[0].cdref;
       expect(child, const isInstanceOf<TestComponent>());
       c.removeNodes();
       await scheduler.nextFrame.after();

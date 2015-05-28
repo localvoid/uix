@@ -51,5 +51,7 @@ class Main extends Component {
 main() {
   initUix();
 
-  mountComponent(new Main(), html.querySelector('.Main'));
+  scheduler.run(() {
+    mountComponent(new Main(), html.querySelector('.Main'));
+  });
 }
