@@ -252,23 +252,18 @@ class VNode {
           }
           r.className = className;
         }
-      } else {
-//        html.DomTokenList classList;
-        html.CssClassSet classList;
-
-        if (type != null) {
-//          classList = r.classList;
-          classList = r.classes;
-          classList.add(type);
-        }
-
+      } else if ((flags & rootFlag) != 0) {
+        String className = type;
         if (classes != null) {
-          if (classList == null) {
-//            classList = r.classList;
-            classList = r.classes;
-          }
-          for (var i = 0; i < classes.length; i++) {
-            classList.add(classes[i]);
+          final classesString = classes.join(' ');
+          className = className == null ? classesString : className + ' ' + classesString;
+        }
+        if (className != null) {
+          String oldClassName = r.className;
+          if (oldClassName == '') {
+            r.className = className;
+          } else {
+            r.className = oldClassName + ' ' + className;
           }
         }
       }
