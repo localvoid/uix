@@ -10,6 +10,7 @@ import 'vcontext.dart';
 import 'anchor.dart';
 import 'namespace.dart';
 import 'attr.dart';
+import 'prop.dart';
 import 'style.dart';
 import '../assert.dart';
 import '../container.dart';
@@ -63,6 +64,9 @@ class VNode {
   /// Custom Attributes.
   Map<String, String> customAttrs;
 
+  /// Properties.
+  Map<int, dynamic> props;
+
   /// Styles.
   Map<int, String> style;
 
@@ -87,28 +91,30 @@ class VNode {
   Component cref;
 
   VNode(this.flags, {this.key, this.tag, this.data, this.type, this.attrs, this.customAttrs,
-        this.style, this.classes, this.children, this.anchor});
+        this.props, this.style, this.classes, this.children, this.anchor});
 
   VNode.text(this.data, {this.key})
       : flags = textFlag,
         tag = null;
 
   VNode.element(this.tag, {this.key, this.type, this.attrs, this.customAttrs,
-      this.style, this.classes, this.children, this.anchor, bool content: false})
+      this.props, this.style, this.classes, this.children, this.anchor,
+      bool content: false})
       : flags = content ? elementFlag | contentFlag
                         : elementFlag;
 
   VNode.svgElement(this.tag, {this.key, this.type, this.attrs, this.customAttrs,
-      this.style, this.classes, this.children, this.anchor, bool content: false})
+      this.props, this.style, this.classes, this.children, this.anchor,
+      bool content: false})
       : flags = content ? elementFlag | svgFlag | contentFlag
                         : elementFlag | svgFlag;
 
   VNode.component(this.tag, {this.flags: componentFlag, this.key, this.data,
-      this.type, this.attrs, this.customAttrs, this.style, this.classes,
-      this.children, this.anchor});
+      this.type, this.attrs, this.customAttrs, this.props, this.style,
+      this.classes, this.children, this.anchor});
 
-  VNode.root({this.type, this.attrs, this.customAttrs, this.style, this.classes,
-      this.children, bool content: false})
+  VNode.root({this.type, this.attrs, this.customAttrs, this.props, this.style,
+      this.classes, this.children, bool content: false})
       : flags = content ? rootFlag | contentFlag
                         : rootFlag,
         key = null, tag = null;
@@ -219,6 +225,12 @@ class VNode {
         });
       }
 
+      if (props != null) {
+        props.forEach((int k, v) {
+          _setProp(k, v);
+        });
+      }
+
       if (style != null) {
         final html.CssStyleDeclaration refStyle = r.style;
         style.forEach((int k, String v) {
@@ -310,6 +322,10 @@ class VNode {
 
       if (!identical(customAttrs, other.customAttrs)) {
         updateCustomAttrs(customAttrs, other.customAttrs, this);
+      }
+
+      if (!identical(props, other.props)) {
+        updateProps(props, other.props, this);
       }
 
       if (!identical(style, other.style)) {
@@ -520,6 +536,12 @@ class VNode {
         r.setAttributeNS(a.namespace, a.name, sval);
       }
     }
+  }
+
+  void _setProp(int k, v) {
+    final html.Element r = ref;
+    final PropInfo p = PropInfo.fromId[k];
+    p.setter(r, v);
   }
 }
 
@@ -1224,6 +1246,42 @@ void updateCustomAttrs(Map<String, String> a, Map<String, String> b, VNode n) {
       if (value != null) {
         r.setAttribute(key, value);
       }
+    });
+  }
+}
+
+/// Find changes between maps [a] and [b] and apply this changes to [n].
+void updateProps(Map<int, dynamic> a, Map<int, dynamic> b, VNode n) {
+  assert(n != null);
+  final html.Element r = n.ref;
+
+  if (a != null && a.length > 0) {
+    if (b == null || b.length == 0) {
+      // all keys removed
+      for (final k in a.keys) {
+        final p = PropInfo.fromId[k];
+        p.setter(r, p.defaultValue);
+      }
+    } else {
+      // find all modified and removed
+      a.forEach((int key, value) {
+        final bValue = b[key];
+        if (value != bValue) {
+          PropInfo.fromId[key].setter(r, bValue);
+        }
+      });
+
+      // find all inserted
+      b.forEach((key, value) {
+        if (!a.containsKey(key)) {
+          PropInfo.fromId[key].setter(r, value);
+        }
+      });
+    }
+  } else if (b != null && b.length > 0) {
+    // all keys inserted
+    b.forEach((key, value) {
+      PropInfo.fromId[key].setter(r, value);
     });
   }
 }

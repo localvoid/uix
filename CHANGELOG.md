@@ -11,6 +11,8 @@
   contains all styles.
 - **EXPERIMENTAL** support for moving html nodes and Components
   between different parents with `Anchor` objects.
+- Added `props` property to virtual nodes to specify element
+  properties. `Prop` class contains all properties.
 
 # 0.6.0
 
