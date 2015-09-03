@@ -13,6 +13,9 @@
   between different parents with `Anchor` objects.
 - Added `props` property to virtual nodes to specify element
   properties. `Prop` class contains all properties.
+- Adjacent text nodes separated by comments `<---->` when rendered to
+  string. And comment nodes ignored when virtual nodes mounted on top
+  of existing html.
 
 # 0.6.0
 

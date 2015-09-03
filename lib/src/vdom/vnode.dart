@@ -195,9 +195,22 @@ class VNode {
       }
       if (children != null && children.length > 0) {
         html.Node child = node.childNodes.first;
+        html.Comment comment;
+
+        // Adjacent text nodes should be separated by Comment node "<!---->", so we can properly mount them.
+        while (child.nodeType == 8) {
+          comment = child;
+          child = child.nextNode;
+          comment.remove();
+        }
         for (int i = 0; i < children.length; i++) {
           children[i].mount(child, context);
           child = child.nextNode;
+          while (child.nodeType == 8) {
+            comment = child;
+            child = child.nextNode;
+            comment.remove();
+          }
         }
       }
     }
@@ -501,8 +514,14 @@ class VNode {
       }
       b.write('>');
       if (children != null) {
+        VNode prevChild;
         for (var i = 0; i < children.length; i++) {
-          children[i].writeHtmlString(b);
+          final child = children[i];
+          if (prevChild != null && (prevChild.flags & child.flags & VNode.textFlag) != 0) {
+            b.write('<!---->');
+          }
+          child.writeHtmlString(b);
+          prevChild = child;
         }
       }
       b.write('</$tag>');
