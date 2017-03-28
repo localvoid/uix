@@ -826,7 +826,7 @@ void _updateImplicitChildren(VNode parent, List<VNode> a, List<VNode> b, VContex
   }
 
   final nextPos = bEnd + 1;
-  final next = nextPos < b.length ? b[nextPos].ref : null;
+  final next = nextPos < b.length ? b[nextPos] : null;
 
   // All nodes from [b] are updated, remove the rest from [a].
   while (bStart <= bEnd) {
