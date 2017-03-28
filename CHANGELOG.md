@@ -1,3 +1,6 @@
+# 0.7.1
+- Fixed issue in updating implicit children.
+
 # 0.7.0
 
 - Added support for namespaced attributes.
