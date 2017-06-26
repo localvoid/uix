@@ -12,7 +12,7 @@ class Prop {
   static const int value = 1;
 }
 
-typedef _PropSetter(html.Element element, dynamic value);
+typedef void _PropSetter(html.InputElement element, dynamic value);
 
 void _setChecked(html.InputElement element, bool value) {
   if (element.checked != value) {

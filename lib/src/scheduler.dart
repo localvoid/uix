@@ -55,7 +55,7 @@ class _TaskQueue {
 ///
 /// It is used as an optimization to make adding write tasks as an O(1)
 /// operation.
-class _WriteGroup implements Comparable {
+class _WriteGroup implements Comparable<_WriteGroup> {
   final int priority;
 
   Completer _completer;
