@@ -44,7 +44,7 @@ class VNode {
   /// Tag should contain tag name if VNode represents an element, or
   /// reference to the [componentConstructor] if it represents a
   /// [Component].
-  final dynamic/*<String | componentConstructor>*/ tag;
+  final dynamic /* <String | componentConstructor> */ tag;
 
   /// Data that should be passed to [Component]s. Data is transferred to the
   /// [Component] using `set data(P data)` setter.
